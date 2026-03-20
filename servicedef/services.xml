@@ -28,6 +28,13 @@ under the License.
         <description>
             Dummy service to prevent empty files and syntax error - Remove when the 1st real service will be added here 
         </description>
+        
+            <service name="employeeService" default-entity-name="employee" engine="java"
+        location="com.vastpro.service.SiginupService" invoke="checkSiginupService" auth="false">
+    <description>Create an Ofbiz Demo record using a service in Java</description>
+    <auto-attributes include="pk" mode="OUT" optional="true"/>
+    <auto-attributes include="nonpk" mode="IN" optional="false"/>
+    <override name="comments" optional="true"/>
     </service> 
     
 </services>

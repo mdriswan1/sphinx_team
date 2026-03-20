@@ -28,4 +28,11 @@ under the License.
     <copyright></copyright>
     <version></version>
 
+  <entity entity-name="employee" package-name="org.apache.ofbiz.Employee"  title="Employee Demo Entity">
+    <field name="EmployeeId" type="id"></field>
+    <field name="EmployeeName" type="name"></field>
+    <field name="EmployeePhone" type="numeric"></field>
+    <field name="DeptName" type="short-varchar"></field>
+    <prim-key field="EmployeeId"/>
+    </entity>
 </entitymodel>
