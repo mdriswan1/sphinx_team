@@ -35,4 +35,51 @@ under the License.
     <field name="DeptName" type="short-varchar"></field>
     <prim-key field="EmployeeId"/>
     </entity>
+    
+    
+     <!-- This entity holds exams & their information -->
+	<entity entity-name="ExamMaster" package-name="in.vastpro.sphinx">
+		<field name="examId" type="id-ne"></field>
+		<field name="examName" type="id-ne"></field>		
+		<field name="description" type="description"></field>
+		<field name="noOfQuestions" type="numeric" not-null="true"></field>
+		<field name="duration" type="numeric" not-null="true"></field>
+		<field name="passPercentage" type="numeric" not-null="true"/>
+		<field name="questionsRandomized" type="numeric"></field>
+		<field name="answersMust" type="numeric"></field>
+		<field name="allowNegativeMarks" type="numeric"/>
+		<field name="examSetupProper" type="numeric"></field>
+		<field name="negativeMarkValue" type="currency-amount"></field>
+		<field name="fromDate" type="date-time"></field>
+		<field name="thruDate" type="date-time"></field>
+		<!--field to store the adminId who created this exam -->
+		<field name="createdByUserLogin" type="id-vlong"></field>
+		<!--field to store the adminId who last modified this exam -->
+		 <field name="lastModifiedByUserLogin" type="id-vlong"></field>
+		<prim-key field="examId" />
+    </entity>   
+    
+    
+     <entity entity-name="QuestionBankMaster" package-name="in.vastpro.sphinx">
+		<field name="examId" type="id-ne"></field>
+		<field name="qId" type="numeric"></field>
+		<field name="topicId" type="numeric" not-null="true"/>
+		<field name="questionDetail" type="very-long" not-null="true"></field>
+		<field name="optiona" type="very-long" not-null="true"></field>
+		<field name="optionb" type="very-long" not-null="true"/>
+		<field name="optionc" type="very-long" not-null="true"></field>
+		<field name="optiond" type="very-long" not-null="true"></field>
+		<field name="optione" type="very-long" not-null="true"></field>
+		<field name="answer" type="id-ne" not-null="true"></field>
+		<field name="numAnswers" type="numeric" not-null="true"/>
+		<field name="questionType" type="numeric" not-null="true"></field>
+		<field name="difficultyLevel" type="numeric"></field>
+		<field name="answerValue" type="currency-amount"/>
+		<field name="negativeMarkValue" type="currency-amount"></field>		
+		<prim-key field="examId" />
+		<prim-key field="qId" />
+		<relation rel-entity-name="ExamMaster" fk-name="QUESTION_BANK_FK" type="many">
+			<key-map field-name="examId" rel-field-name="examId" />
+		</relation>			
+    </entity>
 </entitymodel>

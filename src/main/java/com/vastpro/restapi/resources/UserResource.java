@@ -1,6 +1,7 @@
 package com.vastpro.restapi.resources;
 import javax.ws.rs.core.Response.Status;
 
+
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -64,7 +65,7 @@ public class UserResource {
 	        return delegator;
 	    }
 
-	    private LocalDispatcher getDispatcher() {
+	 private LocalDispatcher getDispatcher() {
 	        LocalDispatcher dispatcher =
 	            (LocalDispatcher) servletContext.getAttribute("dispatcher");
 
@@ -232,4 +233,6 @@ public class UserResource {
         
     	
     }
+    
+
 }
