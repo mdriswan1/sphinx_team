@@ -11,6 +11,7 @@ import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 //test
+//test2
 public class SigininEvent {
 
 	public static final String MODULE = SigininEvent.class.getName();
