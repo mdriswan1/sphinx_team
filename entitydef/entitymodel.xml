@@ -35,4 +35,5 @@ under the License.
     <field name="DeptName" type="short-varchar"></field>
     <prim-key field="EmployeeId"/>
     </entity>
+    
 </entitymodel>

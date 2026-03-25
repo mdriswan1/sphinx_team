@@ -8,7 +8,7 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceContainer;
 
 public class CreateConnection {
-	private static Delegator getDelegator(ServletContext servletContext) {
+	private Delegator getDelegator(ServletContext servletContext) {
         Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
         if (delegator == null) {
             delegator = DelegatorFactory.getDelegator("default");
@@ -16,7 +16,7 @@ public class CreateConnection {
         return delegator;
     }
 
-    private static LocalDispatcher getDispatcher(ServletContext servletContext) {
+    public LocalDispatcher getDispatcher(ServletContext servletContext) {
         LocalDispatcher dispatcher =
             (LocalDispatcher) servletContext.getAttribute("dispatcher");
 

@@ -50,4 +50,13 @@ under the License.
 
 
 </service>
+<service engine="java" name="examcreate" location="" invoke="createExam" auth="false">
+	<attribute name="examName" type="string" mode="IN" optional="false"/>
+	<attribute name="description" type="string" mode="IN" optional="false"/>
+	<attribute name="questions" type="string" mode="IN" optional="false"/>
+	<attribute name="duration" type="string" mode="IN" optional="false"/>
+	<attribute name="percentage" type="string" mode="IN" optional="false"/>
+	
+	
+</service>
 </services>
