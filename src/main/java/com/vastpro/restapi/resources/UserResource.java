@@ -1,19 +1,24 @@
 package com.vastpro.restapi.resources;
 import javax.ws.rs.core.Response.Status;
 
+
 import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.DelegatorFactory;
 import org.apache.ofbiz.entity.GenericValue;
@@ -32,29 +37,6 @@ public class UserResource {
 	@Context
 	private ServletContext servletContext;
 	
-	/*
-    private Delegator getDelegator() {
-        Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
-        if (delegator == null) {
-            // Fallback — get directly from factory
-            delegator = DelegatorFactory.getDelegator("default");
-        }
-        return delegator;
-    }
-    
-    private LocalDispatcher getDispatcher() {
-        LocalDispatcher dispatcher = 
-            (LocalDispatcher) servletContext.getAttribute("dispatcher");
-        if (dispatcher == null) {
-            // Fallback — get directly from ServiceContainer
-            dispatcher = ServiceContainer.getLocalDispatcher(
-                "sphinx",   // must match localDispatcherName in web.xml
-                getDelegator()
-            );
-        }
-        return dispatcher;
-    }
-*/
 	
 	 private Delegator getDelegator() {
 	        Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
@@ -64,7 +46,7 @@ public class UserResource {
 	        return delegator;
 	    }
 
-	    private LocalDispatcher getDispatcher() {
+	 private LocalDispatcher getDispatcher() {
 	        LocalDispatcher dispatcher =
 	            (LocalDispatcher) servletContext.getAttribute("dispatcher");
 
@@ -77,70 +59,39 @@ public class UserResource {
 	        return dispatcher;
 	    }
 
+   
     @POST
-    @Path("/user")
-    public Response getUser(Map<String, Object> input) {
-    	try {
-            Delegator delegator   = getDelegator();
-            LocalDispatcher dispatcher = getDispatcher();
-
-            if (dispatcher == null) {
-            	//Status.INTERNAL_SERVER_ERROR
-                return Response.status(500)
-                    .entity(Map.of("error", "Dispatcher is still null"))
-                    .build();
-            }
-
-            GenericValue userLogin = EntityQuery.use(delegator)
-                    .from("UserLogin")
-                    .where("userLoginId", "admin")
-                    .queryOne();
-
-            input.put("userLogin", userLogin);
-
-            Map<String, Object> result =
-                dispatcher.runSync("getData", input);
-
-            return Response.ok(result.get("success")).build();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(500)
-                    .entity(Map.of("error", e.getMessage()))
-                    .build();
-        }
-    
+    @Path("/testpost")
+    public Response testPost() {
+        return Response.ok("WORKING").build();
     }
     
-    @POST
-    @Path("/data")
-    public Response getUserDetail(Map<String, Object> input) {
-        try {
-            return Response.ok(
-                Map.of(
-                    "status", "success",
-                    "message", "User API working fine"
-                )
-            ).build();
-
-        } catch (Exception e) {
-            return Response.status(500)
-                    .entity(Map.of(
-                        "status", "error",
-                        "message", e.getMessage()
-                    ))
-                    .build();
-        }
+    @GET
+    @Path("/testget")
+    public Response testget() {
+        return Response.ok("WORKING").build();
     }
     
-    @POST
-    @Path("/test")
-    public Response test() {
+    @DELETE
+    @Path("/testdelete")
+    public Response testDelete() {
+        return Response.ok("WORKING").build();
+    }
+    
+    @PUT
+    @Path("/testput")
+    public Response testPut() {
+        return Response.ok("WORKING").build();
+    }
+    
+    @PATCH
+    @Path("/testpatch")
+    public Response testPatch() {
         return Response.ok("WORKING").build();
     }
     
     @POST
-    @Path("/login")
+    @Path("/signin")
     public Response login(Map<String, Object> input) {
         try {
             String username = (String) input.get("username");
@@ -159,13 +110,12 @@ public class UserResource {
                 "login.password", password
             );
 
-            Map<String, Object> result =userLogin(context);
-//                dispatcher.runSync("userLogin", context);
+            Map<String, Object> result = dispatcher.runSync("signIn", context);
             if ("success".equals(result.get("responseMessage"))) {
                 return Response.ok(
                     Map.of(
                         "status", "success",
-                        "message", "Login successful"
+                        "message", "Signin successful"
                     )
                 ).build();
             } else {
@@ -187,19 +137,14 @@ public class UserResource {
         }
     }
     
-    public Map<String, Object> userLogin(Map<String, Object> context){
-    	if(context.get("login.username").equals("kamal") && context.get("login.password").equals("kamal54321") ) {
-    		return ServiceUtil.returnSuccess("success");
-    	}else {
-    		return ServiceUtil.returnError("error");
-    	}
-    }
+ 
     @POST
     @Path("/signup")
     public Response signup(Map<String, Object> context) {
     	
     	LocalDispatcher dispatcher = getDispatcher();
             try {
+            	context.get("delegator");
             	System.out.println("signup in");
             	   Map<String, Object> result = dispatcher.runSync("regService", context);
             	   System.out.println("signup out");
@@ -208,12 +153,12 @@ public class UserResource {
                 return Response.ok(
                     Map.of(
                         "status", "success",
-                        "message", "user created"
+                        "message", "user created successfully"
                     )
                 ).build();
 
             }else {
-            	System.out.println("signup else");
+            	
                 return Response.status(401).entity(
                         Map.of(
                             "status", "error",
@@ -232,5 +177,5 @@ public class UserResource {
         
     	
     }
-   
+
 }

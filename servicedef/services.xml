@@ -50,6 +50,7 @@ under the License.
 
 
 </service>
+<<<<<<< HEAD
 <service engine="java" name="examcreate" location="" invoke="createExam" auth="false">
 	<attribute name="examName" type="string" mode="IN" optional="false"/>
 	<attribute name="description" type="string" mode="IN" optional="false"/>
@@ -58,5 +59,27 @@ under the License.
 	<attribute name="percentage" type="string" mode="IN" optional="false"/>
 	
 	
+=======
+
+ <service name="createQuestion"
+        engine="java"
+        location="com.vastpro.service.CreateQuestion"
+        invoke="creationQes"
+        auth="false">
+
+    <description>Create question</description>
+
+
+    <attribute name="topicId" type="String" mode="IN" optional="false"/>
+    <attribute name="questionDetail" type="String" mode="IN" optional="false"/>
+    <attribute name="optiona" type="String" mode="IN" optional="false"/>
+    <attribute name="optionb" type="String" mode="IN" optional="false"/>
+    <attribute name="optionc" type="String" mode="IN" optional="false"/>
+    <attribute name="optiond" type="String" mode="IN" optional="false"/>
+    <attribute name="optione" type="String" mode="IN" optional="false"/>
+    <attribute name="answer" type="String" mode="IN" optional="false"/>
+
+
+>>>>>>> f3a4bd353c9fe05ae1fc40befd60eba83fe513f8
 </service>
 </services>
