@@ -29,7 +29,19 @@
     </context-param>
 
     <!-- Filters -->
+    
     <filter>
+  	  <filter-name>corsFilter</filter-name>
+  	  <filter-class>com.vastpro.filter.CorsFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+ 	   <filter-name>corsFilter</filter-name>
+  	  <url-pattern>/*</url-pattern>
+	</filter-mapping>
+    <filter>
+    
+    	
         <display-name>ControlFilter</display-name>
         <filter-name>ControlFilter</filter-name>
         <filter-class>org.apache.ofbiz.webapp.control.ControlFilter</filter-class>
