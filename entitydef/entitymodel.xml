@@ -82,10 +82,56 @@ under the License.
 			<key-map field-name="examId" rel-field-name="examId" />
 		</relation>			
     </entity>
+    <entity entity-name="TopicMaster" package-name="">
+		<field name="topicId" type="name"></field>
+		
+		<field name="topicName" type="name"  not-null="true" />
+		
+		
+		<prim-key field="topicId" />
+	<index name="TOPIC_NAME_UNIQUE" unique="true">
+        <index-field name="topicName"/>
+    </index>
+			
+    </entity>
+    
+    
+    
+  <entity entity-name="ExamTopicDetails" package-name="in.vastpro.sphinx">
+
+    <!-- Foreign Keys -->
+    <field name="examId" type="id"/>
+    <field name="topicId" type="name"/>
+
+    <!-- Additional Fields -->
+    <field name="percentage" type="numeric" not-null="true"/>
+    <field name="startingQid" type="numeric" not-null="true"/>
+    <field name="endingQid" type="numeric" not-null="true"/>
+    <field name="questionsPerExam" type="numeric" not-null="true"/>
+    <field name="topicPassPercentage" type="floating-point" not-null="true"/>
+
+    <!-- Composite Primary Key -->
+    <prim-key field="examId"/>
+    <prim-key field="topicId"/>
+
+    <!-- Relation with ExamMaster -->
+    <relation rel-entity-name="ExamMaster"
+              fk-name="EXAM_TOPIC_FK"
+              type="one">
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </relation>
+
+    <!-- Relation with TopicMaster -->
+    <relation rel-entity-name="TopicMaster"
+              fk-name="EXAM_TOPIC_TOPIC_FK"
+              type="one">
+        <key-map field-name="topicId" rel-field-name="topicId"/>
+    </relation>
+
+</entity>
     
     <entity entity-name="ExamMaster" package-name="in.vastpro.sphinx">
-		<field name="examId" type="id-ne"></field>
-		<field name="examName" type="id-ne"></field>		
+		<field name="examName" type="id"></field>		
 		<field name="description" type="description"></field>
 		<field name="noOfQuestions" type="numeric" not-null="true"></field>
 		<field name="duration" type="numeric" not-null="true"></field>

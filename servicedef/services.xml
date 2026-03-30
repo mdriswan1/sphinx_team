@@ -50,16 +50,71 @@ under the License.
 
 
 </service>
-<<<<<<< HEAD
 <service engine="java" name="examcreate" location="" invoke="createExam" auth="false">
 	<attribute name="examName" type="string" mode="IN" optional="false"/>
 	<attribute name="description" type="string" mode="IN" optional="false"/>
 	<attribute name="questions" type="string" mode="IN" optional="false"/>
 	<attribute name="duration" type="string" mode="IN" optional="false"/>
 	<attribute name="percentage" type="string" mode="IN" optional="false"/>
+	</service>
 	
 	
-=======
+	
+	<service name="createtopic" engine="java"
+         location="com.vastpro.service.CreateTopic"
+         invoke="createTopic"
+         auth="false">
+
+    <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
+
+</service>
+
+<service name="getAllTopic" engine="java"
+         location="com.vastpro.service.CreateTopic"
+         invoke="getAllTopics"
+         auth="false">
+      <attribute name="topic" type="List" mode="OUT" optional="false"/>
+
+</service>
+
+
+<service name="deleteTopicById" engine="java"
+         location="com.vastpro.service.CreateTopic"
+         invoke="deleteById"
+         auth="false">
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+
+</service>
+
+
+<service name="deleteTopic" engine="entity-auto"
+     default-entity-name="TopicMaster"
+         invoke="delete"
+         auth="false">
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+
+</service>
+
+
+<service name="updateTopic" engine="entity-auto"
+     default-entity-name="TopicMaster"
+         invoke="update"
+         auth="false">
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+            <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
+
+</service>
+
+<service name="updateTopicOwn" engine="java"
+         location="com.vastpro.service.CreateTopic"
+         invoke="updateTopic"
+         auth="false">
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+            <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
+
+</service>
+
+
 
  <service name="createQuestion"
         engine="java"
@@ -80,6 +135,6 @@ under the License.
     <attribute name="answer" type="String" mode="IN" optional="false"/>
 
 
->>>>>>> f3a4bd353c9fe05ae1fc40befd60eba83fe513f8
+
 </service>
 </services>
