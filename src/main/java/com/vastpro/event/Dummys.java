@@ -1,5 +1,5 @@
 package com.vastpro.event;
 
-public class Dummy {
+public class Dummys {
 
 }

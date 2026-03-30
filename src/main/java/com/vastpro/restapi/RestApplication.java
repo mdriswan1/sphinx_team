@@ -1,9 +1,20 @@
 package com.vastpro.restapi;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import org.glassfish.jersey.server.ResourceConfig;
 
-@ApplicationPath("/kamala")
-public class RestApplication extends Application{
+import org.glassfish.jersey.jackson.JacksonFeature;
 
+/**
+ * RestApplication
+ *
+ * This class configures Jersey for RESTful web services.
+ * It scans the package "com.vastpro.sphinx.rest.resource".
+ *
+ */
+
+public class RestApplication extends ResourceConfig{
+    public RestApplication() {
+        packages("com.vastpro.restapi.resources");
+        register(JacksonFeature.class);
+    }
 }

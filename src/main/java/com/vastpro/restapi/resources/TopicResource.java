@@ -30,7 +30,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 @Path("/topic")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class TopicResources {
+public class TopicResource {
 	
 	private Delegator getDelegator(ServletContext context) {
 		Delegator delegator=(Delegator) context.getAttribute("delegator");

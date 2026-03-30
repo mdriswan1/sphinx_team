@@ -83,6 +83,10 @@
         <filter-name>SameSiteFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
+        <filter-mapping>
+        <filter-name>ContextFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
 
     <!-- Listeners -->
     <listener>
@@ -99,8 +103,8 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
 
         <init-param>
-            <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>com.vastpro.restapi</param-value>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>com.vastpro.restapi.RestApplication</param-value>
         </init-param>
 
         <load-on-startup>1</load-on-startup>
