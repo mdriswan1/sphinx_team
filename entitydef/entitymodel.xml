@@ -60,6 +60,55 @@ under the License.
     </entity>   
     
     
+    <entity entity-name="QuestionMaster" package-name="">
+    <field name="questionId" type="numeric" not-null="true"></field>
+    <field name="questionDetail" type="very-long" not-null="true"></field>
+    <field name="optionA" type="very-long" not-null="true"></field>
+    <field name="optionB" type="very-long" not-null="true"></field>
+    <field name="optionC" type="very-long" not-null="true"></field>
+    <field name="optionD" type="very-long" not-null="true"></field>
+    <field name="optionE" type="very-long" not-null="true"></field>
+    <field name="answer" type="id" not-null="true"></field>
+    <field name="numAnswers" type="numeric" not-null="true"></field>
+    <field name="questionType" type="id-long" not-null="true"></field>
+    <field name="difficultyLevel" type="numeric"></field>
+    <field name="answerValue" type="currency-amount"></field>
+    <field name="topicId" type="id"></field>
+    <field name="negativeMarkValue" type="currency-amount"></field>
+
+    <prim-key field="questionId"/>
+
+    <relation rel-entity-name="TopicMaster" fk-name="QUESTION_TOPIC_FK" type="many">
+        <key-map field-name="topicId" rel-field-name="topicId"/>
+    </relation>
+    <relation type="one" rel-entity-name="Enumeration">
+			<key-map field-name="questionType" rel-field-name="enumId" />
+		</relation>
+</entity>
+    
+         <entity entity-name="QuestionBankMasterB" package-name="in.vastpro.sphinx">
+		<field name="examId" type="id"></field>
+		<field name="qId" type="numeric"></field>
+		<field name="topicId" type="numeric" not-null="true"/>
+		<field name="questionDetail" type="very-long" not-null="true"></field>
+		<field name="optiona" type="very-long" not-null="true"></field>
+		<field name="optionb" type="very-long" not-null="true"/>
+		<field name="optionc" type="very-long" not-null="true"></field>
+		<field name="optiond" type="very-long" not-null="true"></field>
+		<field name="optione" type="very-long" not-null="true"></field>
+		<field name="answer" type="id" not-null="true"></field>
+		<field name="numAnswers" type="numeric" not-null="true"/>
+		<field name="questiontype" type="numeric" not-null="true"></field>
+		<field name="difficultyLevel" type="numeric"></field>
+		<field name="answerValue" type="currency-amount"/>
+		<field name="negativeMarkValue" type="currency-amount"></field>			
+		<prim-key field="examId" />
+		<prim-key field="qId" />
+		<relation rel-entity-name="ExamMaster" fk-name="QUESTION_BANK_B_FK" type="many">
+			<key-map field-name="examId" rel-field-name="examId" />
+		</relation>			
+    </entity>
+    
      <entity entity-name="QuestionBankMaster" package-name="in.vastpro.sphinx">
 		<field name="examId" type="id-ne"></field>
 		<field name="qId" type="numeric"></field>
@@ -98,7 +147,7 @@ under the License.
 			
     </entity>
     
-    
+
     
   <entity entity-name="ExamTopicDetails" package-name="in.vastpro.sphinx">
 
