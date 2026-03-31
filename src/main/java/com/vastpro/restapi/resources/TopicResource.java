@@ -55,12 +55,17 @@ public class TopicResource {
 	private HttpServletRequest request;
 	@POST
 	@Path("/createtopic")
-	public Response createTopic(Map<String, ? extends Object> input) {
-		LocalDispatcher dispatcher=getDispatcher(servletContext);
+	public Response createTopic(@Context HttpServletRequest request) {
+		
+		LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
 		if(dispatcher==null) {
 			Response.status(500).entity(Map.of("error","dispatcher is  null")).build();
 		}
 		try {
+			Map<String, Object> input=new HashMap<String, Object>();
+			input.put("topicName",(String) request.getAttribute("topicName"));
+			
+			System.out.println("what is the eror "+input);
 			Map<String, Object> result=dispatcher.runSync("createtopic", input);
 			return Response.ok(result).build();
 			
@@ -96,50 +101,57 @@ public class TopicResource {
 		}
 	}
 	
+	
 	@DELETE
 	@Path("/deletetopic")
-	public Response deleteTopic(Map<String, Object> input,@Context HttpServletRequest request) {
-		LocalDispatcher dispatcher=getDispatcher(servletContext);
-		if(dispatcher==null) {
-			return Response.status(500).entity(Map.of("error","dispatcher is  null")).build();
-		}
-		
-		try {
-			
-			
-			
-			 Map<String, Object> result = dispatcher.runSync("deleteTopicById", input);
-			
-			 if (ServiceUtil.isError(result)) {
-		            return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
-		        } else {
-		            return Response.ok(Map.of("status", "success", "message", "Topic deleted successfully")).build();
-		        }
-		}catch (GenericServiceException e) {
-			// TODO: handle exception
-			e.printStackTrace();
-			return Response.status(500).entity(Map.of("error", e.getMessage())).build();
-		}
+	public Response deleteTopic(@Context HttpServletRequest request, @Context ServletContext context) {
+	    LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+
+	    if (dispatcher == null) {
+	        dispatcher = ServiceContainer.getLocalDispatcher("sphinx", getDelegator(context));
+	    }
+
+	    try {
+	        Map<String, Object> input = new HashMap<>();
+	        String topicId = request.getParameter("topicId");
+	        if (topicId == null || topicId.isEmpty()) {
+	            return Response.status(400).entity(Map.of("error", "topicId is required")).build();
+	        }
+	        input.put("topicId", topicId);
+
+	        Map<String, Object> result = dispatcher.runSync("deleteTopicById", input);
+
+	        if (ServiceUtil.isError(result)) {
+	            return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+	        } else {
+	            return Response.ok(Map.of("status", "success", "message", "Topic deleted successfully")).build();
+	        }
+	    } catch (GenericServiceException e) {
+	        e.printStackTrace();
+	        return Response.status(500).entity(Map.of("error", e.getMessage())).build();
+	    }
 	}
+	
 	
 	@PUT
 	@Path("/updatetopic")
-	public Response updateTopic(Map<String, Object> input,@Context HttpServletRequest request) {
-		LocalDispatcher dispatcher=getDispatcher(servletContext);
-		if(dispatcher==null) {
-			return Response.status(500).entity(Map.of("error","dispatcher is  null")).build();
-		}
+	public Response updateTopic(@Context HttpServletRequest request,@Context ServletContext context) {
+		  LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+
+		    if (dispatcher == null) {
+		        dispatcher = ServiceContainer.getLocalDispatcher("sphinx", getDelegator(context));
+		    }
 		
 		try {
-//			Map<String, Object> input=new HashMap<String, Object>();
-//			input.put("topicId", topicInput.getTopicId());
-//			input.put("topicName", topicInput.getTopicName());
+			Map<String, Object> input=new HashMap<String, Object>();
+			input.put("topicId", request.getAttribute("topicId"));
+			input.put("topicName", request.getAttribute("topicName"));
 			Map<String, Object> result=dispatcher.runSync("updateTopicOwn", input);
 			return Response.ok(result).build();
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			return Response.status(500).entity(Map.of("error", e.getMessage())).build();
+			return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
 		}
 	}
 	

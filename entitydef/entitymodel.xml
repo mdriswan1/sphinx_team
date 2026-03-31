@@ -82,6 +82,9 @@ under the License.
 			<key-map field-name="examId" rel-field-name="examId" />
 		</relation>			
     </entity>
+    
+    
+    
     <entity entity-name="TopicMaster" package-name="">
 		<field name="topicId" type="name"></field>
 		
