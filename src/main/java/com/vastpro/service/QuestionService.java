@@ -1,9 +1,15 @@
 package com.vastpro.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.Response;
+
+import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
@@ -12,6 +18,8 @@ import org.apache.ofbiz.entity.condition.EntityCondition;
 import org.apache.ofbiz.entity.condition.EntityOperator;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.DispatchContext;
+import org.apache.ofbiz.service.GenericServiceException;
+import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 /**
@@ -21,35 +29,65 @@ import org.apache.ofbiz.service.ServiceUtil;
  */
 public class QuestionService {
 
-	public static Map<String, Object> createQuestionMaster(DispatchContext dctx, Map<String, ? extends Object> context) {
+	public static Map<String, Object> createQuestionMaster(DispatchContext dctx, Map<String, Object> context) {
 
-		
+		Map<String, Object> input = new HashMap<>();
 		Delegator delegator = dctx.getDelegator();
-		
-		GenericValue questionMaster = delegator.makeValue("questionMaster");
+		try {
+//			GenericValue topic = delegator.findOne("TopicMaster	", false, Map.of("topicId", context.get("topicId"))); 
+//			if(topic == null) {
+//				return ServiceUtil.returnError("topic not defined");
+//			}
+			Long questionId = Long.valueOf(delegator.getNextSeqId("QuestionMaster"));
+			String topicId = (String) context.get("topicId");
+			LocalDispatcher dispatcher = dctx.getDispatcher();
+			String questionDetail = (String) context.get("questionDetail");
+			String optionA = (String) context.get("optionA");
+			String optionB = (String) context.get("optionB");
+			String optionC = (String) context.get("optionC");
+			String optionD = (String) context.get("optionD");
+			String optionE = (String) context.get("optionE");
+			String answer = (String) context.get("answer");
+			long numAnswers = (Integer.parseInt((String)context.get("numAnswers")));
+			String questionType = (String)context.get("questionType");
+			long difficultyLevel =  (Integer.parseInt((String)context.get("difficultyLevel")));
+			long answerValue =  (Integer.parseInt((String)context.get("answerValue")));
+			long negMarkValue =  (Integer.parseInt((String)context.get("negativeMarkValue")));
+			
+			input.put("questionId", questionId);
+			input.put("topicId", topicId);
+			input.put("questionDetail", questionDetail);
+			input.put("optionA", optionA);
+			input.put("optionB", optionB);
+			input.put("optionC", optionC);
+			input.put("optionD", optionD);
+			input.put("optionE", optionE);
+			input.put("answer", answer);
+			input.put("numAnswers", numAnswers);
+			input.put("questionType", questionType);
+			input.put("difficultyLevel", difficultyLevel);
+			input.put("answerValue", answerValue);
+			input.put("negativeMarkValue", negMarkValue);
+			Map<String, Object> res = dispatcher.runSync("createQuestionMaster", input);
 
-		questionMaster.set("questionId", context.get("questionId")); 
-		questionMaster.set("topicId", context.get("topicId"));
-		questionMaster.set("questionDetail", context.get("questionDetail"));
-		questionMaster.set("optionA", context.get("optionA"));
-		questionMaster.set("optionB", context.get("optionB"));
-		questionMaster.set("optionC", context.get("optionC"));
-		questionMaster.set("optionD", context.get("optionD"));
-		questionMaster.set("optionE", context.get("optionE"));
-		questionMaster.set("answer", context.get("answer"));
-		questionMaster.set("numAnswers", context.get("numAnswers"));
-		questionMaster.set("questionType", context.get("questionType"));
-		questionMaster.set("difficultyLevel", context.get("difficultyLevel"));
-		questionMaster.set("answerValue", context.get("answerValue"));
-		questionMaster.set("negativeMarkValue", context.get("negativeMarkValue"));
+			Map<String, Object> result = new HashMap<>();
+			if (ServiceUtil.isError(res)) {
+				Debug.log("built in service return value: " + input);
+				result.put("Status", "ERROR");
+				result.put("message",ServiceUtil.getErrorMessage(res));
+				return result;
 
-     try {
-		delegator.create(questionMaster);
-		return ServiceUtil.returnSuccess("Question created successfully");
-	} catch (GenericEntityException e) {
-		return ServiceUtil.returnSuccess("Qustion cannot created");
-	}
-	}
+			}
+
+			result.put("status", "Success");
+			result.put("message", "Updated Successfully");
+			return result;
+		} catch (Exception e) {
+			Debug.log("Question Master: " + e.getMessage());
+			
+			return Map.of("message", e.getMessage());
+		}
+		}
 	
 	public static Map<String, Object> updateQuestionMaster(DispatchContext dctx, Map<String, ? extends Object> context) {
 		try {

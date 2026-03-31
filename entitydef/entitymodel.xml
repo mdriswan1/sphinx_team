@@ -70,7 +70,7 @@ under the License.
     <field name="optionE" type="very-long" not-null="true"></field>
     <field name="answer" type="id" not-null="true"></field>
     <field name="numAnswers" type="numeric" not-null="true"></field>
-    <field name="questionType" type="numeric" not-null="true"></field>
+    <field name="questionType" type="id-long" not-null="true"></field>
     <field name="difficultyLevel" type="numeric"></field>
     <field name="answerValue" type="currency-amount"></field>
     <field name="topicId" type="id"></field>
@@ -81,6 +81,9 @@ under the License.
     <relation rel-entity-name="TopicMaster" fk-name="QUESTION_TOPIC_FK" type="many">
         <key-map field-name="topicId" rel-field-name="topicId"/>
     </relation>
+    <relation type="one" rel-entity-name="Enumeration">
+			<key-map field-name="questionType" rel-field-name="enumId" />
+		</relation>
 </entity>
     
          <entity entity-name="QuestionBankMasterB" package-name="in.vastpro.sphinx">
