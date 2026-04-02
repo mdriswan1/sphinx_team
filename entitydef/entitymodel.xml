@@ -37,29 +37,8 @@ under the License.
     </entity>
 
     
-     <!-- This entity holds exams & their information -->
-	<entity entity-name="ExamMaster" package-name="in.vastpro.sphinx">
-		<field name="examId" type="id-ne"></field>
-		<field name="examName" type="id-ne"></field>		
-		<field name="description" type="description"></field>
-		<field name="noOfQuestions" type="numeric" not-null="true"></field>
-		<field name="duration" type="numeric" not-null="true"></field>
-		<field name="passPercentage" type="numeric" not-null="true"/>
-		<field name="questionsRandomized" type="numeric"></field>
-		<field name="answersMust" type="numeric"></field>
-		<field name="allowNegativeMarks" type="numeric"/>
-		<field name="examSetupProper" type="numeric"></field>
-		<field name="negativeMarkValue" type="currency-amount"></field>
-		<field name="fromDate" type="date-time"></field>
-		<field name="thruDate" type="date-time"></field>
-		<!--field to store the adminId who created this exam -->
-		<field name="createdByUserLogin" type="id-vlong"></field>
-		<!--field to store the adminId who last modified this exam -->
-		 <field name="lastModifiedByUserLogin" type="id-vlong"></field>
-		<prim-key field="examId" />
-    </entity>   
-    
-    
+  
+  <!--   
     <entity entity-name="QuestionMaster" package-name="">
     <field name="questionId" type="numeric" not-null="true"></field>
     <field name="questionDetail" type="very-long" not-null="true"></field>
@@ -85,7 +64,7 @@ under the License.
 			<key-map field-name="questionType" rel-field-name="enumId" />
 		</relation>
 </entity>
-    
+    -->
          <entity entity-name="QuestionBankMasterB" package-name="in.vastpro.sphinx">
 		<field name="examId" type="id"></field>
 		<field name="qId" type="numeric"></field>
@@ -156,10 +135,10 @@ under the License.
     <field name="topicId" type="name"/>
 
   
-    <field name="percentage" type="numeric" not-null="true"/>
-    <field name="startingQid" type="numeric" not-null="true"/>
-    <field name="endingQid" type="numeric" not-null="true"/>
-    <field name="questionsPerExam" type="numeric" not-null="true"/>
+    <field name="percentage" type="numeric" />
+    <field name="startingQid" type="numeric" />
+    <field name="endingQid" type="numeric"/>
+    <field name="questionsPerExam" type="numeric" />
     <field name="topicPassPercentage" type="floating-point" not-null="true"/>
 
   
@@ -182,6 +161,7 @@ under the License.
 </entity>
     
     <entity entity-name="ExamMaster" package-name="in.vastpro.sphinx">
+		<field name="examId" type="id"></field>
 		<field name="examName" type="id"></field>		
 		<field name="description" type="description"></field>
 		<field name="noOfQuestions" type="numeric" not-null="true"></field>
@@ -199,5 +179,5 @@ under the License.
 		<!--field to store the adminId who last modified this exam -->
 		 <field name="lastModifiedByUserLogin" type="id-vlong"></field>
 		<prim-key field="examId" />
-    </entity>   
+    </entity>      
 </entitymodel>

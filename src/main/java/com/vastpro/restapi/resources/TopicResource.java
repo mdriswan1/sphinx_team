@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.DelegatorFactory;
+import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;

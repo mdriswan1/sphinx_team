@@ -1,14 +1,19 @@
 package com.vastpro.restapi.resources;
 
+
+import java.util.HashMap;
 import java.util.Map;
 import com.vastpro.utility.CreateConnection;
 
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.ofbiz.entity.Delegator;
@@ -16,6 +21,7 @@ import org.apache.ofbiz.entity.DelegatorFactory;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceContainer;
+import org.apache.ofbiz.service.ServiceUtil;
 
 import com.vastpro.utility.CreateConnection;
 
@@ -87,4 +93,68 @@ public class ExamResource {
 		}
 		  
 	  }
+    
+    
+    @POST
+    @Path("/examtopicdetails")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response insertExamTopicDetails(@Context HttpServletRequest request,@Context ServletContext context) {
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	
+    	if (dispatcher == null) {
+	        dispatcher = ServiceContainer.getLocalDispatcher("sphinx", getDelegator(context));
+	    }
+    	
+    	try {
+    		String topicPassStr = (String) request.getAttribute("topicPassPercentage");
+    		System.out.println(topicPassStr+"    topicpercentage");
+    		Double topicPassPercentage = Double.valueOf(topicPassStr);
+    		Map<String, Object> input=new HashMap<String, Object>();
+    		input.put("examId", request.getAttribute("examId"));
+    		input.put("topicId", request.getAttribute("topicId"));
+    		input.put("topicPassPercentage",topicPassPercentage );
+    		Map<String, Object> result=dispatcher.runSync("insertExamDetails", input);
+    		
+    		
+    		 if (ServiceUtil.isError(result)) {
+ 	            return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+ 	        } else {
+ 	        	System.out.println("inside done in resource");
+ 	            return Response.ok(Map.of("status", "success", "message", "insert successfully")).build();
+ 	        }
+    		
+    	}catch (GenericServiceException e) {
+    		e.printStackTrace();
+    		return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
+			// TODO: handle exception
+		}
+    }
+    
+    @GET
+    @Path("/examtopicdetails")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getExamTopicDetails(@Context HttpServletRequest request,@Context ServletContext context) {
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	if (dispatcher == null) {
+	        dispatcher = ServiceContainer.getLocalDispatcher("sphinx", getDelegator(context));
+	    }
+    	try {
+    		Map<String, Object> result=dispatcher.runSync("getAllExamTopics",Map.of());
+    		
+    		if (ServiceUtil.isError(result)) {
+ 	            return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+ 	        } else {
+ 	        	System.out.println("inside done in resource");
+ 	        	return Response.ok(result).build();
+ 	        }
+    		
+    		
+    	}catch (GenericServiceException e) {
+    		e.printStackTrace();
+    		return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
+			// TODO: handle exception
+		}
+    }
+    
+    
 }

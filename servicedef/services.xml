@@ -114,6 +114,31 @@ under the License.
 
 </service>
 
+<service name="insertExamDetails" engine="java"
+         location="com.vastpro.service.ExamService"
+         invoke="insertExamTopicDetails"
+         auth="false">
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+        <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+		<attribute name="topicPassPercentage" type="java.lang.String" mode="IN" optional="false"/>
+</service>
+
+<service name="autoInsertExamT" engine="entity-auto"
+     default-entity-name="ExamTopicDetails"
+         invoke="create"
+         auth="false">
+       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+        <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+		<attribute name="topicPassPercentage" type="Double" mode="IN" optional="false"/>
+</service>
+
+<service name="getAllExamTopics" engine="java"
+         location="com.vastpro.service.ExamService"
+         invoke="getAllExamTopics"
+         auth="false">
+      <attribute name="topic" type="List" mode="OUT" optional="false"/>
+
+</service>
 
 
  <service name="createQuestion"
