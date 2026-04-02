@@ -1,11 +1,12 @@
 package com.vastpro.restapi.resources;
 import javax.ws.rs.core.Response.Status;
 
-
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -23,6 +24,7 @@ import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.DelegatorFactory;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
+import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceContainer;
 import org.apache.ofbiz.service.ServiceUtil;
@@ -48,14 +50,7 @@ public class UserResource {
 
 	 private LocalDispatcher getDispatcher() {
 	        LocalDispatcher dispatcher =
-	            (LocalDispatcher) servletContext.getAttribute("dispatcher");
-
-	        if (dispatcher == null) {
-	            dispatcher = ServiceContainer.getLocalDispatcher(
-	                "sphinx",   // must match web.xml
-	                getDelegator()
-	            );
-	        }
+	            (LocalDispatcher) request.getAttribute("dispatcher");
 	        return dispatcher;
 	    }
 
@@ -91,31 +86,26 @@ public class UserResource {
     }
     
     @POST
-    @Path("/signin")
-    public Response login(Map<String, Object> input) {
+    @Path("/signIn")
+    public Response login(@Context HttpServletRequest request,@Context HttpServletResponse response) {
         try {
-            String username = (String) input.get("username");
-            String password = (String) input.get("password");
+         
 
-            if (username == null || password == null) {
-                return Response.status(400).entity(
-                    Map.of("status", "error", "message", "Missing username or password")
-                ).build();
-            }
+           
 
-            LocalDispatcher dispatcher = getDispatcher();
+            LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 
-            Map<String, Object> context = Map.of(
-                "login.username", username,
-                "login.password", password
-            );
+            Map<String, Object> input = new HashMap<String, Object>();
+               input.put("userLoginId", request.getAttribute("userLoginId"));
+               input.put("currentPassword",  request.getAttribute("password"));
+            
 
-            Map<String, Object> result = dispatcher.runSync("signIn", context);
+            Map<String, Object> result = dispatcher.runSync("signIn",input);
             if ("success".equals(result.get("responseMessage"))) {
                 return Response.ok(
                     Map.of(
                         "status", "success",
-                        "message", "Signin successful"
+                        "message", result.get("successMessage")
                     )
                 ).build();
             } else {
@@ -139,42 +129,38 @@ public class UserResource {
     
  
     @POST
-    @Path("/signup")
-    public Response signup(Map<String, Object> context) {
+    @Path("/signUp")
+    public Response signup(@Context HttpServletRequest request,@Context HttpServletResponse response){
+    	Map<String,Object> user=new HashMap<String, Object>();
+    	user.put("userName",request.getAttribute("userName"));
+    	user.put("firstName",request.getAttribute("firstName"));
+    	user.put("lastName",request.getAttribute("lastName"));
+    	user.put("phNo",request.getAttribute("phNo"));
+    	user.put("email",request.getAttribute("email"));
+    	user.put("password",request.getAttribute("password"));
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	
-    	LocalDispatcher dispatcher = getDispatcher();
-            try {
-            	context.get("delegator");
-            	System.out.println("signup in");
-            	   Map<String, Object> result = dispatcher.runSync("regService", context);
-            	   System.out.println("signup out");
-             if ("Employee created successfully".equals(result.get("successMessage"))) {
-            	 System.out.println("signup if");
-                return Response.ok(
-                    Map.of(
-                        "status", "success",
-                        "message", "user created successfully"
-                    )
-                ).build();
-
-            }else {
-            	
-                return Response.status(401).entity(
-                        Map.of(
-                            "status", "error",
-                            "message", result.get("errorMessage")
-                        )
-                    ).build();
-                }
-             } catch (Exception e) {
-                return Response.status(500)
-                        .entity(Map.of(
-                            "status", "error",
-                            "message", e.getMessage()
-                        ))
-                        .build();
-            }
-        
+    	if(dispatcher==null) {
+    		return Response.status(500).entity(Map.of("error","dispatcher is null")).build();
+    	}else {
+    		try {
+    			
+				Map<String,Object> result=dispatcher.runSync("signIn", user);
+				if(result.get("responseMessage").equals("success")) {
+					return Response.ok(Map.of("success",result.get("successMessage"))).build();
+				}else {
+					return Response.status(Status.NOT_ACCEPTABLE).entity(Map.of("error","mmm")).build();
+				}
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","internal server error ty again after some time")).build();
+			}
+    	}
+    	
+    
+    	
+    	
     	
     }
 

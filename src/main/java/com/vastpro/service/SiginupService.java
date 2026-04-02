@@ -1,97 +1,89 @@
 package com.vastpro.service;
 
-import java.util.Map;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.service.DispatchContext;
+import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
+
+import com.vastpro.checkpassword.HashPassword;
 
 public class SiginupService {
 
     public static Timestamp getDateTime() {
-        LocalDateTime now = LocalDateTime.now();
         return Timestamp.valueOf(LocalDateTime.now());
     }
 
-    public static Map<String, Object> checkSiginupService(DispatchContext dctx, Map<String, ? extends Object> context) {
+    public static Map<String, Object> checkSiginupService(DispatchContext context, Map<String, ? extends Object> input) {
 
-        Delegator delegator = dctx.getDelegator();
-
+        Delegator delegator = context.getDelegator();
+        LocalDispatcher dispatcher =context.getDispatcher();
         try {
+        	Map<String, Object> partyTable= new HashMap<>();
             String partyId = "SPX_" + delegator.getNextSeqId("Party");
+            partyTable.put("partyId", partyId);
+            partyTable.put("partyTypeId", "PERSON");
+            partyTable.put("statusId", "PARTY_ENABLED");
+            Map<String, Object> result1 = dispatcher.runSync("createParty", partyTable);
+            
+            Map<String,Object> personTable=new HashMap<>();
+            personTable.put("partyId", partyId);
+            personTable.put("firstName", input.get("firstName"));
+            personTable.put("lastName", input.get("lastName"));
+            Map<String,Object> result2=dispatcher.runSync("createPerson", personTable);
 
-            GenericValue party = delegator.makeValue("Party");
-            party.set("partyId", partyId);
-            party.set("partyTypeId", "PERSON");
-            party.set("statusId", "PARTY_ENABLED");
+            Map<String,Object> userLogin=new HashMap<>();
+            userLogin.put("userLoginId", input.get("userName"));
+            String password=HashPassword.hashPassword((String)input.get("password"));
+            userLogin.put("currentPassword",password);
+            userLogin.put("partyId", partyId);
+            userLogin.put("enabled", "N");
+            Map<String,Object> result3=dispatcher.runSync("createUserLogin", userLogin);
+           
 
-            delegator.create(party);
-
-            GenericValue person = delegator.makeValue("Person");
-            person.set("partyId", partyId);
-            person.set("firstName", context.get("firstName"));
-            person.set("lastName", context.get("lastName"));
-
-            delegator.create(person);
-
-            GenericValue userLoginId = delegator.makeValue("UserLogin");
-
-            userLoginId.set("userLoginId", context.get("username"));
-            userLoginId.set("currentPassword", context.get("password"));
-            userLoginId.set("partyId", partyId);
-            userLoginId.set("enabled", "N");
-
-            delegator.create(userLoginId);
-
-            GenericValue partyRole = delegator.makeValue("PartyRole");
-            partyRole.set("partyId", partyId);
-            partyRole.set("roleTypeId", "SPX_EXAMINEE");
-
-            delegator.create(partyRole);
-
+            Map<String,Object> partyRole=new HashMap<>();
+          
+            String  roleTypeId= "SPX_CONTACT_" + delegator.getNextSeqId("PartyRole");
+            partyRole.put("partyId", partyId);
+            partyRole.put("roleTypeId", "EMPLOYEE");
+            Map<String,Object> result4=dispatcher.runSync("createPartyRole", partyRole);
             String contactMechId = "SPX_CONTACT_" + delegator.getNextSeqId("ContactMech");
 
-            GenericValue contactMech = delegator.makeValue("ContactMech");
-            contactMech.set("contactMechId", contactMechId);
-            contactMech.set("contactMechTypeId", "EMAIL_ADDRESS");
-            contactMech.set("infoString", context.get("email"));
+            Map<String,Object> contactMech=new HashMap<>();
+            contactMech.put("contactMechId", contactMechId);
+            contactMech.put("contactMechTypeId", "EMAIL_ADDRESS");
+            contactMech.put("infoString", input.get("email"));
+            Map<String,Object> result5=dispatcher.runSync("createContactMech", contactMech);
 
-            delegator.create(contactMech);
-
-            GenericValue partyContactMech = delegator.makeValue("PartyContactMech");
-            partyContactMech.set("contactMechId", contactMechId);
-            partyContactMech.set("partyId", partyId);
-            partyContactMech.set("fromDate", getDateTime());
-
-            delegator.create(partyContactMech);
+            Map<String,Object> partyContactMech=new HashMap<>();
+            partyContactMech.put("contactMechId", contactMechId);
+            partyContactMech.put("partyId", partyId);
+            partyContactMech.put("fromDate", getDateTime());
+            Map<String,Object> result6=dispatcher.runSync("createPartyContactMech", partyContactMech);
 
             String teleContactMechIds = "SPX_CONTACT_" + delegator.getNextSeqId("ContactMech");
+            Map<String,Object> contactMechTele=new HashMap<>();
+            contactMechTele.put("contactMechId", teleContactMechIds);
+            contactMechTele.put("contactMechTypeId", "TELECOM_NUMBER");
+            Map<String,Object> result7=dispatcher.runSync("createContactMechTele", contactMechTele);
 
-            GenericValue contactMechTele = delegator.makeValue("ContactMech");
-            contactMechTele.set("contactMechId", teleContactMechIds);
-            contactMechTele.set("contactMechTypeId", "TELECOM_NUMBER");
-
-            delegator.create(contactMechTele);
-
-            String teleContactMechId = "SPX_CONTACT_" + delegator.getNextSeqId("ContactMech");
-
-            GenericValue telecomNumber = delegator.makeValue("TelecomNumber");
-            telecomNumber.set("contactMechId", teleContactMechIds);
-            telecomNumber.set("contactNumber", context.get("phNo"));
-
-            delegator.create(telecomNumber);
-
-            GenericValue partyContactMechTele = delegator.makeValue("PartyContactMech");
-            partyContactMechTele.set("contactMechId", teleContactMechIds);
-            partyContactMechTele.set("partyId", partyId);
-            partyContactMechTele.set("fromDate", getDateTime());
-
-            delegator.create(partyContactMechTele);
-
+           
+            Map<String,Object> telecomNumber=new HashMap<>();
+            telecomNumber.put("contactMechId", teleContactMechIds);
+            telecomNumber.put("contactNumber", input.get("phNo"));
+            Map<String,Object> result8=dispatcher.runSync("createTelecomNumber", telecomNumber);
+            
+            Map<String,Object> partyContactMechTele=new HashMap<>();
+            partyContactMechTele.put("contactMechId", teleContactMechIds);
+            partyContactMechTele.put("partyId", partyId);
+            partyContactMechTele.put("fromDate", getDateTime());
+            Map<String,Object> result9=dispatcher.runSync("createPartyContactMechTele", partyContactMechTele);
+            
             return ServiceUtil.returnSuccess("Employee created successfully");
 
         } catch (Exception e) {

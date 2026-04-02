@@ -50,15 +50,46 @@ under the License.
 
 
 </service>
-<service engine="java" name="examcreate" location="" invoke="createExam" auth="false">
-	<attribute name="examName" type="string" mode="IN" optional="false"/>
-	<attribute name="description" type="string" mode="IN" optional="false"/>
-	<attribute name="questions" type="string" mode="IN" optional="false"/>
-	<attribute name="duration" type="string" mode="IN" optional="false"/>
-	<attribute name="percentage" type="string" mode="IN" optional="false"/>
-	</service>
+
+<service engine="interface" name="examAttribute" location="" invoke="">
+	<attribute name="examName" type="java.lang.String" mode="IN" optional="false"/>
+	<attribute name="description" type="java.lang.String" mode="IN" optional="false"/>
+	<attribute name="noOfQuestions" type="java.lang.String" mode="IN" optional="false"/>
+	<attribute name="duration" type="java.lang.String" mode="IN" optional="false"/>
+	<attribute name="passPercentage" type="java.lang.String" mode="IN" optional="false"/>
+</service>
+
+
+<service engine="java" name="examcreate" location="com.vastpro.service.ExamService" invoke="examCreate" auth="false">
+<!-- 	<attribute name="examName" type="java.lang.String" mode="IN" optional="false"/>
+	<attribute name="description" type="java.lang.String" mode="IN" optional="false"/>
+	<attribute name="noOfQuestions" type="java.lang.String" mode="IN" optional="false"/>
+	<attribute name="duration" type="java.lang.String" mode="IN" optional="false"/>
+	<attribute name="passPercentage" type="java.lang.String" mode="IN" optional="false"/> -->
 	
+	<implements service="examAttribute"/>
+	<attribute name="examId" mode="OUT" type="java.lang.String"></attribute>
+</service>
+<service engine="java" name="examUpdate" location="com.vastpro.service.ExamService" invoke="examUpdate" auth="false">
+	<implements service="examAttribute"/>
+	<attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
 	
+</service>
+<service engine="entity-auto" name="examUpdates" invoke="update" default-entity-name="ExamMaster">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+</service>
+<service engine="java" name="examDelete" location="com.vastpro.service.ExamService" invoke="examDelete">
+	<attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
+</service>
+
+<service engine="entity-auto" name="examDeletes" invoke="delete" default-entity-name="ExamMaster">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	
+</service>
+<service engine="java" name="getExam" location="com.vastpro.service.ExamService" invoke="getAllExam">
+	<attribute name="data" mode="OUT" type="List"></attribute>
+</service>
 	
 	<service name="createtopic" engine="java"
          location="com.vastpro.service.CreateTopic"
@@ -68,6 +99,12 @@ under the License.
     <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
+<service engine="java" name="signIn" location="com.vastpro.service.SigininService" invoke="checkSigininService" >
+	<attribute name="userLoginId" mode="IN" type="Object" optional="false"/>
+	<attribute name="currentPassword" mode="IN" type="java.lang.String" optional="false"/>
+</service>
+
+
 
 <service name="getAllTopic" engine="java"
          location="com.vastpro.service.CreateTopic"
@@ -116,25 +153,78 @@ under the License.
 
 
 
- <service name="createQuestion"
-        engine="java"
-        location="com.vastpro.service.CreateQuestion"
-        invoke="creationQes"
-        auth="false">
+	 <service name="createQuestion"
+	        engine="java"
+	        location="com.vastpro.service.CreateQuestion"
+	        invoke="creationQes"
+	        auth="false">
+	
+	    <description>Create question</description>
+	
+	
+	    <attribute name="topicId" type="String" mode="IN" optional="false"/>
+	    <attribute name="questionDetail" type="String" mode="IN" optional="false"/>
+	    <attribute name="optiona" type="String" mode="IN" optional="false"/>
+	    <attribute name="optionb" type="String" mode="IN" optional="false"/>
+	    <attribute name="optionc" type="String" mode="IN" optional="false"/>
+	    <attribute name="optiond" type="String" mode="IN" optional="false"/>
+	    <attribute name="optione" type="String" mode="IN" optional="false"/>
+	    <attribute name="answer" type="String" mode="IN" optional="false"/>
+	</service>
+	<service engine="entity-auto" name="examcreates" invoke="create" default-entity-name="ExamMaster">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
 
-    <description>Create question</description>
-
-
-    <attribute name="topicId" type="String" mode="IN" optional="false"/>
-    <attribute name="questionDetail" type="String" mode="IN" optional="false"/>
-    <attribute name="optiona" type="String" mode="IN" optional="false"/>
-    <attribute name="optionb" type="String" mode="IN" optional="false"/>
-    <attribute name="optionc" type="String" mode="IN" optional="false"/>
-    <attribute name="optiond" type="String" mode="IN" optional="false"/>
-    <attribute name="optione" type="String" mode="IN" optional="false"/>
-    <attribute name="answer" type="String" mode="IN" optional="false"/>
-
-
-
-</service>
+	<service engine="java" name="signIn" location="com.vastpro.service.SiginupService" invoke="checkSiginupService" auth="false" >
+		
+	    <attribute name="userLoginId" type="String" mode="IN" optional="false"/>
+	    <attribute name="currentPassword" type="String" mode="IN" optional="false"/>
+	    
+	</service>
+	
+	<service engine="entity-auto" name="createParty" invoke="create" default-entity-name="Party">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
+	
+	<service engine="entity-auto" name="createPerson" invoke="create" default-entity-name="Person">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
+	
+	<service engine="entity-auto" name="createPartyRole" invoke="create" default-entity-name="PartyRole">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
+	
+	<service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
+	
+	<service engine="entity-auto" name="createContactMech" invoke="create" default-entity-name="ContactMech">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
+	
+	<service engine="entity-auto" name="createPartyContactMech" invoke="create" default-entity-name="PartyContactMech">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
+	
+	<service engine="entity-auto" name="createContactMechTele" invoke="create" default-entity-name="ContactMech">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
+	
+	<service engine="entity-auto" name="createTelecomNumber" invoke="create" default-entity-name="TelecomNumber">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
+	
+	<service engine="entity-auto" name="createPartyContactMechTele" invoke="create" default-entity-name="PartyContactMech">
+			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	</service>
 </services>
