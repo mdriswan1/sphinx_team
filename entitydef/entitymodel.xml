@@ -60,31 +60,28 @@ under the License.
     </entity>   
     
     
-    <entity entity-name="QuestionMaster" package-name="">
-    <field name="questionId" type="numeric" not-null="true"></field>
-    <field name="questionDetail" type="very-long" not-null="true"></field>
-    <field name="optionA" type="very-long" not-null="true"></field>
-    <field name="optionB" type="very-long" not-null="true"></field>
-    <field name="optionC" type="very-long" not-null="true"></field>
-    <field name="optionD" type="very-long" not-null="true"></field>
-    <field name="optionE" type="very-long" not-null="true"></field>
-    <field name="answer" type="id" not-null="true"></field>
-    <field name="numAnswers" type="numeric" not-null="true"></field>
-    <field name="questionType" type="id-long" not-null="true"></field>
-    <field name="difficultyLevel" type="numeric"></field>
-    <field name="answerValue" type="currency-amount"></field>
-    <field name="topicId" type="id"></field>
-    <field name="negativeMarkValue" type="currency-amount"></field>
-
-    <prim-key field="questionId"/>
-
-    <relation rel-entity-name="TopicMaster" fk-name="QUESTION_TOPIC_FK" type="many">
-        <key-map field-name="topicId" rel-field-name="topicId"/>
-    </relation>
-    <relation type="one" rel-entity-name="Enumeration">
-			<key-map field-name="questionType" rel-field-name="enumId" />
+   <entity entity-name="questionMaster">
+		<field name="questionId" type="name" />
+		<field name="questionDetail" type="very-long" />
+		<field name="optionA" type="very-long" />
+		<field name="optionB" type="very-long" />
+		<field name="optionC" type="very-long" />
+		<field name="optionD" type="very-long" />
+		<field name="answer" type="short-varchar" />
+		<field name="numAnswers" type="numeric" />
+		<field name="questionTypeId" type="short-varchar" />
+		<field name="difficultyLevel" type="numeric" />
+		<field name="answerValue" type="fixed-point" />
+		<field name="topicId" type="id" />
+		<field name="negativeMarkValue" type="fixed-point" />
+		<prim-key field="questionId" />
+		<relation type="one" rel-entity-name="TopicMaster">
+			<key-map field-name="topicId" />
 		</relation>
-</entity>
+		<relation type="one" rel-entity-name="Enumeration">
+			<key-map field-name="questionTypeId" rel-field-name="enumId" />
+		</relation>
+	</entity>
     
          <entity entity-name="QuestionBankMasterB" package-name="in.vastpro.sphinx">
 		<field name="examId" type="id"></field>
