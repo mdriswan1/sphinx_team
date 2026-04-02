@@ -18,6 +18,6 @@ public class RestApplication extends ResourceConfig{
     public RestApplication() {
         packages("com.vastpro.restapi.resources");
         register(JacksonFeature.class);
-        register(MultiPartFeature.class);
+//        register(MultiPartFeature.class);
     }
 }

@@ -26,4 +26,5 @@ under the License.
     <Enumeration enumId="TRUE_FALSE"      enumTypeId="QUESTION_TYPE" sequenceId="3" description="True or False"   />
     <Enumeration enumId="FILL_BLANKS"     enumTypeId="QUESTION_TYPE" sequenceId="4" description="Fill in Blanks"  />
     <Enumeration enumId="DETAILED_ANSWER" enumTypeId="QUESTION_TYPE" sequenceId="5" description="Detailed Answer" />
+
 </entity-engine-xml>

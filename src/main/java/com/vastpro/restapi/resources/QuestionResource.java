@@ -278,7 +278,7 @@ public class QuestionResource {
 	        return Response.status(500).entity(result).build();
 	    }
 	}
-	
+/*	
 	@POST
 	@Path("/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -471,7 +471,7 @@ public class QuestionResource {
 	    if (data.get("questionTypeId") == null) return "questionTypeId is required";
 	    return null;
 	}
-
+*/
 /*
 	@GET
 	@Path("/getquesbytopic")

@@ -39,8 +39,8 @@ under the License.
     
      <!-- This entity holds exams & their information -->
 	<entity entity-name="ExamMaster" package-name="in.vastpro.sphinx">
-		<field name="examId" type="id-ne"></field>
-		<field name="examName" type="id-ne"></field>		
+		<field name="examId" type="id"></field>
+		<field name="examName" type="id"></field>		
 		<field name="description" type="description"></field>
 		<field name="noOfQuestions" type="numeric" not-null="true"></field>
 		<field name="duration" type="numeric" not-null="true"></field>
@@ -60,7 +60,7 @@ under the License.
     </entity>   
     
     
-   <entity entity-name="questionMaster">
+   <entity entity-name="questionMaster"  package-name="">
 		<field name="questionId" type="name" />
 		<field name="questionDetail" type="very-long" />
 		<field name="optionA" type="very-long" />
@@ -141,7 +141,7 @@ under the License.
 			
     </entity>
     
-
+    
     
   <entity entity-name="ExamTopicDetails" package-name="in.vastpro.sphinx">
 
@@ -176,23 +176,5 @@ under the License.
 
 </entity>
     
-    <entity entity-name="ExamMaster" package-name="in.vastpro.sphinx">
-		<field name="examName" type="id"></field>		
-		<field name="description" type="description"></field>
-		<field name="noOfQuestions" type="numeric" not-null="true"></field>
-		<field name="duration" type="numeric" not-null="true"></field>
-		<field name="passPercentage" type="numeric" not-null="true"/>
-		<field name="questionsRandomized" type="numeric"></field>
-		<field name="answersMust" type="numeric"></field>
-		<field name="allowNegativeMarks" type="numeric"/>
-		<field name="examSetupProper" type="numeric"></field>
-		<field name="negativeMarkValue" type="currency-amount"></field>
-		<field name="fromDate" type="date-time"></field>
-		<field name="thruDate" type="date-time"></field>
-		<!--field to store the adminId who created this exam -->
-		<field name="createdByUserLogin" type="id-vlong"></field>
-		<!--field to store the adminId who last modified this exam -->
-		 <field name="lastModifiedByUserLogin" type="id-vlong"></field>
-		<prim-key field="examId" />
-    </entity>   
+    
 </entitymodel>
