@@ -83,7 +83,8 @@
         <filter-name>SameSiteFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
-        <filter-mapping>
+    
+    <filter-mapping>
         <filter-name>ContextFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
