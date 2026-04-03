@@ -243,5 +243,67 @@ public class ExamResource {
 		}
     }
     
+    @GET
+    @Path("/examtopicbyid")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getExamTopicsById(@Context HttpServletRequest request,@Context ServletContext context) {
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	Map<String, Object> input=new HashMap<String, Object>();
+    	if(dispatcher==null) {
+    		Response.status(500).entity(Map.of("error","dispatcher is null")).build();
+    	}
+    	try {
+    		input.put("examId", request.getParameter("examId"));
+    		Map<String, Object> result=dispatcher.runSync("getExamDetailsById", input);
+    		if (ServiceUtil.isError(result)) {
+ 	            return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+ 	        } else {
+ 	        	System.out.println("inside done in resource");
+ 	        	return Response.ok(result).build();
+ 	        }
+    		
+    		
+    	}catch (GenericServiceException e) {
+			// TODO: handle exception
+    		e.printStackTrace();
+    		return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
+		}
+    }
+    
+    @DELETE
+    @Path("/examtopicdeletebyid")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response examTopicDetailsByDetails(@Context HttpServletRequest request,@Context ServletContext context) {
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	Map<String, Object> input=new HashMap<String, Object>();
+    	if(dispatcher==null) {
+    		return Response.status(500).entity(Map.of("error","dispatcher is null")).build();
+    	}
+    	try {
+    		String topicId= request.getParameter("topicId");
+    		String examId= request.getParameter("examId");
+    		
+    		input.put("topicId",topicId);
+    		System.out.println("topic id is :"+topicId);
+    		input.put("examId",examId);
+    		System.out.println("exam id is :"+examId);
+    		
+    		Map<String, Object> result=dispatcher.runSync("deleteByDetails", input);
+    		if (ServiceUtil.isError(result)) {
+ 	            return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+ 	        } else {
+ 	        	System.out.println("inside done in resource");
+ 	        	return Response.ok(result).build();
+ 	        }
+    		
+    	}catch (GenericServiceException e) {
+			// TODO: handle exception
+    		e.printStackTrace();
+    		return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
+		}
+    }
+    
+    
     
 }
