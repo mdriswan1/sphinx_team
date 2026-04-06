@@ -34,11 +34,11 @@
   	  <filter-name>corsFilter</filter-name>
   	  <filter-class>com.vastpro.filter.CorsFilter</filter-class>
 	</filter>
-
+<!-- 
 	<filter-mapping>
  	   <filter-name>corsFilter</filter-name>
   	  <url-pattern>/*</url-pattern>
-	</filter-mapping>
+	</filter-mapping> -->
     <filter>
     
     	
@@ -68,6 +68,11 @@
     </filter>
 
     <!-- Filter Mappings -->
+       <filter-mapping>
+        <filter-name>ContextFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+    
     <filter-mapping>
         <filter-name>ControlFilter</filter-name>
         <url-pattern>/*</url-pattern>
@@ -83,11 +88,7 @@
         <filter-name>SameSiteFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
-        <filter-mapping>
-        <filter-name>ContextFilter</filter-name>
-        <url-pattern>/api/*</url-pattern>
-    </filter-mapping>
-
+     
     <!-- Listeners -->
     <listener>
         <listener-class>org.apache.ofbiz.webapp.control.ControlEventListener</listener-class>

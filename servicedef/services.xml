@@ -237,12 +237,12 @@ under the License.
 
 
 <!-- create question -->
-	<service engine="entity-auto" name="createQuestionMaster" default-entity-name="QuestionMaster"  invoke="create" auth="false">
+<!-- 	<service engine="entity-auto" name="createQuestionMaster" default-entity-name="QuestionMaster"  invoke="create" auth="false">
 	<description>Add question to question master </description>
 	<auto-attributes mode="OUT" include="pk" optional="true"></auto-attributes>
 	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
 	</service>
-	
+	 -->
 	<service name="createQuestionService" engine="java"
 		location="com.vastpro.service.QuestionService"
 		invoke="createQuestionService">
@@ -251,8 +251,7 @@ under the License.
 		<attribute name="optionB" mode="IN" type="String" optional="false" />
 		<attribute name="optionC" mode="IN" type="String" optional="false" />
 		<attribute name="optionD" mode="IN" type="String" optional="false" />
-		<attribute name="optionE" mode="IN" type="String" optional="true" />
-		<attribute name="answer" mode="IN" type="String" optional="false" />
+		<attribute name="answer" mode="IN" type="String" optional="true" />
 		<attribute name="numAnswers" mode="IN" type="Long" optional="false" />
 		<attribute name="questionTypeId" mode="IN" type="String" optional="false" />
 		<attribute name="difficultyLevel" mode="IN" type="Long" optional="true" />
@@ -264,49 +263,12 @@ under the License.
 
 
 	<service  name="createQuestion" engine="entity-auto" invoke="create" default-entity-name="questionMaster">
-		<auto-attributes include="pk" mode="OUT" optional="false"/>
-        <auto-attributes include="nonpk" mode="IN" optional="false"/>
+	<description>Add question to question master </description>
+		<auto-attributes include="pk" mode="IN" optional="false"/>
+        <auto-attributes include="nonpk" mode="IN" optional="true"/>
 	</service>
-	 <service name="createQuestion"
-	        engine="java"
-	        location="com.vastpro.service.CreateQuestion"
-	        invoke="creationQes"
-	        auth="false">
+	 
 	
-	    <description>Create question</description>
-	
-	
-	    <attribute name="topicId" type="String" mode="IN" optional="false"/>
-	    <attribute name="questionDetail" type="String" mode="IN" optional="false"/>
-	    <attribute name="optiona" type="String" mode="IN" optional="false"/>
-	    <attribute name="optionb" type="String" mode="IN" optional="false"/>
-	    <attribute name="optionc" type="String" mode="IN" optional="false"/>
-	    <attribute name="optiond" type="String" mode="IN" optional="false"/>
-	    <attribute name="optione" type="String" mode="IN" optional="false"/>
-	    <attribute name="answer" type="String" mode="IN" optional="false"/>
-	</service>
-	
-	 <service name="createQuestion"
-        engine="java"
-        location="com.vastpro.service.QuestionService"
-        invoke="createQuestionMaster"
-        auth="false">
-    <description>Create question</description>
-<attribute name="topicId" mode="IN" type="String" optional="true"/>
-<attribute name="questionDetail" mode="IN" type="String" optional="false"/>
-<attribute name="optionA" mode="IN" type="String" optional="false"/>
-<attribute name="optionB" mode="IN" type="String" optional="false"/>
-<attribute name="optionC" mode="IN" type="String" optional="false"/>
-<attribute name="optionD" mode="IN" type="String" optional="false"/>
-<attribute name="optionE" mode="IN" type="String" optional="false"/>
-<attribute name="answer" mode="IN" type="String" optional="false"/>
-<attribute name="numAnswers" mode="IN" type="String" optional="true"/>
-<attribute name="questionType" mode="IN" type="String" optional="false"/>
-<attribute name="difficultyLevel" mode="IN" type="String" optional="false"/>
-<attribute name="answerValue" mode="IN" type="String" optional="false"/>
-<attribute name="negativeMarkValue" mode="IN" type="String" optional="false"/>
-<attribute name="message" mode="OUT" type="String" optional="true"></attribute>
-</service>
 	
 	
 	<service name="updateQuestion" 
@@ -354,5 +316,11 @@ under the License.
 		<attribute name="answerValue" mode="IN" type="BigDecimal" optional="true" />
 		<attribute name="topicId" mode="IN" type="String" optional="false" />
 		<attribute name="negativeMarkValue" mode="IN" type="BigDecimal" optional="true" />
+	</service>
+	
+	<service engine="java" name="getquesbytopic" location="com.vastpro.service.QuestionService"
+	invoke="getQuesByTopic">
+	<attribute name="topicId" mode="IN" type="String" optional="false"></attribute>
+	<attribute name="questionList" mode="OUT" type="List" optional="false"></attribute>
 	</service>
 </services>

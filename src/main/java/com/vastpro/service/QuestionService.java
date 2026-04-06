@@ -217,27 +217,13 @@ public class QuestionService {
 	}
 
 	
-	public static Map<String,Object> getQuestionsByTopic(DispatchContext dctx,Map<String,Object> context){
+	public static Map<String,Object> getQuesByTopic(DispatchContext dctx,Map<String,Object> context){
 		Delegator delegator=dctx.getDelegator();
 		
 		try {
 			
 			String topicId=(String)context.get("topicId");
-			Integer pageNo=(Integer)context.get("pageNo");
-			Integer pageSize=(Integer)context.get("pageSize");
 			
-			
-			
-			if(topicId==null || topicId.trim().isEmpty()) {
-				return ServiceUtil.returnError("topicId is Required");
-			}
-			
-			if(pageNo==null || pageNo<1) {
-				pageNo=1;
-			}
-			if(pageSize==null || pageSize<1) {
-				pageSize=10;
-			}
 			
 			GenericValue topic=EntityQuery.use(delegator).from("TopicMaster").where("topicId",topicId).queryOne();
 			
@@ -246,43 +232,32 @@ public class QuestionService {
 			}
 			
 			
-			long totalCount=EntityQuery.use(delegator).from("questionMaster").where("topicId",topicId).queryCount();
-			
-			int totalPages=(int) Math.ceil((double)totalCount/pageSize);
-			int offset=(pageNo-1)*pageSize;
-			
-			
+//			long totalCount=EntityQuery.use(delegator).from("questionMaster").where("topicId",topicId).queryCount();
+						
 			List<GenericValue> questions=EntityQuery.use(delegator)
 							.from("questionMaster")
 							.where("topicId",topicId)
 							.orderBy("questionId")
-							.cursorScrollInsensitive()
-							.maxRows(pageSize)
 							.queryList();
 			
-			if(offset>questions.size()) {
-				questions=new ArrayList<>();
-			}else {
-				questions=questions.subList(offset,
-								Math.min(offset+pageSize,questions.size()));
-			}
+			
 			
 			List<Map<String,Object>> questionList=new ArrayList<>();
 			
-			for(GenericValue q:questions) {
+			for(GenericValue ques:questions) {
 				Map<String,Object> qMap=new HashMap<>();
 				
-				qMap.put("questionId", q.getLong("questionId"));
-				qMap.put("questionDetail", q.getString("questionDetail"));
-				qMap.put("optionA", q.getString("optionA"));
-				qMap.put("optionB", q.getString("optionB"));
-				qMap.put("optionC", q.getString("optionC"));
-				qMap.put("optionD", q.getString("optionD"));
-				qMap.put("numAnswers", q.getLong("numAnswers"));
-				qMap.put("questionTypeId", q.getString("questionTypeId"));
-				qMap.put("difficultyLevel", q.getString("difficultyLevel"));
-				qMap.put("topicId", q.getString("topicId"));
-				qMap.put("negativeMarkValue", q.getBigDecimal("negativeMarkValue"));
+				qMap.put("questionId", ques.getString("questionId"));
+				qMap.put("questionDetail", ques.getString("questionDetail"));
+				qMap.put("optionA", ques.getString("optionA"));
+				qMap.put("optionB", ques.getString("optionB"));
+				qMap.put("optionC", ques.getString("optionC"));
+				qMap.put("optionD", ques.getString("optionD"));
+				qMap.put("numAnswers", ques.getLong("numAnswers"));
+				qMap.put("questionTypeId", ques.getString("questionTypeId"));
+				qMap.put("difficultyLevel", ques.getString("difficultyLevel"));
+				qMap.put("topicId", ques.getString("topicId"));
+				qMap.put("negativeMarkValue", ques.getBigDecimal("negativeMarkValue"));
 				
 				
 				questionList.add(qMap);
@@ -292,13 +267,7 @@ public class QuestionService {
 			
 			result.put("topicId", topic.getString("topicId"));
 			result.put("topicName", topic.getString("topicName"));
-			result.put("totalCount", totalCount);
 			result.put("questionList", questionList);
-			result.put("pageNo",pageNo);
-			result.put("pageSize",pageSize);
-			result.put("totalPages", totalPages);
-			result.put("hasNext", pageNo<totalPages);
-			result.put("hasPrevious",pageNo>1);
 			
 			
 			return result;
