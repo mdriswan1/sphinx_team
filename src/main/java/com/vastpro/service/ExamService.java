@@ -190,6 +190,7 @@ public class ExamService {
 	public Map<String,Object> deleteExamByDetails(DispatchContext context,Map<String, Object> input){
 		
 		LocalDispatcher dispatcher=context.getDispatcher();
+		Delegator delegator=context.getDelegator();
 		Map<String, Object> result=ServiceUtil.returnSuccess("Topic deleted successfully");
 		try {
 			String topicId=(String) input.get("topicId");
@@ -200,16 +201,38 @@ public class ExamService {
 			contexts.put("topicId", topicId);
 			
 			System.out.println("topic id is service :"+topicId);
+			
+			 List<GenericValue> questionMasterB = EntityQuery.use(delegator)
+		                .from("QuestionBankMasterB")
+		                .where("examId", examId)
+		                .queryList();
+
+		        if (questionMasterB != null && !questionMasterB.isEmpty()) {
+		            delegator.removeAll(questionMasterB);
+		            System.out.println("Deleted " + questionMasterB.size() + " existing questions for examId: " + topicId);
+		        }
     	
-    		
-			//"SPX_TM_10201"
-			result=dispatcher.runSync("autoDeleteTopicbyDetails", contexts);
+			 List<GenericValue> topicDetails;
+			
+			 topicDetails = EntityQuery.use(delegator)
+				            .from("ExamTopicDetails")
+				            .where("examId", examId)
+				            .queryList();
+				  if (topicDetails != null && !topicDetails.isEmpty()) {
+			            delegator.removeAll(topicDetails);
+			            System.out.println("Deleted " + topicDetails.size() + " existing questions for examId: " + topicId);
+			        }
+		
+		      
+			
+			result=dispatcher.runSync("examDeletes", contexts);
+			
 			if(ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError("Topic Not Found");
 			}else {
 				return ServiceUtil.returnSuccess("Topic Deleted Successfully");
 			}
-		}catch (GenericServiceException e ) {
+		}catch (GenericServiceException |GenericEntityException e ) {
 			// TODO: handle exception
 			e.printStackTrace();
 			return ServiceUtil.returnError(e.getMessage());

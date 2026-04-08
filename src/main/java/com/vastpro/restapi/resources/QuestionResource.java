@@ -3,10 +3,13 @@ package com.vastpro.restapi.resources;
 import java.util.HashMap;
 
 import java.util.Map;
+
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -213,5 +216,89 @@ public class QuestionResource {
 
             return Response.status(500).entity(Map.of("ERROR",e.getMessage())).build();
 		}
+	}
+	
+	@POST
+	@Path("/generateExamQuestions")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response generateExamQuestions(
+	        @Context HttpServletRequest request,
+	        @Context HttpServletResponse response) {
+
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("examId", request.getAttribute("examId")); // GET ?examId=EXAM_10000
+	    
+	    LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+
+	    if (dispatcher == null) {
+	        return Response.status(500)
+	                .entity(Map.of("error", "dispatcher is null"))
+	                .build();
+	    } else {
+	        try {
+	            Map<String, Object> result = dispatcher.runSync("generateExamQuestions", params);
+
+	            if (result.get("responseMessage").equals("success")) {
+	                return Response.ok(Map.of(
+	                        "status",         "success",
+	                        "examName",       result.get("examName")
+	                )).build();
+	            } else {
+	                return Response.status(Response.Status.NOT_ACCEPTABLE)
+	                        .entity(Map.of("error", result.get("errorMessage")))
+	                        .build();
+	            }
+
+	        } catch (GenericServiceException e) {
+	            e.printStackTrace();
+	            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+	                    .entity(Map.of("error", "Internal server error, try again later"))
+	                    .build();
+	        }
+	    }
+	}
+	
+	
+	@GET
+	@Path("/getExamQuestion")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getQuestions(@Context HttpServletRequest request,@Context ServletContext context) {
+		LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+		Map<String, Object> input=new HashMap<String, Object>();
+		 if (dispatcher == null) {
+		        return Response.status(500)
+		                .entity(Map.of("error", "dispatcher is null"))
+		                .build();
+		    }
+		 
+		 
+		 Map<String, Object> result;
+		try {
+			String examId=(String) request.getParameter("examId");
+			System.out.println("exam id : "+examId);
+			input.put("examId", examId);
+			
+			
+			
+				result = dispatcher.runSync("getQuestions", input);
+			 if(ServiceUtil.isError(result)) {
+				 return Response.status(Response.Status.NOT_ACCEPTABLE)
+	                        .entity(Map.of("error", result.get("errorMessage")))
+	                        .build();
+			 }
+			 
+			 return Response.ok(result).build();
+			
+		} catch (GenericServiceException e) {
+			// TODO Auto-generated catch block
+			 e.printStackTrace();
+	            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+	                    .entity(Map.of("error", "Internal server error, try again later"))
+	                    .build();
+			
+		}
+		
 	}
 }

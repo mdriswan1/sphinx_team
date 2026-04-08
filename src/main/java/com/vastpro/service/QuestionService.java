@@ -2,7 +2,9 @@ package com.vastpro.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -233,7 +235,6 @@ public class QuestionService {
 			}
 			
 			
-//			long totalCount=EntityQuery.use(delegator).from("questionMaster").where("topicId",topicId).queryCount();
 						
 			List<GenericValue> questions=EntityQuery.use(delegator)
 							.from("questionMaster")
@@ -254,10 +255,12 @@ public class QuestionService {
 				qMap.put("optionB", ques.getString("optionB"));
 				qMap.put("optionC", ques.getString("optionC"));
 				qMap.put("optionD", ques.getString("optionD"));
+				qMap.put("answer",  ques.getString("answer"));
 				qMap.put("numAnswers", ques.getLong("numAnswers"));
 				qMap.put("questionTypeId", ques.getString("questionTypeId"));
 				qMap.put("difficultyLevel", ques.getString("difficultyLevel"));
 				qMap.put("topicId", ques.getString("topicId"));
+				qMap.put("answerValue",ques.getString("answerValue") );
 				qMap.put("negativeMarkValue", ques.getBigDecimal("negativeMarkValue"));
 				
 				
@@ -274,6 +277,185 @@ public class QuestionService {
 			return result;
 		}catch(GenericEntityException e) {
 			return ServiceUtil.returnError("Error fetching questions By topic: "+e.getMessage());
+		}
+	}
+	
+	
+	
+	
+	
+	public static Map<String, Object> generateExamQuestions(
+	        DispatchContext context,
+	        Map<String, ? extends Object> input) {
+
+	    Delegator delegator = context.getDelegator();
+	    LocalDispatcher dispatcher = context.getDispatcher();
+
+	    try {
+	        String examId = (String) input.get("examId");
+
+	        if (examId == null || examId.isEmpty()) {
+	            return ServiceUtil.returnError("examId is required");
+	        }
+
+	     
+	        GenericValue exam = EntityQuery.use(delegator)
+	                .from("ExamMaster")
+	                .where("examId", examId)
+	                .queryOne();
+
+	        if (exam == null) {
+	            return ServiceUtil.returnError("Exam not found for examId: " + examId);
+	        }
+
+	        int totalQuestions = 0;
+	        if (exam.getString("noOfQuestions") != null) {
+	            totalQuestions = Integer.parseInt(exam.getString("noOfQuestions"));
+	        }
+
+	        if (totalQuestions == 0) {
+	            return ServiceUtil.returnError("noOfQuestions is 0 for this exam");
+	        }
+
+	  
+	        List<GenericValue> examTopics = EntityQuery.use(delegator)
+	                .from("ExamTopicDetails")
+	                .where("examId", examId)
+	                .queryList();
+
+	        if (examTopics == null || examTopics.isEmpty()) {
+	            return ServiceUtil.returnError("No topics found for examId: " + examId);
+	        }
+
+	        
+	        List<Map<String, Object>> finalQuestions = new ArrayList<>();
+	        int totalAssigned = 0;
+
+	        for (int i = 0; i < examTopics.size(); i++) {
+	            GenericValue examTopic = examTopics.get(i);
+	            String topicId = examTopic.getString("topicId");
+
+	            Double percentage = 0.0;
+	            if (examTopic.getDouble("topicPassPercentage") != null) {
+	                percentage = examTopic.getDouble("topicPassPercentage");
+	            }
+
+	         
+	            int count;
+	            if (i == examTopics.size() - 1) {
+	                count = totalQuestions - totalAssigned;
+	            } else {
+	                count = (int) Math.round((percentage / 100.0) * totalQuestions);
+	            }
+
+	            if (count <= 0) continue;
+
+	           
+	            List<GenericValue> topicQuestions = EntityQuery.use(delegator)
+	                    .from("questionMaster")   
+	                    .where("topicId", topicId)
+	                    .queryList();
+
+	            if (topicQuestions == null || topicQuestions.isEmpty()) continue;
+
+	           
+	            List<GenericValue> shuffled = new ArrayList<>(topicQuestions);
+	            Collections.shuffle(shuffled);
+	            List<GenericValue> picked = shuffled.subList(0, Math.min(count, shuffled.size()));
+
+	            for (GenericValue q : picked) {
+
+	               
+	                
+
+	               
+	                String qId = "SPX_QB_" + delegator.getNextSeqId("QuestionBankMasterB");
+
+	                Map<String, Object> transferMap = new HashMap<>();
+	                transferMap.put("examId",            examId);
+	                transferMap.put("qId",               qId);
+	                transferMap.put("topicId",           topicId);
+	                transferMap.put("questionDetail",    q.getString("questionDetail"));
+	                transferMap.put("optionA",           q.getString("optionA"));
+	                transferMap.put("optionB",           q.getString("optionB"));
+	                transferMap.put("optionC",           q.getString("optionC"));
+	                transferMap.put("optionD",           q.getString("optionD"));
+	                transferMap.put("answer",            q.getString("answer"));
+	                transferMap.put("numAnswers",        q.getLong("numAnswers"));        
+	                transferMap.put("questionTypeId",    q.getString("questionTypeId"));
+	                transferMap.put("difficultyLevel",   q.getLong("difficultyLevel"));  
+	                transferMap.put("answerValue",       q.getBigDecimal("answerValue")); 
+	                transferMap.put("negativeMarkValue", q.getBigDecimal("negativeMarkValue")); 
+
+	                Map<String, Object> transferResult = dispatcher.runSync("examTransfer", transferMap);
+
+	                if (ServiceUtil.isError(transferResult)) {
+	                    return ServiceUtil.returnError("Failed to save question to bank: "
+	                            + ServiceUtil.getErrorMessage(transferResult));
+	                }
+	            }
+
+	            totalAssigned += picked.size();
+	        }
+
+	        Collections.shuffle(finalQuestions);
+
+	        
+	        Map<String, Object> result = ServiceUtil.returnSuccess("generated successfully");
+	        result.put("examName",       exam.getString("examName"));
+	        
+	       
+	       
+	        return result;
+
+	    } catch (GenericEntityException e) {
+	        e.printStackTrace();
+	        return ServiceUtil.returnError("Error while generating exam questions: " + e.getMessage());
+	    } catch (GenericServiceException e) {
+	        e.printStackTrace();
+	        return ServiceUtil.returnError("Error while transferring data: " + e.getMessage());
+	    }
+	}
+	
+	
+	
+	
+	public static Map<String , Object> getQuestion(DispatchContext context,Map<String, Object> input) {
+		Delegator delegator=context.getDelegator();
+		LocalDispatcher dispatcher=context.getDispatcher();
+		Map<String, Object> result=ServiceUtil.returnSuccess("questions getted successfully");
+		try {
+			String examId=(String) input.get("examId");
+			System.out.println("exam id inside service method : "+examId);
+			result.put("examId", examId);
+			try {
+				Map<String, Object> res=dispatcher.runSync("deleteMasterB", result);
+			} catch (GenericServiceException e) {
+				
+				e.printStackTrace();
+				return ServiceUtil.returnError("Error while deleted exam questions: " + e.getMessage());
+			}
+
+	        List<GenericValue> questions = EntityQuery.use(delegator)
+	                .from("QuestionBankMasterB")
+	                .where("examId", examId)
+	                .queryList();
+	        
+	        System.out.println("questions found : " + questions.size());
+	        if (questions == null || questions.size() == 0) {
+	            return ServiceUtil.returnError("No questions found for examId: " + examId);
+	        }
+	        
+			result.put("questions", questions);
+			result.put("totalQuestions",questions.size());
+			
+			return result;
+			
+		}catch (GenericEntityException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			 return ServiceUtil.returnError("Error while getting exam questions: " + e.getMessage());
+			
 		}
 	}
 }
