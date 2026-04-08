@@ -1,8 +1,12 @@
 package com.vastpro.restapi.resources;
 import javax.ws.rs.core.Response.Status;
 
+import java.io.IOException;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +32,8 @@ import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceContainer;
 import org.apache.ofbiz.service.ServiceUtil;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -121,7 +127,7 @@ public class UserResource {
             return Response.status(500).entity(
                 Map.of(
                     "status", "error",
-                    "message", e.getMessage()
+                    "message","Invalid Credinatilas"
                 )
             ).build();
         }
@@ -145,7 +151,7 @@ public class UserResource {
     	}else {
     		try {
     			
-				Map<String,Object> result=dispatcher.runSync("signIn", user);
+				Map<String,Object> result=dispatcher.runSync("regService", user);
 				if(result.get("responseMessage").equals("success")) {
 					return Response.ok(Map.of("success",result.get("successMessage"))).build();
 				}else {
@@ -156,12 +162,76 @@ public class UserResource {
 				e.printStackTrace();
 				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","internal server error ty again after some time")).build();
 			}
-    	}
-    	
-    
-    	
-    	
+    	}	
     	
     }
+    @GET
+    @Path("/getAllUser")
+    public Response getAllUser(@Context HttpServletRequest request,@Context HttpServletResponse response) {
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	if(dispatcher==null) {
+    		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","dispatcher is null")).build();
+    	}else {
+    		try {
+				Map<String,Object> result=dispatcher.runSync("getAllUser",Map.of());
+				if(result.get("responseMessage").equals("success")) {
+					List<GenericValue> users=(List<GenericValue>) result.get("allUser");
+					List<String> names = users.stream()
+					        .map(user -> user.getString("userLoginId")) // or "firstName" based on your field
+					        .collect(Collectors.toList());
+					return Response.status(Status.OK).entity(Map.of("allUser",names,"stats",result.get("responseMessage"))).build();
+				}
+				return Response.status(Status.NO_CONTENT).entity(Map.of("error","no data")).build();
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","exception"+e.getMessage())).build();
+			}
+    	}
+    }
+    @POST
+    @Path("/saveexamrelationship")
+    public Response save(@Context HttpServletRequest request,@Context HttpServletResponse response) {
+    	
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	if(dispatcher==null) {
+    		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","dispatcher is null")).build();
+    	}
+    	try {
+			List<Map<String,Object>> list=(List<Map<String, Object>>) request.getAttribute("allData");
+			
+			
+			Map<String,Object> result=dispatcher.runSync("examrelationshipcreate",Map.of("allData",list));
+			if(result.get("responseMessage").equals("success")) {
+				return Response.ok(Map.of("success",result.get("successMessage"))).build();
+			}else {
+				return Response.status(Status.NOT_ACCEPTABLE).entity(Map.of("error","mmm")).build();
+			}
+//    		String jsonString = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+//    		ObjectMapper mapper = new ObjectMapper();
+//    		Map<String,Object> inputData = mapper.readValue(jsonString, Map.class);
+//    		
+//    		
+//    		List<Map<String, Object>> alldata = (List<Map<String, Object>>) inputData.get("alldata");
+//
+//    		for (Map<String, Object> userData : alldata) {
+//    		    System.out.println("ExamId: " + userData.get("examId"));
+//    		    System.out.println("PartyId: " + userData.get("partyId"));
+//    		    System.out.println("AllowedAttempts: " + userData.get("allowedAttempts"));
+//    		    System.out.println("NoOfAttempts: " + userData.get("noOfAttempts"));
+//    		}
+
+    		
+
+    		
+		} catch (GenericServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","internal server error try again after some time")).build();
+		} 
+	}	
 
 }
+    
+
+

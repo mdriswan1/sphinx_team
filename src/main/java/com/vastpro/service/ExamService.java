@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -12,6 +13,8 @@ import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
+
+
 
 public class ExamService {
 	public static Map<String, Object> getAllExam(DispatchContext context, Map<String,Object> input) {
@@ -105,15 +108,18 @@ public class ExamService {
 		try {
 			LocalDispatcher dispatcher=context.getDispatcher();
 			String examId=(String) input.get("examId");
+			System.out.println("EXAMID: "+examId);
 			if(examId==null) {
 				return ServiceUtil.returnError("exam id is null");
 				
 			}else {
+				
+				
 				dispatcher.runSync("examDeletes",input);
 			}
 		}catch(GenericServiceException e) {
 			e.printStackTrace();
-			return ServiceUtil.returnError("it is exception");
+			return ServiceUtil.returnError("error from service"+e.getMessage());
 		}
 		return ServiceUtil.returnSuccess("exam deleted");
 	}
@@ -153,6 +159,57 @@ public class ExamService {
 		
 			
 		}catch (GenericEntityException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return ServiceUtil.returnError(e.getMessage());
+		}
+	}
+	
+	public Map<String, Object> getExamTopicById(DispatchContext context,Map<String, Object> input){
+		Delegator delegator=context.getDelegator();
+		String examId=(String) input.get("examId");
+		System.out.println("available id "+examId);
+		Map<String, Object> result=ServiceUtil.returnSuccess("Topic getted successfully");
+		try {
+			
+			List<GenericValue> topics=EntityQuery.use(delegator).from("ExamTopicDetail").where("examId", examId).queryList();
+			if(topics.size()==0) {
+				return ServiceUtil.returnSuccess("no topic found");
+				
+				
+			}
+			result.put("topic", topics);
+			return result;
+		}catch (GenericEntityException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return ServiceUtil.returnError(e.getMessage());
+		}
+	}
+	
+	public Map<String,Object> deleteExamByDetails(DispatchContext context,Map<String, Object> input){
+		
+		LocalDispatcher dispatcher=context.getDispatcher();
+		Map<String, Object> result=ServiceUtil.returnSuccess("Topic deleted successfully");
+		try {
+			String topicId=(String) input.get("topicId");
+    		String examId=(String) input.get("examId");
+			Map<String, Object> contexts = new HashMap<>();
+			contexts.put("examId", examId);
+			System.out.println("exam id is service :"+examId);
+			contexts.put("topicId", topicId);
+			
+			System.out.println("topic id is service :"+topicId);
+    	
+    		
+			//"SPX_TM_10201"
+			result=dispatcher.runSync("autoDeleteTopicbyDetails", contexts);
+			if(ServiceUtil.isError(result)) {
+				return ServiceUtil.returnError("Topic Not Found");
+			}else {
+				return ServiceUtil.returnSuccess("Topic Deleted Successfully");
+			}
+		}catch (GenericServiceException e ) {
 			// TODO: handle exception
 			e.printStackTrace();
 			return ServiceUtil.returnError(e.getMessage());

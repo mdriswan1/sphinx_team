@@ -108,7 +108,19 @@
             <param-value>com.vastpro.restapi.RestApplication</param-value>
         </init-param>
 
+<init-param>
+        <param-name>jersey.config.server.provider.classnames</param-name>
+        <param-value>org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
+    </init-param>
         <load-on-startup>1</load-on-startup>
+        
+        <multipart-config>
+            
+            <max-file-size>10485760</max-file-size>
+            <max-request-size>20971520</max-request-size>
+            <file-size-threshold>524288</file-size-threshold>
+        </multipart-config>
+        
     </servlet>
 
     <servlet-mapping>

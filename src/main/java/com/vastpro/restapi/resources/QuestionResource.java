@@ -1,10 +1,16 @@
 package com.vastpro.restapi.resources;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 import java.util.Map;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -15,6 +21,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.ofbiz.base.util.Debug;
+import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
@@ -214,4 +222,61 @@ public class QuestionResource {
             return Response.status(500).entity(Map.of("ERROR",e.getMessage())).build();
 		}
 	}
+	
+	@POST
+	@Path("/upload")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response uploadQuestions(@Context HttpServletRequest request) {
+
+		InputStream file;
+		Part filePart;
+		ByteBuffer buffer;
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		try {
+			filePart = request.getPart("file");
+
+			if (filePart == null) {
+				return Response.status(Response.Status.BAD_REQUEST)
+						       .entity(ServiceUtil.returnError("File not found"))
+							   .build();
+			}
+
+			String fileName = filePart.getSubmittedFileName();
+
+			if (!fileName.endsWith(".xlsx")) {
+				return Response.status(Response.Status.BAD_REQUEST)
+						.entity(ServiceUtil.returnError("Excel file required"))
+						.build();
+			}
+
+			byte[] bytes = filePart.getInputStream().readAllBytes();
+
+			buffer = ByteBuffer.wrap(bytes);
+
+		} catch (IOException | ServletException e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(ServiceUtil.returnError("Unexpected error occured, try again after sometime!"))
+							.build();
+		}
+		
+		try {
+			Map<String, Object> result = dispatcher.runSync("uploadBulkQuestion", UtilMisc.toMap("file", buffer));
+			if (result.get("responseMessage") != null && result.get("responseMessage").equals("error")) {
+				return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
+			}
+			else {
+				result.put("successMessage", "Questions uploaded successfully!");
+			}
+
+			return Response.status(Response.Status.CREATED).entity(result).build();
+
+		} catch (GenericServiceException e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(ServiceUtil.returnError("Unexpected error occured, try again after sometime!"))
+							.build();
+		}
+
+	}
+
 }
