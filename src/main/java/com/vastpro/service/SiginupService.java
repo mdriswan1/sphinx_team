@@ -11,6 +11,7 @@ import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
+import com.vastpro.checkpassword.GeneratePssword;
 import com.vastpro.checkpassword.HashPassword;
 
 public class SiginupService {
@@ -24,8 +25,9 @@ public class SiginupService {
         Delegator delegator = context.getDelegator();
         LocalDispatcher dispatcher =context.getDispatcher();
         try {
+        	String role=(String)input.get("role");
         	Map<String, Object> partyTable= new HashMap<>();
-            String partyId = "SPX_" + delegator.getNextSeqId("Party");
+            String partyId = "SPX_UL_" + delegator.getNextSeqId("Party");
             partyTable.put("partyId", partyId);
             partyTable.put("partyTypeId", "PERSON");
             partyTable.put("statusId", "PARTY_ENABLED");
@@ -39,8 +41,18 @@ public class SiginupService {
 
             Map<String,Object> userLogin=new HashMap<>();
             userLogin.put("userLoginId", input.get("userName"));
-            String password=HashPassword.hashPassword((String)input.get("password"));
-            userLogin.put("currentPassword",password);
+            if(role.equals("SPX_ADMIN")) {
+            	
+            	String password=HashPassword.hashPassword((String)input.get("password"));
+                userLogin.put("currentPassword",password);
+            }else if(role.equals("SPX_USER")) {
+            	String password=new GeneratePssword().generatePassword(7);
+            	System.out.println("++++++++++++"+password+"+++++++++++++++");
+            	password=HashPassword.hashPassword(password);
+            	System.out.println("+++++++++++++++++++++++++++++++++++++ "+password+" -------------------------------------------------------------------------------");
+            	userLogin.put("currentPassword",password);
+            }
+            
             userLogin.put("partyId", partyId);
             userLogin.put("enabled", "N");
             Map<String,Object> result3=dispatcher.runSync("createUserLogin", userLogin);
@@ -48,9 +60,8 @@ public class SiginupService {
 
             Map<String,Object> partyRole=new HashMap<>();
           
-            String  roleTypeId= "SPX_CONTACT_" + delegator.getNextSeqId("PartyRole");
             partyRole.put("partyId", partyId);
-            partyRole.put("roleTypeId", "EMPLOYEE");
+            partyRole.put("roleTypeId",role);
             Map<String,Object> result4=dispatcher.runSync("createPartyRole", partyRole);
             String contactMechId = "SPX_CONTACT_" + delegator.getNextSeqId("ContactMech");
 

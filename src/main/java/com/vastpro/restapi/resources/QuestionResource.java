@@ -1,150 +1,217 @@
 package com.vastpro.restapi.resources;
 
 import java.util.HashMap;
-import java.util.Map;
 
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.ofbiz.base.util.Debug;
+import org.apache.ofbiz.entity.Delegator;
+import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
+import org.apache.ofbiz.service.ServiceContainer;
 import org.apache.ofbiz.service.ServiceUtil;
 
-/**
- * QuestionResource
- * 
- * This class handles question related Requests and Responses
- */
+
+ 
 @Path("/question")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class QuestionResource {
 
 	@POST
 	@Path("/createquestion")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createQuestion(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-		try {
-			// transfer the data to create question service service
-			// exam name, topic, question details, option A, option B, option C, option D,
-			// answer
+		LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
+		Map<String,Object> resp= new HashMap<String, Object>();
+		if(dispatcher==null) {
+			return Response.status(500).entity(Map.of("error","Dispatcher not found")).build();
+		}
+		try {	
+			Map<String,Object> data= new HashMap<String, Object>();
+			data.put("questionDetail", request.getAttribute("questionDetail"));
+			data.put("optionA", request.getAttribute("optionA"));
+			data.put("optionB", request.getAttribute("optionB"));
+			data.put("optionC", request.getAttribute("optionC"));
+			data.put("optionD", request.getAttribute("optionD"));
+			data.put("answer", request.getAttribute("answer"));
+			data.put("numAnswers", request.getAttribute("numAnswers"));
+			data.put("questionTypeId", request.getAttribute("questionTypeId"));
+			data.put("difficultyLevel", request.getAttribute("difficultyLevel"));
+			data.put("answerValue", request.getAttribute("answerValue"));
+			data.put("topicId", request.getAttribute("topicId"));
+			data.put("negativeMarkValue", request.getAttribute("negativeMarkValue"));
 
-			Map<String, Object> input = new HashMap<>();
-			String topicId = (String) request.getAttribute("topicId");
-			String questionDetail = (String) request.getAttribute("questionDetail");
-			String optionA = (String) request.getAttribute("optionA");
-			String optionB = (String) request.getAttribute("optionB");
-			String optionC = (String) request.getAttribute("optionC");
-			String optionD = (String) request.getAttribute("optionD");
-			String optionE = (String) request.getAttribute("optionE");
-			String answer = (String) request.getAttribute("answer");
-			long numAnswers = (Integer) request.getAttribute("numAnswers");
-			String questionType = (String) request.getAttribute("questionType");
-			long difficultyLevel = (Integer) request.getAttribute("difficultyLevel");
-			long answerValue = (Integer) request.getAttribute("answerValue");
-			long negMarkValue = (Integer) request.getAttribute("negativeMarkValue");
-			input.put("topicId", topicId);
-			input.put("questionDetail", questionDetail);
-			input.put("optionA", optionA);
-			input.put("optionB", optionB);
-			input.put("optionC", optionC);
-			input.put("optionD", optionD);
-			input.put("optionE", optionE);
-			input.put("answer", answer);
-			input.put("numAnswers", numAnswers);
-			input.put("questionType", questionType);
-			input.put("difficultyLevel", difficultyLevel);
-			input.put("answerValue", answerValue);
-			input.put("negativeMarkValue", negMarkValue);
-
-			
-			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-			Map<String, Object> res = dispatcher.runSync("createQuestion", input);
-
-			Map<String, Object> result = new HashMap<>();
-			if (ServiceUtil.isError(res)) {
-				Debug.log("built in service return value: " + input);
-				result.put("Status", "ERROR");
-				result.put("message",ServiceUtil.getErrorMessage(res));
-				return Response.status(500).entity(result).build();
-
-			}
-
-			result.put("status", "Success");
-			result.put("message", "Updated Successfully");
+			Map<String, Object> result = dispatcher.runSync("createQuestionService", data);
+			if (ServiceUtil.isError(result)) {
+	        	resp.put("status",  "error");
+	        	resp.put("message", ServiceUtil.getErrorMessage(result));
+	            return Response.status(500).entity(resp ).build();
+	        }
 			return Response.ok(result).build();
-		} catch (Exception e) {
-			Debug.log("Question Master: " + e.getMessage());
-			
-			return Response.ok(Map.of("message", e.getMessage())).build();
+		}catch(Exception e) {
+			return Response.status(500).entity(Map.of("error", e.getMessage())).build();
 		}
 	}
 
+	
 	@POST
-	@Path("/updatequestion")
-	public Response updateQuestion(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-		try {
-			// transfer the data to create question service service
-			// exam name, topic, question details, option A, option B, option C, option D,
-			// answer
+	@Path("/getquesbyid")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getQuestion(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
+		Map<String,Object> resp= new HashMap<String, Object>();
+		if(dispatcher==null) {
+			return Response.status(500).entity(Map.of("error","Dispatcher not found")).build();
+		}
+		try {	
+			Map<String,Object> data= new HashMap<String, Object>();
+			data.put("questionId", request.getAttribute("questionId"));
+		    if(request.getAttribute("questionId")==null) {
+				return Response.status(400).entity(Map.of("error","questionId null")).build();
+		    }
 
-			Map<String, Object> input = new HashMap<>();
-
-			String topicId = (String) request.getAttribute("topicId");
-			String questionDetail = (String) request.getAttribute("questionDetail");
-			String optionA = (String) request.getAttribute("optionA");
-			String optionB = (String) request.getAttribute("optionB");
-			String optionC = (String) request.getAttribute("optionC");
-			String optionD = (String) request.getAttribute("optionD");
-			String optionE = (String) request.getAttribute("optionE");
-			String answer = (String) request.getAttribute("answer");
-			long numAnswers = (Integer) request.getAttribute("numAnswers");
-			long questionType = (Integer) request.getAttribute("questionType");
-			long difficultyLevel = (Integer) request.getAttribute("difficultyLevel");
-			long answerValue = (Integer) request.getAttribute("answerValue");
-			long negMarkValue = (Integer) request.getAttribute("negativeMarkValue");
-
-//		input.put("questionId", (long)request.getAttribute("questionId")); // PK is mandatory
-
-			input.put("topicId", topicId);
-			input.put("questionDetail", questionDetail);
-			input.put("optionA", optionA);
-			input.put("optionB", optionB);
-			input.put("optionC", optionC);
-			input.put("optionD", optionD);
-			input.put("optionE", optionE);
-			input.put("answer", answer);
-			input.put("numAnswers", numAnswers);
-			input.put("questionType", questionType);
-			input.put("difficultyLevel", difficultyLevel);
-			input.put("answerValue", answerValue);
-			input.put("negativeMarkValue", negMarkValue);
-			
-			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-			Map<String, Object> res = dispatcher.runSync("updateQuestion", input);
-
-			Map<String, Object> result = new HashMap<>();
-			if (ServiceUtil.isError(res)) {
-				Debug.log("built in service return value: " + input);
-				result.put("Status", "ERROR");
-				result.put("message",ServiceUtil.getErrorMessage(res));
-				return Response.status(500).entity(result).build();
-
-			}
-
-			result.put("status", "Success");
-			result.put("message", "Updated Successfully");
+			Map<String, Object> result = dispatcher.runSync("getQuesById", data);
+			if (ServiceUtil.isError(result)) {
+	        	resp.put("status",  "error");
+	        	resp.put("message", ServiceUtil.getErrorMessage(result));
+	            return Response.status(500).entity(resp ).build();
+	        }
 			return Response.ok(result).build();
-		} catch (Exception e) {
-			Debug.log("Question Master: " + e.getMessage());
+		}catch(Exception e) {
+			return Response.status(500).entity(Map.of("error", e.getMessage())).build();
+		}
+	}
+
+	
+	
+	@PUT
+	@Path("/updatequestion")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateQuestion(@Context HttpServletRequest request,@Context HttpServletResponse response) {
+		LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
+		Map<String,Object> resp= new HashMap<String, Object>();
+		if(dispatcher==null) {
+			return Response.status(500).entity(Map.of("error","Dispatcher not found")).build();
+		}
+	    try {
+	        String questionId = (String) request.getAttribute("questionId");
+	        if(request.getAttribute("questionId")==null) {
+				return Response.status(400).entity(Map.of("error","questionId null")).build();
+		    }
+
+	        
+	        Map<String,Object>data=new HashMap<String, Object>();
+	        data.put("questionId", questionId);
+	        data.put("questionDetail", request.getAttribute("questionDetail"));
+			data.put("optionA", request.getAttribute("optionA"));
+			data.put("optionB", request.getAttribute("optionB"));
+			data.put("optionC", request.getAttribute("optionC"));
+			data.put("optionD", request.getAttribute("optionD"));
+			data.put("answer", request.getAttribute("answer"));
+			data.put("numAnswers", request.getAttribute("numAnswers"));
+			data.put("questionTypeId", request.getAttribute("questionTypeId"));
+			data.put("difficultyLevel", request.getAttribute("difficultyLevel"));
+			data.put("answerValue", request.getAttribute("answerValue"));
+			data.put("topicId", request.getAttribute("topicId"));
+			data.put("negativeMarkValue", request.getAttribute("negativeMarkValue"));
+ 
 			
-			return Response.ok(Map.of("message", e.getMessage())).build();
+		
+	        Map<String, Object> result  = dispatcher.runSync("updateQuestionMaster", data);
+	        if (ServiceUtil.isError(result)) {
+	        	resp.put("status",  "error");
+	        	resp.put("message", ServiceUtil.getErrorMessage(result));
+	            return Response.status(500).entity(resp ).build();
+	        }
+	        resp.put("status","SUCCESS");
+	        resp.put("message","Question updated successfully");
+	        return Response.ok(result).build();
+ 
+	    } catch (Exception e) {
+	    	return Response.status(500).entity(Map.of("error", e.getMessage())).build();
+	    }
+	}
+	
+
+	@DELETE
+	@Path("/deletequestion")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response deleteQuestion(@Context HttpServletRequest request,@Context HttpServletResponse response) {
+		Map<String,Object> resp= new HashMap<String, Object>();
+	
+	  		LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
+	  		if(dispatcher==null) {
+	  			return Response.status(500).entity(Map.of("error","Dispatcher not found")).build();
+	  		}
+	    try {
+	        String questionId=(String) request.getAttribute("questionId");
+	        if(request.getAttribute("questionId")==null) {
+				return Response.status(400).entity(Map.of("error","questionId null")).build();
+		    }
+
+	        
+	        Map<String,Object>data=new HashMap<String, Object>();
+	        data.put("questionId", questionId);
+ 
+	        Map<String, Object> result = dispatcher.runSync("deleteQuesMaster",data);
+ 
+	        if (ServiceUtil.isError(result)) {
+	           
+	            return Response.status(500).entity(result).build();
+	        }
+ 
+	        resp.put("status","SUCCESS");
+	        resp.put("message", "question deleted Successfully");
+	        return Response.ok(result).build();
+ 
+	    } catch (Exception e) {
+	        resp.put("status",  "ERROR");
+	        resp.put("message", e.getMessage());
+	        return Response.status(500).entity(resp).build();
+	    }
+	}
+	
+	@POST
+	@Path("/getquesbytopic")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getquesbytopic(@Context HttpServletRequest request) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if(dispatcher == null) {
+			return Response.status(500).entity(Map.of("error","dispatcher is null")).build();
+		}
+		
+		Map<String, Object> data = new HashMap<>();
+		if(request.getAttribute("topicId")==null) {
+			return Response.status(400).entity(Map.of("error", "topicId not found")).build();
+		}
+		
+		data.put("topicId",request.getAttribute("topicId"));
+		
+		try {
+			Map<String, Object> result = dispatcher.runSync("getquesbytopic", data);
+
+			if(ServiceUtil.isError(result)) {
+	            return Response.status(500).entity(result).build();
+			}
+			
+			return Response.ok(result).build();
+		} catch (GenericServiceException e) {
+
+            return Response.status(500).entity(Map.of("ERROR",e.getMessage())).build();
 		}
 	}
 }

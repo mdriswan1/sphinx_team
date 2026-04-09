@@ -12,6 +12,7 @@ import com.vastpro.utility.CreateConnection;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -22,8 +23,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.ofbiz.base.util.Debug;
+import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.DelegatorFactory;
 import org.apache.ofbiz.service.GenericServiceException;
@@ -45,7 +48,7 @@ public class ExamResource {
 		 if(dispatcher==null) {
 	    		Response.status(500).entity(Map.of("error","dispatcher is null")).build();
 	    	}
-		 
+		
 		 Map<String,Object> input=new HashMap<>();
 		 
 		 input.put("examName", request.getAttribute("examName"));
@@ -145,7 +148,7 @@ public class ExamResource {
 			if(result.get("responseMessage").equals("success")) {
 				return Response.ok(Map.of("success","updated successfully")).build();
 			}else {
-				return Response.status(200).entity(Map.of("error","not updated")).build();
+				return Response.status(200).entity(UtilMisc.toMap("error","not updated")).build();
 			}
 		} catch (GenericServiceException e) {
 			// TODO Auto-generated catch block
@@ -242,6 +245,69 @@ public class ExamResource {
     		return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
 		}
     }
+    
+    @GET
+    @Path("/examtopicbyid")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getExamTopicsById(@Context HttpServletRequest request,@Context ServletContext context) {
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	Map<String, Object> input=new HashMap<String, Object>();
+    	if(dispatcher==null) {
+    		Response.status(500).entity(Map.of("error","dispatcher is null")).build();
+    	}
+    	try {
+    		input.put("examId", request.getParameter("examId"));
+    		Map<String, Object> result=dispatcher.runSync("getExamDetailsById", input);
+    		if (ServiceUtil.isError(result)) {
+ 	            return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+ 	        } else {
+ 	        	System.out.println("inside done in resource");
+ 	        	return Response.ok(result).build();
+ 	        }
+    		
+    		
+    	}catch (GenericServiceException e) {
+			// TODO: handle exception
+    		e.printStackTrace();
+    		return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
+		}
+    }
+    
+    @DELETE
+    @Path("/examtopicdeletebyid")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response examTopicDetailsByDetails(@Context HttpServletRequest request,@Context ServletContext context) {
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	Map<String, Object> input=new HashMap<String, Object>();
+    	if(dispatcher==null) {
+    		return Response.status(500).entity(Map.of("error","dispatcher is null")).build();
+    	}
+    	
+    	try {
+    		String topicId= request.getParameter("topicId");
+    		String examId= request.getParameter("examId");
+    		
+    		input.put("topicId",topicId);
+    		System.out.println("topic id is :"+topicId);
+    		input.put("examId",examId);
+    		System.out.println("exam id is :"+examId);
+    		
+    		Map<String, Object> result=dispatcher.runSync("deleteByDetails", input);
+    		if (ServiceUtil.isError(result)) {
+ 	            return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+ 	        } else {
+ 	        	System.out.println("inside done in resource");
+ 	        	return Response.ok(result).build();
+ 	        }
+    		
+    	}catch (GenericServiceException e) {
+			// TODO: handle exception
+    		e.printStackTrace();
+    		return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
+		}
+    }
+    
     
     
 }

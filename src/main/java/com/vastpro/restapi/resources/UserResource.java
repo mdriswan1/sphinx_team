@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.ofbiz.base.util.Debug;
+import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.DelegatorFactory;
 import org.apache.ofbiz.entity.GenericValue;
@@ -96,8 +98,7 @@ public class UserResource {
     public Response login(@Context HttpServletRequest request,@Context HttpServletResponse response) {
         try {
          
-
-           
+        	
 
             LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 
@@ -111,7 +112,8 @@ public class UserResource {
                 return Response.ok(
                     Map.of(
                         "status", "success",
-                        "message", result.get("successMessage")
+                        "message", result.get("successMessage"),
+                        "role",result.get("role")
                     )
                 ).build();
             } else {
@@ -144,23 +146,24 @@ public class UserResource {
     	user.put("phNo",request.getAttribute("phNo"));
     	user.put("email",request.getAttribute("email"));
     	user.put("password",request.getAttribute("password"));
+    	user.put("role",request.getAttribute("role"));
     	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	
     	if(dispatcher==null) {
-    		return Response.status(500).entity(Map.of("error","dispatcher is null")).build();
+    		return Response.status(500).entity(UtilMisc.toMap("error","dispatcher is null")).build();
     	}else {
     		try {
     			
 				Map<String,Object> result=dispatcher.runSync("regService", user);
 				if(result.get("responseMessage").equals("success")) {
-					return Response.ok(Map.of("success",result.get("successMessage"))).build();
+					return Response.ok(UtilMisc.toMap("success",result.get("successMessage"))).build();
 				}else {
-					return Response.status(Status.NOT_ACCEPTABLE).entity(Map.of("error","mmm")).build();
+					return Response.status(Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error","mmm")).build();
 				}
 			} catch (GenericServiceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","internal server error ty again after some time")).build();
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","internal server error ty again after some time")).build();
 			}
     	}	
     	
@@ -170,7 +173,7 @@ public class UserResource {
     public Response getAllUser(@Context HttpServletRequest request,@Context HttpServletResponse response) {
     	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	if(dispatcher==null) {
-    		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","dispatcher is null")).build();
+    		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","dispatcher is null")).build();
     	}else {
     		try {
 				Map<String,Object> result=dispatcher.runSync("getAllUser",Map.of());
@@ -179,13 +182,13 @@ public class UserResource {
 					List<String> names = users.stream()
 					        .map(user -> user.getString("userLoginId")) // or "firstName" based on your field
 					        .collect(Collectors.toList());
-					return Response.status(Status.OK).entity(Map.of("allUser",names,"stats",result.get("responseMessage"))).build();
+					return Response.status(Status.OK).entity(UtilMisc.toMap("allUser",names,"stats",result.get("responseMessage"))).build();
 				}
-				return Response.status(Status.NO_CONTENT).entity(Map.of("error","no data")).build();
+				return Response.status(Status.NO_CONTENT).entity(UtilMisc.toMap("error","no data")).build();
 			} catch (GenericServiceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","exception"+e.getMessage())).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","exception"+e.getMessage())).build();
 			}
     	}
     }
@@ -195,17 +198,17 @@ public class UserResource {
     	
     	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	if(dispatcher==null) {
-    		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","dispatcher is null")).build();
+    		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","dispatcher is null")).build();
     	}
     	try {
 			List<Map<String,Object>> list=(List<Map<String, Object>>) request.getAttribute("allData");
 			
 			
-			Map<String,Object> result=dispatcher.runSync("examrelationshipcreate",Map.of("allData",list));
+			Map<String,Object> result=dispatcher.runSync("examrelationshipcreate",UtilMisc.toMap("allData",list));
 			if(result.get("responseMessage").equals("success")) {
-				return Response.ok(Map.of("success",result.get("successMessage"))).build();
+				return Response.ok(UtilMisc.toMap("success",result.get("successMessage"))).build();
 			}else {
-				return Response.status(Status.NOT_ACCEPTABLE).entity(Map.of("error","mmm")).build();
+				return Response.status(Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error","mmm")).build();
 			}
 //    		String jsonString = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 //    		ObjectMapper mapper = new ObjectMapper();
@@ -227,9 +230,42 @@ public class UserResource {
 		} catch (GenericServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error","internal server error try again after some time")).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","internal server error try again after some time")).build();
 		} 
-	}	
+	}
+    
+    @Path("/addUser")
+    @POST
+    public Response createUser(@Context HttpServletRequest request,@Context HttpServletResponse response){
+    	//Utilmisc.tomap
+    	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	if(dispatcher==null) {
+    		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","dispatcher is null")).build();
+    	}else {
+    		Map<String,Object> input=new HashMap<>();
+    		
+    		input.put("firstName", request.getAttribute("firstName"));
+    		input.put("lastName", request.getAttribute("lastName"));
+    		input.put("userName", request.getAttribute("userName"));
+    		input.put("email", request.getAttribute("email"));
+    		input.put("role",request.getAttribute("role"));
+    		try {
+				Map<String,Object> result=dispatcher.runSync("regService",input);
+				if(result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("sucess",result.get("responseMessage"))).build();
+				}else {
+					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success",result.get("responseMessage"))).build();
+				}
+				
+				
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error",e.getMessage())).build();
+			}
+    	}
+    	
+    }
 
 }
     
