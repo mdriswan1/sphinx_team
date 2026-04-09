@@ -260,7 +260,6 @@ under the License.
          location="com.vastpro.service.ExamService"
          invoke="deleteExamByDetails"
          auth="false">
-      <attribute name="topicId" type="java.lang.String" mode="IN" optional="true"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
@@ -274,8 +273,6 @@ under the License.
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
-
-<!--  -->
 
  <service name="createQuestion"
         engine="java"
@@ -389,9 +386,7 @@ under the License.
 		<attribute name="topicId" mode="IN" type="String" optional="false" />
 		<attribute name="negativeMarkValue" mode="IN" type="BigDecimal" optional="true" />
 	</service>
-	
-	
-	<!-- renga -->
+
 
 	<service name="getAllUser" engine="java" location="com.vastpro.service.UserService" invoke="getAllUser" auth="false">
 		<attribute name="allUser" mode="OUT" type="List"></attribute>
