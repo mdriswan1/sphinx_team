@@ -44,9 +44,10 @@ under the License.
     <attribute name="firstName" type="String" mode="IN" optional="false"/>
     <attribute name="lastName" type="String" mode="IN" optional="false"/>
     <attribute name="userName" type="String" mode="IN" optional="false"/>
-    <attribute name="password" type="String" mode="IN" optional="false"/>
+    <attribute name="password" type="String" mode="IN" optional="true"/>
     <attribute name="email" type="String" mode="IN" optional="false"/>
-    <attribute name="phNo" type="String" mode="IN" optional="false"/>
+    <attribute name="phNo" type="String" mode="IN" optional="true"/>
+    <attribute name="role" type="String" mode="IN" optional="false"></attribute>
 
 
 </service>
@@ -73,6 +74,12 @@ under the License.
 <service engine="java" name="examUpdate" location="com.vastpro.service.ExamService" invoke="examUpdate" auth="false">
 	<implements service="examAttribute"/>
 	<attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
+	<attribute name="description" mode="IN" type="String" optional="false"></attribute>
+	<attribute name="examName" mode="IN" type="String" optional="false"></attribute>
+	<attribute name="noOfQuestions" mode="IN" type="String" optional="false"></attribute>
+	<attribute name="duration" mode="IN" type="String" optional="false"></attribute>
+	<attribute name="passPercentage" mode="IN" type="String" optional="false"></attribute>
+	
 	
 </service>
 <service engine="entity-auto" name="examUpdates" invoke="update" default-entity-name="ExamMaster">
@@ -161,12 +168,14 @@ under the License.
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
 
+
 	<service engine="java" name="signIn" location="com.vastpro.service.SigininService" invoke="checkSigininService" auth="false" >
 		
 	    <attribute name="userLoginId" type="String" mode="IN" optional="false"/>
 	    <attribute name="currentPassword" type="String" mode="IN" optional="false"/>
-	    
+	    <attribute name="role" type="String" mode="OUT" optional="false"/>
 	</service>
+
 	
 	<service engine="entity-auto" name="createParty" invoke="create" default-entity-name="Party">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
@@ -383,6 +392,7 @@ under the License.
 	
 	
 	<!-- renga -->
+
 	<service name="getAllUser" engine="java" location="com.vastpro.service.UserService" invoke="getAllUser" auth="false">
 		<attribute name="allUser" mode="OUT" type="List"></attribute>
 	</service>
@@ -394,8 +404,11 @@ under the License.
 		<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
-	
-<service engine="entity-auto" name="examTransfer" 
+
+	    <service name="uploadBulkQuestion" engine="java" location="com.vastpro.service.QuestionService" invoke="uploadBulkQuestion">
+        <attribute name="file" mode="IN" type="java.nio.ByteBuffer" optional="true" />
+    </service>
+    <service engine="entity-auto" name="examTransfer" 
          default-entity-name="QuestionBankMasterB" 
          invoke="create" 
          auth="false">
@@ -440,5 +453,7 @@ under the License.
      
 </service>
 
-
 </services>
+
+
+

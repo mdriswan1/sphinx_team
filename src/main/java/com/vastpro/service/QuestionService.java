@@ -1,21 +1,38 @@
 package com.vastpro.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.transaction.GenericTransactionException;
+import org.apache.ofbiz.entity.transaction.TransactionUtil;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import com.vastpro.utility.ConfigColumn;
+import com.vastpro.utility.ConfigColumn.ColumnConfig;
+
+
 
 public class QuestionService {
 	public static Map<String,Object>createQuestionService(DispatchContext dctx, Map<String, Object> questions){
@@ -35,7 +52,6 @@ public class QuestionService {
 			}
 			
 			//check topic exists
-			System.out.println("topic id is :"+topicId);
 			GenericValue topic =EntityQuery.use(delegator).from("TopicMaster").where("topicId",topicId).queryOne();
 			
 			if(topic==null) {
@@ -278,6 +294,7 @@ public class QuestionService {
 		}catch(GenericEntityException e) {
 			return ServiceUtil.returnError("Error fetching questions By topic: "+e.getMessage());
 		}
+
 	}
 	
 	
@@ -452,11 +469,125 @@ public class QuestionService {
 			return result;
 			
 		}catch (GenericEntityException e) {
-			// TODO: handle exception
+			
 			e.printStackTrace();
 			 return ServiceUtil.returnError("Error while getting exam questions: " + e.getMessage());
 			
 		}
 	}
-}
 
+	public Map<String, ? extends Object> uploadBulkQuestion(DispatchContext dctx,
+			Map<String, ? extends Object> context) {
+
+		// process the excel file
+
+		try {
+
+			ByteBuffer buffer = (ByteBuffer) context.get("file");
+
+			byte[] bytes = new byte[buffer.remaining()];
+
+			buffer.get(bytes);
+
+			InputStream is = new ByteArrayInputStream(bytes);
+
+			// InputStream file = (InputStream) context.get("file");
+
+			Map<String, Object> result = ServiceUtil.returnSuccess();
+
+			Workbook workbook = WorkbookFactory.create(is);
+			Sheet sheet = workbook.getSheetAt(0);
+
+			// list of questions map
+			List<Map<String, Object>> questions = new ArrayList<>();
+
+			int totalRows = sheet.getLastRowNum();
+
+			// first row considered as Header
+			if (totalRows < 1) {
+				return ServiceUtil.returnError("Please fill the details and upload the file");
+			}
+
+			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+
+				Row row = sheet.getRow(i);
+
+				if (row == null)
+					continue;
+
+				Map<String, Object> question = new HashMap<>();
+				List<ColumnConfig> columns = ConfigColumn.getColumnConfigs();
+				String questionId="SPX_QM_"+dctx.getDelegator().getNextSeqId("questionMaster");
+				question.put("questionId",questionId);
+				for (ColumnConfig col : columns) {
+					Cell cell = row.getCell(col.index);
+
+					if (col.required && (cell == null || cell.getCellType() == CellType.BLANK)) {
+						return ServiceUtil
+								.returnError("Row " + i + ", Column " + col.index + " " + col.label + " is required");
+					}
+					
+					if (cell == null) {
+						question.put(col.field, null);
+						continue;
+					}
+
+					switch (cell.getCellType()) {
+
+					case NUMERIC:
+						double numVal = cell.getNumericCellValue();
+						question.put(col.field, numVal);
+						break;
+
+					case STRING:
+						String strVal = cell.getStringCellValue();
+						question.put(col.field, strVal != null ? strVal.trim() : null);
+						break;
+
+					case BOOLEAN:
+						question.put(col.field, cell.getBooleanCellValue());
+						break;
+
+					case BLANK:
+						question.put(col.field, null);
+						break;
+					default:
+						question.put(col.field, null);
+						break;
+					}
+				}
+				questions.add(question);
+			}
+
+			
+			TransactionUtil.begin();
+
+			for (Map<String, ? extends Object> question : questions) {
+				
+				Map<String, Object> serviceResult = dctx.getDispatcher().runSync("createQuestion", question);
+				if (serviceResult.get("responseMessage") != null
+						&& serviceResult.get("responseMessage").equals("error")) {
+					Map<String, Object> errorResult = ServiceUtil
+							.returnError((String) serviceResult.get("errorMessage"));
+
+					TransactionUtil.rollback();
+					return errorResult;
+
+				}
+			}
+
+			
+			TransactionUtil.commit();
+
+			result.put("successMessage", "Questions uploaded successfully");
+
+			return result;
+
+		} catch (EncryptedDocumentException | IOException | GenericServiceException | GenericTransactionException e) {
+			
+			return ServiceUtil.returnError("Unexpected error occured, try again after sometime!");
+		}
+
+	}
+
+}
