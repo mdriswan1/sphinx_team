@@ -34,11 +34,11 @@
   	  <filter-name>corsFilter</filter-name>
   	  <filter-class>com.vastpro.filter.CorsFilter</filter-class>
 	</filter>
-
+<!-- 
 	<filter-mapping>
  	   <filter-name>corsFilter</filter-name>
   	  <url-pattern>/*</url-pattern>
-	</filter-mapping>
+	</filter-mapping> -->
     <filter>
     
     	
@@ -68,6 +68,11 @@
     </filter>
 
     <!-- Filter Mappings -->
+       <filter-mapping>
+        <filter-name>ContextFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+    
     <filter-mapping>
         <filter-name>ControlFilter</filter-name>
         <url-pattern>/*</url-pattern>
@@ -81,11 +86,6 @@
     <!-- IMPORTANT: keep API clean -->
     <filter-mapping>
         <filter-name>SameSiteFilter</filter-name>
-        <url-pattern>/api/*</url-pattern>
-    </filter-mapping>
-    
-    <filter-mapping>
-        <filter-name>ContextFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
 
@@ -108,7 +108,19 @@
             <param-value>com.vastpro.restapi.RestApplication</param-value>
         </init-param>
 
+<init-param>
+        <param-name>jersey.config.server.provider.classnames</param-name>
+        <param-value>org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
+    </init-param>
         <load-on-startup>1</load-on-startup>
+        
+        <multipart-config>
+            
+            <max-file-size>10485760</max-file-size>
+            <max-request-size>20971520</max-request-size>
+            <file-size-threshold>524288</file-size-threshold>
+        </multipart-config>
+        
     </servlet>
 
     <servlet-mapping>

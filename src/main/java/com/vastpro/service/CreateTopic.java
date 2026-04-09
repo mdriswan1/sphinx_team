@@ -24,7 +24,6 @@ public class CreateTopic {
 		try {
 			delegator.create(topicMaster);
 		} catch (GenericEntityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ServiceUtil.returnSuccess("created topic");
@@ -42,11 +41,8 @@ public class CreateTopic {
 				return ServiceUtil.returnSuccess("no topic found");
 			}
 			result.put("topic", topicList);
-			
-			
 			return result;
 		}catch (  GenericEntityException e) {
-			// TODO: handle exception
 			e.printStackTrace();
 	        return ServiceUtil.returnFailure("error while reterving");
 		}
@@ -65,25 +61,46 @@ public class CreateTopic {
                      .from("TopicMaster")
                      .where("topicId", topicId)
                      .queryOne();
+			 
+			 List<GenericValue> questionMaster = EntityQuery.use(delegator)
+		                .from("questionMaster")
+		                .where("topicId", topicId)
+		                .queryList();
+
+		        if (questionMaster != null && !questionMaster.isEmpty()) {
+		            delegator.removeAll(questionMaster);
+		            System.out.println("Deleted " + questionMaster.size() + " existing questions for examId: " + topicId);
+		        }
+			 List<GenericValue> questionMasterB = EntityQuery.use(delegator)
+		                .from("QuestionBankMasterB")
+		                .where("topicId", topicId)
+		                .queryList();
+
+		        if (questionMasterB != null && !questionMasterB.isEmpty()) {
+		            delegator.removeAll(questionMasterB);
+		            System.out.println("Deleted " + questionMasterB.size() + " existing questions for examId: " + topicId);
+		        }
+		        List<GenericValue> examTopicDetails = EntityQuery.use(delegator)
+		                .from("ExamTopicDetails")
+		                .where("topicId", topicId)
+		                .queryList();
+
+		        if (examTopicDetails != null && !examTopicDetails.isEmpty()) {
+		            delegator.removeAll(examTopicDetails);
+		            System.out.println("Deleted " + examTopicDetails.size() + " existing questions for examId: " + topicId);
+		        }
 			if(topicMaster==null) {
 				return ServiceUtil.returnError("Topic Not Found");
 			}
 			Map<String, Object> deleteMap=new HashMap<String, Object>();
 			deleteMap.put("topicId", topicId);
-			
-				Map<String, Object> result=dispatcher.runSync("deleteTopic", deleteMap);
-			
-			
-//			int removed=delegator.removeByAnd("TopicMaster",Map.of("topicId",topicId));
-			
-			
+			Map<String, Object> result=dispatcher.runSync("deleteTopic", deleteMap);
 			if(ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError("Topic Not Found");
 			}else {
 				return ServiceUtil.returnSuccess("Topic Deleted Successfully");
 			}
 		}catch (GenericEntityException | GenericServiceException e) {
-			// TODO: handle exception
 			e.printStackTrace();
 			return ServiceUtil.returnError(e.getMessage());
 		}
@@ -119,7 +136,6 @@ public class CreateTopic {
 		}catch (GenericEntityException | GenericServiceException e) {
 			e.printStackTrace();
 			return ServiceUtil.returnError("error,occur during update topic");
-			// TODO: handle exception
 		}
 	}
 

@@ -60,7 +60,7 @@ public class SigininService {
 				return ServiceUtil.returnError("login unsuccess");
 			} catch (GenericEntityException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				
 				return ServiceUtil.returnError("it is through exception");
 			} 
     		

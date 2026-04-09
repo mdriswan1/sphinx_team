@@ -235,7 +235,7 @@ under the License.
          auth="false">
        <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
         <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
-		<attribute name="topicPassPercentage" type="Double" mode="IN" optional="false"/>
+		<attribute name="topicPassPercentage" type="java.lang.Double" mode="IN" optional="false"/>
 </service>
 
 <service name="getAllExamTopics" engine="java"
@@ -272,6 +272,7 @@ under the License.
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
+
 <!--  -->
 
  <service name="createQuestion"
@@ -401,8 +402,55 @@ under the License.
 		<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
-	
-	
+
+	    <service name="uploadBulkQuestion" engine="java" location="com.vastpro.service.QuestionService" invoke="uploadBulkQuestion">
+        <attribute name="file" mode="IN" type="java.nio.ByteBuffer" optional="true" />
+    </service>
+    <service engine="entity-auto" name="examTransfer" 
+         default-entity-name="QuestionBankMasterB" 
+         invoke="create" 
+         auth="false">
+    <attribute name="examId"            type="String"     mode="IN" optional="false"/>
+    <attribute name="qId"               type="String"     mode="IN" optional="false"/>
+    <attribute name="topicId"           type="String"     mode="IN" optional="true"/>
+    <attribute name="questionDetail"    type="String"     mode="IN" optional="true"/>
+    <attribute name="optionA"           type="String"     mode="IN" optional="true"/>
+    <attribute name="optionB"           type="String"     mode="IN" optional="true"/>
+    <attribute name="optionC"           type="String"     mode="IN" optional="true"/>
+    <attribute name="optionD"           type="String"     mode="IN" optional="true"/>
+    <attribute name="answer"            type="String"     mode="IN" optional="true"/>  <!-- ✅ was false -->
+    <attribute name="numAnswers"        type="Long"       mode="IN" optional="true"/>
+    <attribute name="questionTypeId"    type="String"     mode="IN" optional="true"/>
+    <attribute name="difficultyLevel"   type="Long"       mode="IN" optional="true"/>
+    <attribute name="answerValue"       type="BigDecimal" mode="IN" optional="true"/>
+    <attribute name="negativeMarkValue" type="BigDecimal" mode="IN" optional="true"/>
+</service>
+
+	<service name="generateExamQuestions"
+         engine="java"
+         location="com.vastpro.service.QuestionService"
+         invoke="generateExamQuestions"
+         auth="false">
+    <description>Generate exam questions split by topic percentage</description>
+    <attribute name="examId"         type="String"  mode="IN"  optional="false"/> 
+   
+   
+    <attribute name="examName"       type="String"  mode="OUT" optional="true"/>
+    
+</service>
+
+<service name="getQuestions" engine="java"
+     
+         invoke="getQuestion"
+         location="com.vastpro.service.QuestionService"
+         auth="false">
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+       <attribute name="questions" type="java.util.List" mode="OUT" optional="true"/>
+    <attribute name="examId"    type="java.lang.String" mode="OUT" optional="true"/>
+    <attribute name="totalQuestions" type="java.lang.Integer" mode="OUT" optional="true"/>
+     
+</service>
+
 </services>
 
 

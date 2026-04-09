@@ -49,11 +49,9 @@ public class TopicResource {
 		return dispatcher;
 	}
 	
-	@Context
-	private ServletContext servletContext;
 	
-	@Context
-	private HttpServletRequest request;
+	
+	
 	@POST
 	@Path("/createtopic")
 	public Response createTopic(@Context HttpServletRequest request) {
@@ -71,7 +69,7 @@ public class TopicResource {
 			return Response.ok(result).build();
 			
 		}catch (GenericServiceException e) {
-			// TODO: handle exception
+			
 			e.printStackTrace();
 			return Response.status(500).entity(Map.of("error",e.getMessage())).build();
 		}
@@ -80,22 +78,16 @@ public class TopicResource {
 	
 	@GET
 	@Path("/gettopics")
-	public Response getTopics() {
-		LocalDispatcher dispatcher=getDispatcher(servletContext);
+	public Response getTopics(@Context HttpServletRequest request) {
+		LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
 		if(dispatcher==null) {
 			Response.status(500).entity(Map.of("error","dispatcher is  null")).build();
 		}
 		try {
-			Map<String, Object> result=dispatcher.runSync("getAllTopic",Map.of());
-			
-				
-				 return Response.ok(result).build();
-			
-			
-			
+			Map<String, Object> result=dispatcher.runSync("getAllTopic",Map.of());				
+			return Response.ok(result).build();
 			
 		}catch (GenericServiceException e) {
-			// TODO: handle exception
 			e.printStackTrace();
 			return Response.status(500).entity(Map.of("error",e.getMessage())).build();
 			
@@ -150,7 +142,6 @@ public class TopicResource {
 			Map<String, Object> result=dispatcher.runSync("updateTopicOwn", input);
 			return Response.ok(result).build();
 		}catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 			return Response.status(500).entity(Map.of("error2", e.getMessage())).build();
 		}
