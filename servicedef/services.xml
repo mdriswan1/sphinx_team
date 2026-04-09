@@ -258,7 +258,7 @@ under the License.
          location="com.vastpro.service.ExamService"
          invoke="deleteExamByDetails"
          auth="false">
-      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+     
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
