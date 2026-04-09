@@ -118,7 +118,7 @@ public class UserResource {
                 return Response.status(401).entity(
                     Map.of(
                         "status", "error",
-                        "message", result.get("errorMessage")
+                        "message","Invalid Credinatilas"
                     )
                 ).build();
             }

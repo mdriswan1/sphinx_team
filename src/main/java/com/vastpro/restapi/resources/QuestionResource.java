@@ -8,11 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -21,14 +23,16 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.UtilMisc;
-import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
-import org.apache.ofbiz.service.ServiceContainer;
 import org.apache.ofbiz.service.ServiceUtil;
 
+/**
+ * Question Resource
+ * 
+ * This class is responsible for handle request and response for question related actions
+ */
 
  
 @Path("/question")
@@ -42,7 +46,7 @@ public class QuestionResource {
 		LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
 		Map<String,Object> resp= new HashMap<String, Object>();
 		if(dispatcher==null) {
-			return Response.status(500).entity(Map.of("error","Dispatcher not found")).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","Dispatcher not found")).build();
 		}
 		try {	
 			Map<String,Object> data= new HashMap<String, Object>();
@@ -63,11 +67,11 @@ public class QuestionResource {
 			if (ServiceUtil.isError(result)) {
 	        	resp.put("status",  "error");
 	        	resp.put("message", ServiceUtil.getErrorMessage(result));
-	            return Response.status(500).entity(resp ).build();
+	            return Response.status(Response.Status.BAD_REQUEST).entity(resp ).build();
 	        }
 			return Response.ok(result).build();
 		}catch(Exception e) {
-			return Response.status(500).entity(Map.of("error", e.getMessage())).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", e.getMessage())).build();
 		}
 	}
 
@@ -80,24 +84,24 @@ public class QuestionResource {
 		LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
 		Map<String,Object> resp= new HashMap<String, Object>();
 		if(dispatcher==null) {
-			return Response.status(500).entity(Map.of("error","Dispatcher not found")).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","Dispatcher not found")).build();
 		}
 		try {	
 			Map<String,Object> data= new HashMap<String, Object>();
 			data.put("questionId", request.getAttribute("questionId"));
 		    if(request.getAttribute("questionId")==null) {
-				return Response.status(400).entity(Map.of("error","questionId null")).build();
+				return Response.status(Response.Status.BAD_REQUEST).entity(UtilMisc.toMap("error","questionId null")).build();
 		    }
 
 			Map<String, Object> result = dispatcher.runSync("getQuesById", data);
 			if (ServiceUtil.isError(result)) {
 	        	resp.put("status",  "error");
 	        	resp.put("message", ServiceUtil.getErrorMessage(result));
-	            return Response.status(500).entity(resp ).build();
+	            return Response.status(Response.Status.BAD_REQUEST).entity(resp ).build();
 	        }
 			return Response.ok(result).build();
 		}catch(Exception e) {
-			return Response.status(500).entity(Map.of("error", e.getMessage())).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", e.getMessage())).build();
 		}
 	}
 
@@ -111,12 +115,12 @@ public class QuestionResource {
 		LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
 		Map<String,Object> resp= new HashMap<String, Object>();
 		if(dispatcher==null) {
-			return Response.status(500).entity(Map.of("error","Dispatcher not found")).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","Dispatcher not found")).build();
 		}
 	    try {
 	        String questionId = (String) request.getAttribute("questionId");
 	        if(request.getAttribute("questionId")==null) {
-				return Response.status(400).entity(Map.of("error","questionId null")).build();
+				return Response.status(Response.Status.BAD_REQUEST).entity(UtilMisc.toMap("error","questionId null")).build();
 		    }
 
 	        
@@ -141,14 +145,14 @@ public class QuestionResource {
 	        if (ServiceUtil.isError(result)) {
 	        	resp.put("status",  "error");
 	        	resp.put("message", ServiceUtil.getErrorMessage(result));
-	            return Response.status(500).entity(resp ).build();
+	            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(resp ).build();
 	        }
 	        resp.put("status","SUCCESS");
 	        resp.put("message","Question updated successfully");
 	        return Response.ok(result).build();
  
 	    } catch (Exception e) {
-	    	return Response.status(500).entity(Map.of("error", e.getMessage())).build();
+	    	return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", e.getMessage())).build();
 	    }
 	}
 	
@@ -162,12 +166,12 @@ public class QuestionResource {
 	
 	  		LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
 	  		if(dispatcher==null) {
-	  			return Response.status(500).entity(Map.of("error","Dispatcher not found")).build();
+	  			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","Dispatcher not found")).build();
 	  		}
 	    try {
 	        String questionId=(String) request.getAttribute("questionId");
 	        if(request.getAttribute("questionId")==null) {
-				return Response.status(400).entity(Map.of("error","questionId null")).build();
+				return Response.status(Response.Status.BAD_REQUEST).entity(UtilMisc.toMap("error","questionId null")).build();
 		    }
 
 	        
@@ -178,7 +182,7 @@ public class QuestionResource {
  
 	        if (ServiceUtil.isError(result)) {
 	           
-	            return Response.status(500).entity(result).build();
+	            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(result).build();
 	        }
  
 	        resp.put("status","SUCCESS");
@@ -186,9 +190,7 @@ public class QuestionResource {
 	        return Response.ok(result).build();
  
 	    } catch (Exception e) {
-	        resp.put("status",  "ERROR");
-	        resp.put("message", e.getMessage());
-	        return Response.status(500).entity(resp).build();
+	        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", e.getMessage())).build();
 	    }
 	}
 	
@@ -199,12 +201,12 @@ public class QuestionResource {
 	public Response getquesbytopic(@Context HttpServletRequest request) {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		if(dispatcher == null) {
-			return Response.status(500).entity(Map.of("error","dispatcher is null")).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error","dispatcher is null")).build();
 		}
 		
 		Map<String, Object> data = new HashMap<>();
 		if(request.getAttribute("topicId")==null) {
-			return Response.status(400).entity(Map.of("error", "topicId not found")).build();
+			return Response.status(Response.Status.BAD_REQUEST).entity(UtilMisc.toMap("error", "topicId not found")).build();
 		}
 		
 		data.put("topicId",request.getAttribute("topicId"));
@@ -213,13 +215,13 @@ public class QuestionResource {
 			Map<String, Object> result = dispatcher.runSync("getquesbytopic", data);
 
 			if(ServiceUtil.isError(result)) {
-	            return Response.status(500).entity(result).build();
+	            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(result).build();
 			}
 			
 			return Response.ok(result).build();
 		} catch (GenericServiceException e) {
 
-            return Response.status(500).entity(Map.of("ERROR",e.getMessage())).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("ERROR",e.getMessage())).build();
 		}
 	}
 	
@@ -279,4 +281,87 @@ public class QuestionResource {
 
 	}
 
+
+	@Path("/generateExamQuestions")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response generateExamQuestions(
+	        @Context HttpServletRequest request,
+	        @Context HttpServletResponse response) {
+
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("examId", request.getAttribute("examId")); // GET ?examId=EXAM_10000
+	    
+	    LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+
+	    if (dispatcher == null) {
+	        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+	                .entity(UtilMisc.toMap("error", "dispatcher is null"))
+	                .build();
+	    } else {
+	        try {
+	            Map<String, Object> result = dispatcher.runSync("generateExamQuestions", params);
+
+	            if (result.get("responseMessage").equals("success")) {
+	                return Response.ok(UtilMisc.toMap(
+	                        "status",         "success",
+	                        "examName",       result.get("examName")
+	                )).build();
+	            } else {
+	                return Response.status(Response.Status.NOT_ACCEPTABLE)
+	                        .entity(UtilMisc.toMap("error", result.get("errorMessage")))
+	                        .build();
+	            }
+
+	        } catch (GenericServiceException e) {
+	            
+	            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+	                    .entity(UtilMisc.toMap("error", "Internal server error, try again later"))
+	                    .build();
+	        }
+	    }
+	}
+	
+	
+	@GET
+	@Path("/getExamQuestion")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getQuestions(@Context HttpServletRequest request,@Context ServletContext context) {
+		LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+		Map<String, Object> input=new HashMap<String, Object>();
+		 if (dispatcher == null) {
+		        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+		                .entity(UtilMisc.toMap("error", "dispatcher is null"))
+		                .build();
+		    }
+		 
+		 
+		 Map<String, Object> result;
+		try {
+			String examId=(String) request.getParameter("examId");
+			System.out.println("exam id : "+examId);
+			input.put("examId", examId);
+			
+			
+			
+				result = dispatcher.runSync("getQuestions", input);
+			 if(ServiceUtil.isError(result)) {
+				 return Response.status(Response.Status.NOT_ACCEPTABLE)
+	                        .entity(UtilMisc.toMap("error", result.get("errorMessage")))
+	                        .build();
+			 }
+			 
+			 return Response.ok(result).build();
+			
+		} catch (GenericServiceException e) {
+			
+			 
+	            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+	                    .entity(UtilMisc.toMap("error", "Internal server error, try again later"))
+	                    .build();
+			
+		}
+		
+	}
 }

@@ -76,8 +76,10 @@ public class ExamResource {
 			}
 			  
 		  }
+	 
 	    @GET
 	    @Path("/getexam")
+	    @Produces(MediaType.APPLICATION_JSON)
 	    public Response getExamName(@Context  HttpServletRequest request) {
 	    	LocalDispatcher dispatcher= (LocalDispatcher) request.getAttribute("dispatcher");
 	    	if(dispatcher==null) {
@@ -167,7 +169,7 @@ public class ExamResource {
     			Map<String,Object> examDelete=new HashMap<String, Object>();
     			examDelete.put("examId",examId);
     			try {
-					Map<String,Object> result=dispatcher.runSync("examDelete", examDelete);
+					Map<String,Object> result=dispatcher.runSync("deleteByDetails", examDelete);
 					if(result.get("responseMessage").equals("success")) {
 						return Response.ok(Map.of("success","exam deleted")).build();
 					}else {
@@ -187,6 +189,7 @@ public class ExamResource {
     @POST
     @Path("/examtopicdetails")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response insertExamTopicDetails(@Context HttpServletRequest request,@Context ServletContext context) {
     	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	
