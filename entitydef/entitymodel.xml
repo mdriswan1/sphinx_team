@@ -60,7 +60,7 @@ under the License.
     </entity>   
     
     
-   <entity entity-name="questionMaster"  package-name="">
+   <entity entity-name="QuestionMaster"  package-name="">
 		<field name="questionId" type="name" />
 		<field name="questionDetail" type="very-long" />
 		<field name="optionA" type="very-long" />
