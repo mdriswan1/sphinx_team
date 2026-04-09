@@ -20,7 +20,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.ofbiz.base.util.Debug;
@@ -190,7 +189,7 @@ public class ExamResource {
     @Path("/examtopicdetails")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response insertExamTopicDetails(@Context HttpServletRequest request,@Context ServletContext context) {
+    public Response insertExamTopicDetails(@Context HttpServletRequest request) {
     	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	
     	if(dispatcher==null) {
@@ -222,9 +221,9 @@ public class ExamResource {
     }
     
     @GET
-    @Path("/examtopicdetails")
+    @Path("/dummy")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getExamTopicDetails(@Context HttpServletRequest request,@Context ServletContext context) {
+    public Response getExamTopicDetails(@Context HttpServletRequest request) {
     	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	if(dispatcher==null) {
     		Response.status(500).entity(Map.of("error","dispatcher is null")).build();
@@ -249,7 +248,7 @@ public class ExamResource {
     @GET
     @Path("/examtopicbyid")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getExamTopicsById(@Context HttpServletRequest request,@Context ServletContext context) {
+    public Response getExamTopicsById(@Context HttpServletRequest request) {
     	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	Map<String, Object> input=new HashMap<String, Object>();
     	if(dispatcher==null) {
@@ -277,7 +276,7 @@ public class ExamResource {
     @Path("/examtopicdeletebyid")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response examTopicDetailsByDetails(@Context HttpServletRequest request,@Context ServletContext context) {
+    public Response examTopicDetailsByDetails(@Context HttpServletRequest request) {
     	LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	Map<String, Object> input=new HashMap<String, Object>();
     	if(dispatcher==null) {

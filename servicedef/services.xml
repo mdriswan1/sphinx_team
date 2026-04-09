@@ -84,11 +84,13 @@ under the License.
 </service>
 
 <service engine="entity-auto" name="examDeletes" invoke="delete" default-entity-name="ExamMaster">
-	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	 <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+	 
 	
 </service>
 <service engine="entity-auto" name="topicDeletes" invoke="delete" default-entity-name="ExamTopicDetails">
 	  <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+	 
 
 		</service>
 <service engine="java" name="getExam" location="com.vastpro.service.ExamService" invoke="getAllExam">
@@ -217,7 +219,7 @@ under the License.
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
         <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
-		<attribute name="topicPassPercentage" type="java.lang.String" mode="IN" optional="false"/>
+		<attribute name="topicPassPercentage" type="java.lang.Double" mode="IN" optional="false"/>
 </service>
 
 <service name="autoInsertExamT" engine="entity-auto"
@@ -249,7 +251,7 @@ under the License.
          location="com.vastpro.service.ExamService"
          invoke="deleteExamByDetails"
          auth="false">
-      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="true"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>

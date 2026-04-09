@@ -193,14 +193,14 @@ public class ExamService {
 		Delegator delegator=context.getDelegator();
 		Map<String, Object> result=ServiceUtil.returnSuccess("Topic deleted successfully");
 		try {
-			String topicId=(String) input.get("topicId");
+			
     		String examId=(String) input.get("examId");
 			Map<String, Object> contexts = new HashMap<>();
 			contexts.put("examId", examId);
 			System.out.println("exam id is service :"+examId);
-			contexts.put("topicId", topicId);
+		
 			
-			System.out.println("topic id is service :"+topicId);
+		
 			
 			 List<GenericValue> questionMasterB = EntityQuery.use(delegator)
 		                .from("QuestionBankMasterB")
@@ -209,7 +209,7 @@ public class ExamService {
 
 		        if (questionMasterB != null && !questionMasterB.isEmpty()) {
 		            delegator.removeAll(questionMasterB);
-		            System.out.println("Deleted " + questionMasterB.size() + " existing questions for examId: " + topicId);
+		            System.out.println("Deleted " + questionMasterB.size() + " existing questions for examId: " + examId);
 		        }
     	
 			 List<GenericValue> topicDetails;
@@ -220,7 +220,7 @@ public class ExamService {
 				            .queryList();
 				  if (topicDetails != null && !topicDetails.isEmpty()) {
 			            delegator.removeAll(topicDetails);
-			            System.out.println("Deleted " + topicDetails.size() + " existing questions for examId: " + topicId);
+			            System.out.println("Deleted " + topicDetails.size() + " existing questions for examId: " + examId);
 			        }
 		
 		      
