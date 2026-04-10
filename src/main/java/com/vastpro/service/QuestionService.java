@@ -63,7 +63,7 @@ public class QuestionService {
 				}
 			}
 
-			String questionId = "SPX_QM_" + delegator.getNextSeqId("Questionmaster");
+			String questionId = "SPX_QM_" + delegator.getNextSeqId("questionMaster");
 			questions.put("questionId", questionId);
 			dispatcher.runSync("createQuestion", questions);
 
@@ -90,7 +90,7 @@ public class QuestionService {
 				return ServiceUtil.returnError("For update QuestonId required");
 			}
 
-			GenericValue question = EntityQuery.use(delegator).from("Questionmaster").where("questionId", questionId).queryOne();
+			GenericValue question = EntityQuery.use(delegator).from("questionMaster").where("questionId", questionId).queryOne();
 
 			if (question == null) {
 				return ServiceUtil.returnError("Question not present in database: " + questionId);
@@ -163,7 +163,7 @@ public class QuestionService {
 		try {
 			String questionId = (String) context.get("questionId");
 
-			GenericValue question = EntityQuery.use(delegator).from("Questionmaster").where("questionId", questionId).queryOne();
+			GenericValue question = EntityQuery.use(delegator).from("questionMaster").where("questionId", questionId).queryOne();
 
 			if (question == null) {
 				return ServiceUtil.returnError("Question not found for questionId: ");
@@ -189,7 +189,7 @@ public class QuestionService {
 
 			String questionId = (String) context.get("questionId");
 
-			GenericValue question = EntityQuery.use(delegator).from("Questionmaster").where("questionId", questionId).queryOne();
+			GenericValue question = EntityQuery.use(delegator).from("questionMaster").where("questionId", questionId).queryOne();
 
 			if (question == null) {
 				return ServiceUtil.returnError("question not Found");
@@ -221,7 +221,7 @@ public class QuestionService {
 				return ServiceUtil.returnError("Topic not Found");
 			}
 
-			List<GenericValue> questions = EntityQuery.use(delegator).from("Questionmaster").where("topicId", topicId).orderBy("questionId")
+			List<GenericValue> questions = EntityQuery.use(delegator).from("questionMaster").where("topicId", topicId).orderBy("questionId")
 							.queryList();
 
 			List<Map<String, Object>> questionList = new ArrayList<>();
@@ -314,7 +314,7 @@ public class QuestionService {
 				if (count <= 0)
 					continue;
 
-				List<GenericValue> topicQuestions = EntityQuery.use(delegator).from("Questionmaster").where("topicId", topicId).queryList();
+				List<GenericValue> topicQuestions = EntityQuery.use(delegator).from("questionMaster").where("topicId", topicId).queryList();
 
 				if (topicQuestions == null || topicQuestions.isEmpty())
 					continue;
@@ -445,7 +445,7 @@ public class QuestionService {
 
 				Map<String, Object> question = new HashMap<>();
 				List<ColumnConfig> columns = ConfigColumn.getColumnConfigs();
-				String questionId = "SPX_QM_" + dctx.getDelegator().getNextSeqId("Questionmaster");
+				String questionId = "SPX_QM_" + dctx.getDelegator().getNextSeqId("questionMaster");
 				question.put("questionId", questionId);
 				for (ColumnConfig col : columns) {
 					Cell cell = row.getCell(col.index);
