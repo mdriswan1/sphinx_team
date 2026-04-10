@@ -1,59 +1,71 @@
 package com.vastpro.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 public class UserService {
-	
-	public Map<String,Object> getAllUser(DispatchContext context,Map<String,Object> input){
-		Delegator delegator=context.getDelegator();
+
+	public Map<String, Object> getAllUser(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+
+		Map<String, Object> result = ServiceUtil.returnSuccess();
 		try {
-			List<GenericValue> allUser=delegator.findAll("UserLogin", false);
-			Map<String,Object> result=ServiceUtil.returnSuccess();
+			List<GenericValue> allUser = delegator.findAll("UserLogin", false);
+			System.out.println("++++++++++++++++++++++++++++" + allUser + "+++++++++++++++++++++++++");
+			for (GenericValue user : allUser) {
+				String partyId = user.getString("partyId");
+				List<GenericValue> partyRoles = EntityQuery.use(delegator).from("PartyRole").where("partyId", partyId).queryList();
+				for (GenericValue partyRole : partyRoles) {
+					String roleTypeId = partyRole.getString("partyId");
+					if (!roleTypeId.equals("SPX_USER")) {
+						allUser.remove(user);
+					}
+				}
+			}
+			System.out.println("++++++++++++++++++++++++++++++++++++" + allUser + "++++++++++++++++++++++++++++++++++++++++");
+
 			result.put("allUser", allUser);
 			return result;
 		} catch (GenericEntityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return ServiceUtil.returnError("it is exception"+e.getMessage());
+			return ServiceUtil.returnError("it is exception" + e.getMessage());
 		}
-		
-		
+
 	}
-	public Map<String,Object> createExamRelationship(DispatchContext context,Map<String,Object> input){
-		LocalDispatcher dispatcher=context.getDispatcher();
-		if(dispatcher==null) {
+
+	public Map<String, Object> createExamRelationship(DispatchContext context, Map<String, Object> input) {
+		LocalDispatcher dispatcher = context.getDispatcher();
+		if (dispatcher == null) {
 			return ServiceUtil.returnError("in service dispatcher is null");
-		}else {
-			List<Map<String, Object>> allData=(List<Map<String, Object>>)input.get("allData");
-			for(Map<String,Object> obj:allData) {
+		} else {
+			List<Map<String, Object>> allData = (List<Map<String, Object>>) input.get("allData");
+			for (Map<String, Object> obj : allData) {
 				try {
-					Map<String,Object> result=dispatcher.runSync("examrelationshipcreates",obj);
-					
-					
-					if(ServiceUtil.isError(result)) {
-						return ServiceUtil.returnError((String)result.get("errorMessage"));
+					Map<String, Object> result = dispatcher.runSync("examrelationshipcreates", obj);
+
+					if (ServiceUtil.isError(result)) {
+						return ServiceUtil.returnError((String) result.get("errorMessage"));
 					}
-					
+
 				} catch (GenericServiceException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					return ServiceUtil.returnError("it is exception"+obj+e.getMessage());
+					return ServiceUtil.returnError("it is exception" + obj + e.getMessage());
 				}
 			}
 			return ServiceUtil.returnSuccess("succesfuly created");
 		}
-		
+
 	}
-	
 
 }

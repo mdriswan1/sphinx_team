@@ -10,8 +10,8 @@ import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
-import com.vastpro.checkpassword.GeneratePssword;
-import com.vastpro.checkpassword.HashPassword;
+import com.vastpro.utility.GeneratePssword;
+import com.vastpro.utility.HashPassword;
 
 public class SiginupService {
 
@@ -45,13 +45,9 @@ public class SiginupService {
 
 				String password = HashPassword.hashPassword((String) input.get("password"));
 				userLogin.put("currentPassword", password);
-			} else if (role.equals("SPX_USER")) 
-			{
-				String password = new GeneratePssword().generatePassword(7);
-				System.out.println("++++++++++++" + password + "+++++++++++++++");
+			} else if (role.equals("SPX_USER")) {
+				String password = new GeneratePssword().generatePassword();
 				password = HashPassword.hashPassword(password);
-				System.out.println("+++++++++++++++++++++++++++++++++++++ " + password
-								+ " -------------------------------------------------------------------------------");
 				userLogin.put("currentPassword", password);
 			}
 

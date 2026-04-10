@@ -100,26 +100,6 @@ public class ExamService {
 		}
 	}
 
-	public Map<String, Object> examDelete(DispatchContext context, Map<String, Object> input) {
-		try {
-			LocalDispatcher dispatcher = context.getDispatcher();
-
-			String examId = (String) input.get("examId");
-			System.out.println("EXAMID: " + examId);
-			if (examId == null) {
-				return ServiceUtil.returnError("exam id is null");
-
-			} else {
-
-				dispatcher.runSync("examDeletes", input);
-			}
-		} catch (GenericServiceException e) {
-			e.printStackTrace();
-			return ServiceUtil.returnError("error from service" + e.getMessage());
-		}
-		return ServiceUtil.returnSuccess("exam deleted");
-	}
-
 	public Map<String, Object> insertExamTopicDetails(DispatchContext context, Map<String, Object> input) throws GenericEntityException {
 		LocalDispatcher dispatcher = context.getDispatcher();
 
@@ -133,7 +113,7 @@ public class ExamService {
 				return ServiceUtil.returnSuccess("ExamTopic inserted Successfully");
 			}
 		} catch (GenericServiceException e) {
-			// TODO: handle exception
+
 			e.printStackTrace();
 			return ServiceUtil.returnError(e.getMessage());
 		}
@@ -153,7 +133,7 @@ public class ExamService {
 			return result;
 
 		} catch (GenericEntityException e) {
-			// TODO: handle exception
+
 			e.printStackTrace();
 			return ServiceUtil.returnError(e.getMessage());
 		}
@@ -174,7 +154,7 @@ public class ExamService {
 			result.put("topic", topics);
 			return result;
 		} catch (GenericEntityException e) {
-			// TODO: handle exception
+
 			e.printStackTrace();
 			return ServiceUtil.returnError(e.getMessage());
 		}
@@ -186,39 +166,42 @@ public class ExamService {
 		Delegator delegator = context.getDelegator();
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic deleted successfully");
 		try {
-			String topicId = (String) input.get("topicId");
+
 			String examId = (String) input.get("examId");
 			Map<String, Object> contexts = new HashMap<>();
 			contexts.put("examId", examId);
 			System.out.println("exam id is service :" + examId);
-			contexts.put("topicId", topicId);
-
-			System.out.println("topic id is service :" + topicId);
 
 			List<GenericValue> questionMasterB = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).queryList();
 
 			if (questionMasterB != null && !questionMasterB.isEmpty()) {
 				delegator.removeAll(questionMasterB);
-				System.out.println("Deleted " + questionMasterB.size() + " existing questions for examId: " + topicId);
+
+				System.out.println("Deleted " + questionMasterB.size() + " existing questions for examId: " + examId);
+
 			}
 
-			List<GenericValue> topicDetails;
-
-			topicDetails = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
+			List<GenericValue> topicDetails = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
 			if (topicDetails != null && !topicDetails.isEmpty()) {
 				delegator.removeAll(topicDetails);
-				System.out.println("Deleted " + topicDetails.size() + " existing questions for examId: " + topicId);
-			}
 
+				System.out.println("Deleted " + topicDetails.size() + " existing questions for examId: " + examId);
+
+			}
+			List<GenericValue> partyExamRelationshipDetails = EntityQuery.use(delegator).from("PartyExamRelationship")
+							.where("examId", examId).queryList();
+			if (partyExamRelationshipDetails != null && !partyExamRelationshipDetails.isEmpty()) {
+				delegator.removeAll(partyExamRelationshipDetails);
+			}
 			result = dispatcher.runSync("examDeletes", contexts);
 
 			if (ServiceUtil.isError(result)) {
-				return ServiceUtil.returnError("Topic Not Found");
+				return ServiceUtil.returnError("exam Not Found");
 			} else {
-				return ServiceUtil.returnSuccess("Topic Deleted Successfully");
+				return ServiceUtil.returnSuccess("exam Deleted Successfully");
 			}
 		} catch (GenericServiceException | GenericEntityException e) {
-			// TODO: handle exception
+
 			e.printStackTrace();
 			return ServiceUtil.returnError(e.getMessage());
 		}
