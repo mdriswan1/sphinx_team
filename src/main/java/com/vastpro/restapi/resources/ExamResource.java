@@ -115,7 +115,7 @@ public class ExamResource {
 			if (result.get("responseMessage").equals("success")) {
 				return Response.ok(UtilMisc.toMap("success", "updated successfully")).build();
 			} else {
-				return Response.status(200).entity(UtilMisc.toMap("error", "not updated")).build();
+				return Response.ok(UtilMisc.toMap("error", "not updated")).build();
 			}
 		} catch (GenericServiceException e) {
 
@@ -143,7 +143,7 @@ public class ExamResource {
 			Map<String, Object> examDelete = new HashMap<String, Object>();
 			examDelete.put("examId", examId);
 			try {
-				Map<String, Object> result = dispatcher.runSync("deleteByDetails", examDelete);
+				Map<String, Object> result = dispatcher.runSync("examDelete", examDelete);
 				if (result.get("responseMessage").equals("success")) {
 					return Response.ok(UtilMisc.toMap("success", "exam deleted")).build();
 				} else {
@@ -259,38 +259,5 @@ public class ExamResource {
 	/**
 	 * Method is used to delete exam topic details by id
 	 */
-	@DELETE
-	@Path("/examtopicdeletebyid")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response examTopicDetailsByDetails(@Context HttpServletRequest request) {
-		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-		Map<String, Object> input = new HashMap<String, Object>();
-		if (dispatcher == null) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
-		}
-
-		try {
-			String topicId = request.getParameter("topicId");
-			String examId = request.getParameter("examId");
-
-			input.put("topicId", topicId);
-			System.out.println("topic id is :" + topicId);
-			input.put("examId", examId);
-			System.out.println("exam id is :" + examId);
-
-			Map<String, Object> result = dispatcher.runSync("deleteByDetails", input);
-			if (ServiceUtil.isError(result)) {
-				return Response.status(Response.Status.NOT_FOUND).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
-			} else {
-				System.out.println("inside done in resource");
-				return Response.ok(result).build();
-			}
-
-		} catch (GenericServiceException e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
-		}
-	}
 
 }

@@ -24,6 +24,7 @@ public class SiginupService {
 		Delegator delegator = context.getDelegator();
 		LocalDispatcher dispatcher = context.getDispatcher();
 		try {
+
 			String role = (String) input.get("role");
 			Map<String, Object> partyTable = new HashMap<>();
 			String partyId = "SPX_UL_" + delegator.getNextSeqId("Party");

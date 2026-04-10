@@ -86,20 +86,17 @@ under the License.
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 </service>
-<service engine="java" name="examDelete" location="com.vastpro.service.ExamService" invoke="examDelete">
+<service engine="java" name="examDelete" location="com.vastpro.service.ExamService" invoke="deleteExamByDetails">
 	<attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
 </service>
 
 <service engine="entity-auto" name="examDeletes" invoke="delete" default-entity-name="ExamMaster">
-	 <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
-	 
-	
+	 <auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>	
 </service>
+
 <service engine="entity-auto" name="topicDeletes" invoke="delete" default-entity-name="ExamTopicDetails">
 	  <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
-	 
-
-		</service>
+</service>
 <service engine="java" name="getExam" location="com.vastpro.service.ExamService" invoke="getAllExam">
 	<attribute name="data" mode="OUT" type="List"></attribute>
 </service>
@@ -325,7 +322,7 @@ under the License.
 		<attribute name="questionId" mode="OUT" type="String" optional="false"></attribute>
 	</service>
 
-	<service  name="createQuestion" engine="entity-auto" invoke="create" default-entity-name="questionMaster">
+	<service  name="createQuestion" engine="entity-auto" invoke="create" default-entity-name="QuestionMaster">
 	<description>Add question to question master </description>
 		<auto-attributes include="pk" mode="IN" optional="false"/>
         <auto-attributes include="nonpk" mode="IN" optional="true"/>
@@ -333,7 +330,7 @@ under the License.
 	
 	<service name="updateQuestion" 
          engine="entity-auto" 
-         default-entity-name="questionMaster" 
+         default-entity-name="QuestionMaster" 
          invoke="update">
   	<description>Update question to question master </description>
 	<auto-attributes mode="IN" include="pk" optional="true"></auto-attributes>
@@ -356,7 +353,7 @@ under the License.
 		<attribute name="questionId" mode="IN" type="String"></attribute>
 	</service>
 	
-	<service name="deleteQuestion" engine="entity-auto" default-entity-name="questionMaster" invoke="delete">
+	<service name="deleteQuestion" engine="entity-auto" default-entity-name="QuestionMaster" invoke="delete">
   	<description>Delete question </description>
 	<auto-attributes mode="IN" include="pk" optional="true"></auto-attributes>
 	</service>
@@ -389,6 +386,7 @@ under the License.
 
 
 	<service name="getAllUser" engine="java" location="com.vastpro.service.UserService" invoke="getAllUser" auth="false">
+		
 		<attribute name="allUser" mode="OUT" type="List"></attribute>
 	</service>
 	

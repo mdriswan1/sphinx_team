@@ -203,28 +203,6 @@ under the License.
 		</relation>			
     </entity>
 
-<entity entity-name="questionMaster"  package-name="">
-		<field name="questionId" type="name" />
-		<field name="questionDetail" type="very-long" />
-		<field name="optionA" type="very-long" />
-		<field name="optionB" type="very-long" />
-		<field name="optionC" type="very-long" />
-		<field name="optionD" type="very-long" />
-		<field name="answer" type="short-varchar" />
-		<field name="numAnswers" type="numeric" />
-		<field name="questionTypeId" type="short-varchar" />
-		<field name="difficultyLevel" type="numeric" />
-		<field name="answerValue" type="fixed-point" />
-		<field name="topicId" type="id" />
-		<field name="negativeMarkValue" type="fixed-point" />
-		<prim-key field="questionId" />
-		<relation type="one" rel-entity-name="TopicMaster">
-			<key-map field-name="topicId" />
-		</relation>
-		<relation type="one" rel-entity-name="Enumeration">
-			<key-map field-name="questionTypeId" rel-field-name="enumId" />
-		</relation>
-	</entity>
 	
 	 <entity entity-name="QuestionBankMasterB" package-name="">
     <field name="examId"            type="id"/>

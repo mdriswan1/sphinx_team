@@ -100,25 +100,6 @@ public class ExamService {
 		}
 	}
 
-	public Map<String, Object> examDelete(DispatchContext context, Map<String, Object> input) {
-		try {
-			LocalDispatcher dispatcher = context.getDispatcher();
-			String examId = (String) input.get("examId");
-			System.out.println("EXAMID: " + examId);
-			if (examId == null) {
-				return ServiceUtil.returnError("exam id is null");
-
-			} else {
-
-				dispatcher.runSync("examDeletes", input);
-			}
-		} catch (GenericServiceException e) {
-			e.printStackTrace();
-			return ServiceUtil.returnError("error from service" + e.getMessage());
-		}
-		return ServiceUtil.returnSuccess("exam deleted");
-	}
-
 	public Map<String, Object> insertExamTopicDetails(DispatchContext context, Map<String, Object> input) throws GenericEntityException {
 		LocalDispatcher dispatcher = context.getDispatcher();
 
@@ -195,23 +176,29 @@ public class ExamService {
 
 			if (questionMasterB != null && !questionMasterB.isEmpty()) {
 				delegator.removeAll(questionMasterB);
+
 				System.out.println("Deleted " + questionMasterB.size() + " existing questions for examId: " + examId);
+
 			}
 
-			List<GenericValue> topicDetails;
-
-			topicDetails = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
+			List<GenericValue> topicDetails = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
 			if (topicDetails != null && !topicDetails.isEmpty()) {
 				delegator.removeAll(topicDetails);
-				System.out.println("Deleted " + topicDetails.size() + " existing questions for examId: " + examId);
-			}
 
+				System.out.println("Deleted " + topicDetails.size() + " existing questions for examId: " + examId);
+
+			}
+			List<GenericValue> partyExamRelationshipDetails = EntityQuery.use(delegator).from("PartyExamRelationship")
+							.where("examId", examId).queryList();
+			if (partyExamRelationshipDetails != null && !partyExamRelationshipDetails.isEmpty()) {
+				delegator.removeAll(partyExamRelationshipDetails);
+			}
 			result = dispatcher.runSync("examDeletes", contexts);
 
 			if (ServiceUtil.isError(result)) {
-				return ServiceUtil.returnError("Topic Not Found");
+				return ServiceUtil.returnError("exam Not Found");
 			} else {
-				return ServiceUtil.returnSuccess("Topic Deleted Successfully");
+				return ServiceUtil.returnSuccess("exam Deleted Successfully");
 			}
 		} catch (GenericServiceException | GenericEntityException e) {
 

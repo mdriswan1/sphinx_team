@@ -7,13 +7,16 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -77,6 +80,8 @@ public class UserResource {
 	 */
 	@POST
 	@Path("/signIn")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response login(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 		try {
 
@@ -104,6 +109,8 @@ public class UserResource {
 	 */
 	@POST
 	@Path("/signUp")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response signup(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 		Map<String, Object> user = new HashMap<String, Object>();
 		user.put("userName", request.getAttribute("userName"));
@@ -140,6 +147,8 @@ public class UserResource {
 	 */
 	@GET
 	@Path("/getAllUser")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllUser(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		if (dispatcher == null) {
@@ -168,6 +177,8 @@ public class UserResource {
 	 */
 	@POST
 	@Path("/saveexamrelationship")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response save(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
@@ -195,6 +206,8 @@ public class UserResource {
 	 */
 	@Path("/addUser")
 	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response createUser(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
