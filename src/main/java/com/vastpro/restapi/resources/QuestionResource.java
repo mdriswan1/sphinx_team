@@ -111,6 +111,7 @@ public class QuestionResource {
 	@PUT
 	@Path("/updatequestion")
 	@Consumes(MediaType.APPLICATION_JSON)
+
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateQuestion(@Context HttpServletRequest request) {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
@@ -161,6 +162,7 @@ public class QuestionResource {
 	@DELETE
 	@Path("/deletequestion")
 	@Consumes(MediaType.APPLICATION_JSON)
+
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteQuestion(@Context HttpServletRequest request) {
 		Map<String, Object> resp = new HashMap<String, Object>();
@@ -205,6 +207,7 @@ public class QuestionResource {
 	public Response getquesbytopic(@Context HttpServletRequest request) {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		if (dispatcher == null) {
+
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		}
 
@@ -291,13 +294,13 @@ public class QuestionResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response generateExamQuestions(@Context HttpServletRequest request) {
-
 		Map<String, Object> params = new HashMap<>();
 		params.put("examId", request.getAttribute("examId")); // GET ?examId=EXAM_10000
 
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 
 		if (dispatcher == null) {
+
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
 			try {
@@ -329,6 +332,7 @@ public class QuestionResource {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		Map<String, Object> input = new HashMap<String, Object>();
 		if (dispatcher == null) {
+
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		}
 
@@ -348,8 +352,8 @@ public class QuestionResource {
 		} catch (GenericServiceException e) {
 
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 		}
 
 	}
