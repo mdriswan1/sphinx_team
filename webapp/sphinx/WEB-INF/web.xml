@@ -88,7 +88,7 @@
         <filter-name>SameSiteFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
-     
+
     <!-- Listeners -->
     <listener>
         <listener-class>org.apache.ofbiz.webapp.control.ControlEventListener</listener-class>

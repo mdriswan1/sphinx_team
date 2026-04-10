@@ -1,7 +1,6 @@
 package com.vastpro.restapi.resources;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -28,19 +26,19 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 /**
- * Question Resource
- * 
- * This class is responsible for handle request and response for question related actions
+ * This class is used to handle question api
  */
 
 @Path("/question")
 public class QuestionResource {
-
+	/**
+	 * Method is used to create question
+	 */
 	@POST
 	@Path("/createquestion")
-	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createQuestion(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createQuestion(@Context HttpServletRequest request) {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		Map<String, Object> resp = new HashMap<String, Object>();
 		if (dispatcher == null) {
@@ -69,15 +67,19 @@ public class QuestionResource {
 			}
 			return Response.ok(result).build();
 		} catch (Exception e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", e.getMessage())).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 		}
 	}
 
+	/**
+	 * Method is used to get question by id
+	 */
 	@POST
 	@Path("/getquesbyid")
-	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getQuestion(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getQuestion(@Context HttpServletRequest request) {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		Map<String, Object> resp = new HashMap<String, Object>();
 		if (dispatcher == null) {
@@ -98,15 +100,20 @@ public class QuestionResource {
 			}
 			return Response.ok(result).build();
 		} catch (Exception e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", e.getMessage())).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 		}
 	}
 
+	/**
+	 * Method is used to update question
+	 */
 	@PUT
 	@Path("/updatequestion")
-	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateQuestion(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateQuestion(@Context HttpServletRequest request) {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		Map<String, Object> resp = new HashMap<String, Object>();
 		if (dispatcher == null) {
@@ -144,15 +151,20 @@ public class QuestionResource {
 			return Response.ok(result).build();
 
 		} catch (Exception e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", e.getMessage())).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 		}
 	}
 
+	/**
+	 * Method is used to delete question
+	 */
 	@DELETE
 	@Path("/deletequestion")
-	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteQuestion(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteQuestion(@Context HttpServletRequest request) {
 		Map<String, Object> resp = new HashMap<String, Object>();
 
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
@@ -180,10 +192,14 @@ public class QuestionResource {
 			return Response.ok(result).build();
 
 		} catch (Exception e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", e.getMessage())).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 		}
 	}
 
+	/**
+	 * Method is used to get question by topic
+	 */
 	@POST
 	@Path("/getquesbytopic")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -191,7 +207,8 @@ public class QuestionResource {
 	public Response getquesbytopic(@Context HttpServletRequest request) {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		if (dispatcher == null) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "dispatcher is null")).build();
+
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		}
 
 		Map<String, Object> data = new HashMap<>();
@@ -211,20 +228,26 @@ public class QuestionResource {
 			return Response.ok(result).build();
 		} catch (GenericServiceException e) {
 
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("ERROR", e.getMessage())).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 		}
 	}
 
+	/**
+	 * Method is used to upload questions file
+	 */
 	@POST
 	@Path("/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response uploadQuestions(@Context HttpServletRequest request) {
 
-		InputStream file;
 		Part filePart;
 		ByteBuffer buffer;
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		}
 		try {
 			filePart = request.getPart("file");
 
@@ -264,18 +287,21 @@ public class QuestionResource {
 
 	}
 
+	/**
+	 * Method is used to generate exam questions
+	 */
 	@Path("/generateExamQuestions")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response generateExamQuestions(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-
+	public Response generateExamQuestions(@Context HttpServletRequest request) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("examId", request.getAttribute("examId")); // GET ?examId=EXAM_10000
 
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 
 		if (dispatcher == null) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "dispatcher is null")).build();
+
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
 			try {
 				Map<String, Object> result = dispatcher.runSync("generateExamQuestions", params);
@@ -295,6 +321,9 @@ public class QuestionResource {
 		}
 	}
 
+	/**
+	 * Method is used to get exam questions
+	 */
 	@GET
 	@Path("/getExamQuestion")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -303,7 +332,8 @@ public class QuestionResource {
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 		Map<String, Object> input = new HashMap<String, Object>();
 		if (dispatcher == null) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "dispatcher is null")).build();
+
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		}
 
 		Map<String, Object> result;
@@ -322,8 +352,8 @@ public class QuestionResource {
 		} catch (GenericServiceException e) {
 
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-							.entity(UtilMisc.toMap("error", "Internal server error, try again later")).build();
 
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 		}
 
 	}
