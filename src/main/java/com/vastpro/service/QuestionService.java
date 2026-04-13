@@ -221,7 +221,7 @@ public class QuestionService {
 				return ServiceUtil.returnError("Topic not Found");
 			}
 
-			List<GenericValue> questions = EntityQuery.use(delegator).from("questionMaster").where("topicId", topicId).orderBy("questionId")
+			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").where("topicId", topicId).orderBy("questionId")
 							.queryList();
 
 			List<Map<String, Object>> questionList = new ArrayList<>();
