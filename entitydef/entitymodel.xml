@@ -226,6 +226,69 @@ under the License.
     </relation>
 </entity>
 
+ <entity entity-name="AssignExamTempoary" package-name="in.vastpro.sphinx">
+    
+    <field name="examId" type="id"/>
+    <field name="partyId" type="id"/>
+     
+    <field name="noOfAttempts" type="id" not-null="true"/>
+    <field name="timeoutDays" type="id" not-null="true"/>
+    <field name="allowedAttempts" type="id" not-null="true"/>
+    <field name="userLoginId" type="id" not-null="true"></field>
+    
+    <prim-key field="examId"/>
+    <prim-key field="partyId"/>
 
+    <relation rel-entity-name="ExamMaster" type="one" fk-name="AUTO_EXAM_FK">
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </relation>
+
+</entity>
+
+<view-entity entity-name="ExamPartyUserLoginView" package-name="in.vastpro.sphinx">
+
+    <!-- 1. member entities -->
+    <member-entity entity-alias="PER" entity-name="PartyExamRelationship"/>
+    <member-entity entity-alias="UL" entity-name="UserLogin"/>
+    <member-entity entity-alias="EM" entity-name="ExamMaster"/>
+
+    <!-- 2. joins -->
+    <!-- PER -> UL -->
+    <view-link entity-alias="PER" rel-entity-alias="UL" rel-optional="true">
+        <key-map field-name="partyId" rel-field-name="partyId"/>
+    </view-link>
+
+    <!-- PER -> EM -->
+    <view-link entity-alias="PER" rel-entity-alias="EM" rel-optional="true">
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </view-link>
+
+    <!-- 3. alias -->
+    <alias entity-alias="PER" name="partyId" field="partyId"/>
+    <alias entity-alias="UL" name="userLoginId" field="userLoginId"/>
+    <alias entity-alias="EM" name="examId" field="examId"/>
+    <alias entity-alias="EM" name="examName" field="examName"/>
+    
+    
+
+</view-entity>
+
+<entity entity-name="AdminPartyExamRel" package-name="in.vastpro.sphinx">
+		<field name="partyId" type="id"></field>
+		<field name="examId" type="id"></field>
+<!--Date threshold to control from when to when an Admin can manage the exam -->		
+		<field name="fromDate" type="date-time"></field>
+		<field name="thruDate" type="date-time"></field>
+		<prim-key field="partyId" />
+		<prim-key field="examId" />
+		<relation rel-entity-name="Party" fk-name="USER_EXAM_UID_FK" type="many">
+			<key-map field-name="partyId" rel-field-name="partyId" />
+		</relation>	
+		<relation rel-entity-name="ExamMaster" fk-name="USER_EXAM_EID_FK" type="many">
+			<key-map field-name="examId" rel-field-name="examid" />
+		</relation>			
+    </entity>
+ 
 
 </entitymodel>
+

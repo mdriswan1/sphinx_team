@@ -3,29 +3,30 @@ package com.vastpro.service;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.ofbiz.base.crypto.HashCrypt;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
+import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 import com.vastpro.utility.GeneratePssword;
 
 public class SendMailService {
-	public static Map<String, Object> sendExamAssignmentEmail(String examId, String partyId, HttpServletRequest request,
-					HttpServletResponse response) {
+
+	public static Map<String, Object> sendAssignmentEmail(DispatchContext context, Map<String, Object> input) {
 
 		try {
-			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-			Delegator delegator = (Delegator) request.getAttribute("delegator");
+			String examId = (String) input.get("examId");
+			String partyId = (String) input.get("partyId");
+
+			LocalDispatcher dispatcher = context.getDispatcher();
+
+			Delegator delegator = (Delegator) context.getDelegator();
 
 			GenericValue userLogin = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", "admin").queryOne();
 
-			// get user email
 			GenericValue assignedUser = EntityQuery.use(delegator).from("UserLogin").where("partyId", partyId).queryFirst();
 
 			// get exam name
@@ -41,13 +42,11 @@ public class SendMailService {
 			String email = assignedUser.getString("userLoginId");
 			String examName = exam.getString("examName");
 
-			// generate password
-
 			String rawPassword = new GeneratePssword().generatePassword();
 			String hashedPassword = HashCrypt.cryptUTF8("SHA", null, rawPassword);
 
-			// save password to db
 			Map<String, Object> updateData = new HashMap<>();
+
 			updateData.put("examId", examId);
 			updateData.put("partyId", partyId);
 			updateData.put("passwordChangesAuto", hashedPassword);
@@ -59,7 +58,7 @@ public class SendMailService {
 				return ServiceUtil.returnError("Failed to save password: " + ServiceUtil.getErrorMessage(updateResult));
 			}
 
-			// send rawpassword
+			// send raw password
 			Map<String, Object> emailCtx = new HashMap<>();
 			emailCtx.put("sendTo", email);
 			emailCtx.put("subject", "You have been assigned to Exam: " + examName);
