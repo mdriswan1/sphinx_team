@@ -386,7 +386,7 @@ under the License.
 
 
 	<service name="getAllUser" engine="java" location="com.vastpro.service.UserService" invoke="getAllUser" auth="false">
-		
+		<attribute name="examId" mode="IN" type="String"></attribute>
 		<attribute name="allUser" mode="OUT" type="List"></attribute>
 	</service>
 	
@@ -445,8 +445,48 @@ under the License.
     <attribute name="totalQuestions" type="java.lang.Integer" mode="OUT" optional="true"/>
      
 </service>
+<service name="assignTempoary" engine="java" location="com.vastpro.service.UserService" invoke="assignTempoary" auth="false">
+	    
+     <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="partyId" type="java.util.List" mode="IN" optional="false"/>
+    <attribute name="noOfAttempts"    type="java.lang.String" mode="IN" optional="false"/>
+    <attribute name="timeoutDays" type="String" mode="IN" optional="false"/>
+      <attribute name="userLoginId" mode="IN" type="String" optional="false"></attribute>
+      <attribute name="allowedAttempts" type="java.lang.String" mode="IN" optional="false"/>
+      
+</service>
+
+<service engine="entity-auto" name="autoassignTempoary" invoke="create" default-entity-name="AssignExamTempoary">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+</service>
+<service engine="java" name="getAssignedUser" location="com.vastpro.service.UserService" invoke="getAssignedUser">
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="allUser" mode="OUT" type="List" optional="true"/>
+</service>
+
+<service engine="entity-auto" name="deleteAssignTempoary" invoke="delete" default-entity-name="AssignExamTempoary">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	
+</service>
+<service engine="java" name="getPartyExam" location="com.vastpro.service.ExamService" invoke="getPartyExam" auth="false">
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="allData" mode="OUT" type="List" optional="true"/>
+</service>
+<service engine="java" name="deleteExamRelationship" location="com.vastpro.service.ExamService" invoke="deleteExamRelationship" auth="false">
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	
+</service>
+
+<service engine="entity-auto" name="autoDeleteExamRelationship" invoke="delete" default-entity-name="PartyExamRelationship">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	
+</service>
+
 
 </services>
 
 
 
+ 

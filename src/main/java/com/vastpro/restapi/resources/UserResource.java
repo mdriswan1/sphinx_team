@@ -3,7 +3,6 @@ package com.vastpro.restapi.resources;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -145,7 +144,7 @@ public class UserResource {
 	/**
 	 * Method is used to get all users
 	 */
-	@GET
+	@POST
 	@Path("/getAllUser")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -155,13 +154,21 @@ public class UserResource {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
 			try {
-				Map<String, Object> result = dispatcher.runSync("getAllUser", Map.of());
+				Map<String, Object> input = new HashMap<>();
+				input.put("examId", request.getAttribute("examId"));
+				String serviceType = (String) request.getAttribute("servicetype");
+				Map<String, Object> result;
+				if (serviceType.equals("assigned")) {
+					result = dispatcher.runSync("getAssignedUser", input);
+				} else {
+					result = dispatcher.runSync("getAllUser", input);
+
+				}
+
 				if (result.get("responseMessage").equals("success")) {
 					List<GenericValue> users = (List<GenericValue>) result.get("allUser");
-					List<String> names = users.stream().map(user -> user.getString("userLoginId")) // or "firstName" based on your field
-									.collect(Collectors.toList());
-					return Response.status(Status.OK).entity(UtilMisc.toMap("allUser", names, "stats", result.get("responseMessage")))
-									.build();
+					result.put("allUser", users);
+					return Response.status(Status.OK).entity(result).build();
 				}
 				return Response.status(Status.NO_CONTENT).entity(UtilMisc.toMap("error", "no data")).build();
 			} catch (GenericServiceException e) {
@@ -238,4 +245,96 @@ public class UserResource {
 
 	}
 
+	@POST
+	@Path("/assigntempoary")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response AsignTempoary(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+
+			input.put("examId", request.getAttribute("examId"));
+			input.put("partyId", request.getAttribute("partyId"));
+			input.put("noOfAttempts", request.getAttribute("noOfAttempts"));
+			input.put("allowedAttempts", request.getAttribute("allowedAttempts"));
+			input.put("timeoutDays", request.getAttribute("timeoutDays"));
+			input.put("userLoginId", request.getAttribute("userLoginId"));
+
+			Map<String, Object> result;
+			try {
+				result = dispatcher.runSync("assignTempoary", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
+				} else {
+					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
+				}
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+			}
+
+		}
+	}
+
+	@POST
+	@Path("/getPartyExam")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPartyExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+			input.put("examId", request.getAttribute("examId"));
+			Map<String, Object> result;
+			try {
+				result = dispatcher.runSync("getPartyExam", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(result).build();
+				}
+				return Response.status(Status.OK).entity(result).build();
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+			}
+
+		}
+	}
+
+	@POST
+	@Path("/deleteExamRelationship")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteExamRelationship(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+			input.put("examId", request.getAttribute("examId"));
+			input.put("partyId", request.getAttribute("partyId"));
+			Map<String, Object> result;
+			try {
+				result = dispatcher.runSync("deleteExamRelationship", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", "deleted succefully")).build();
+				}
+				result.put("error", "not found");
+				return Response.status(Status.NOT_FOUND).entity(result).build();
+			} catch (GenericServiceException e) {
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+			}
+		}
+	}
 }
