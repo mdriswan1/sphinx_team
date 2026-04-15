@@ -291,6 +291,7 @@ public class QuestionResource {
 	 * Method is used to generate exam questions
 	 */
 	@Path("/generateExamQuestions")
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response generateExamQuestions(@Context HttpServletRequest request) {
@@ -307,7 +308,8 @@ public class QuestionResource {
 				Map<String, Object> result = dispatcher.runSync("generateExamQuestions", params);
 
 				if (result.get("responseMessage").equals("success")) {
-					return Response.ok(UtilMisc.toMap("status", "success", "examName", result.get("examName"))).build();
+					return Response.ok(UtilMisc.toMap("status", "success", "examName", result.get("examName"), "message",
+									result.get("successMessage"))).build();
 				} else {
 					return Response.status(Response.Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error", result.get("errorMessage")))
 									.build();
