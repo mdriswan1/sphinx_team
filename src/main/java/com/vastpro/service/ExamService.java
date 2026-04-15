@@ -146,7 +146,7 @@ public class ExamService {
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic getted successfully");
 		try {
 
-			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetail").queryList();
+			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetails").queryList();
 			if (topics.size() == 0) {
 				return ServiceUtil.returnSuccess("no topic found");
 
@@ -168,7 +168,7 @@ public class ExamService {
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic getted successfully");
 		try {
 
-			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetail").where("examId", examId).queryList();
+			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
 			if (topics.size() == 0) {
 				return ServiceUtil.returnSuccess("no topic found");
 
