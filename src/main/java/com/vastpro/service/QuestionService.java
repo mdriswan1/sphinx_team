@@ -272,6 +272,15 @@ public class QuestionService {
 				return ServiceUtil.returnError("examId is required");
 			}
 
+			List<GenericValue> questionMasterB = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).queryList();
+
+			if (questionMasterB != null && !questionMasterB.isEmpty()) {
+				delegator.removeAll(questionMasterB);
+
+				System.out.println("Deleted " + questionMasterB.size() + " existing questions for examId: " + examId);
+
+			}
+
 			GenericValue exam = EntityQuery.use(delegator).from("ExamMaster").where("examId", examId).queryOne();
 
 			if (exam == null) {
