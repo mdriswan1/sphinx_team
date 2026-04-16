@@ -118,7 +118,8 @@ public class UserService {
 		Delegator delegator = dispatcher.getDelegator();
 
 		try {
-			List<GenericValue> value = EntityQuery.use(delegator).from("AssignExamTempoary").queryList();
+			List<GenericValue> value = EntityQuery.use(delegator).from("AssignExamTempoary").where("examId", input.get("examId"))
+							.queryList();
 			if (value.isEmpty()) {
 				return ServiceUtil.returnSuccess("no data found");
 			}
@@ -133,4 +134,30 @@ public class UserService {
 		}
 	}
 
+	// user
+
+	public Map<String, Object> getAssignUserExam(DispatchContext context, Map<String, Object> input) {
+		LocalDispatcher dispatcher = context.getDispatcher();
+		if (dispatcher == null) {
+			return ServiceUtil.returnError("in service dispatcher is null");
+		}
+		Delegator delegator = dispatcher.getDelegator();
+
+		try {
+
+			GenericValue value = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId")).queryFirst();
+			if (!value.isEmpty()) {
+				Map<String, Object> result = ServiceUtil.returnSuccess();
+				String partyId = value.getString("partyId");
+				List<GenericValue> allExam = EntityQuery.use(delegator).from("UserLoginView").where("partyId", partyId).queryList();
+				result.put("userExam", allExam);
+				return result;
+			}
+			return ServiceUtil.returnError("User loginid not found");
+		} catch (GenericEntityException e) {
+			e.printStackTrace();
+			return ServiceUtil.returnError("exception" + e.getMessage());
+
+		}
+	}
 }

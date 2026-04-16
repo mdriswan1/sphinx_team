@@ -69,16 +69,17 @@ under the License.
 	<attribute name="passPercentage" type="java.lang.String" mode="IN" optional="false"/> -->
 	
 	<implements service="examAttribute"/>
+	<attribute name="userLoginId" type="String" mode="IN" optional="false"/>	
 	<attribute name="examId" mode="OUT" type="java.lang.String"></attribute>
 </service>
 <service engine="java" name="examUpdate" location="com.vastpro.service.ExamService" invoke="examUpdate" auth="false">
 	<implements service="examAttribute"/>
 	<attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
-	<attribute name="description" mode="IN" type="String" optional="false"></attribute>
+	<!--<attribute name="description" mode="IN" type="String" optional="false"></attribute>
 	<attribute name="examName" mode="IN" type="String" optional="false"></attribute>
 	<attribute name="noOfQuestions" mode="IN" type="String" optional="false"></attribute>
 	<attribute name="duration" mode="IN" type="String" optional="false"></attribute>
-	<attribute name="passPercentage" mode="IN" type="String" optional="false"></attribute>
+	<attribute name="passPercentage" mode="IN" type="String" optional="false"></attribute>-->
 	
 	
 </service>
@@ -88,6 +89,7 @@ under the License.
 </service>
 <service engine="java" name="examDelete" location="com.vastpro.service.ExamService" invoke="deleteExamByDetails">
 	<attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
+	<attribute name="userLoginId" mode="IN" type="java.lang.String" optional="false"></attribute>
 </service>
 
 <service engine="entity-auto" name="examDeletes" invoke="delete" default-entity-name="ExamMaster">
@@ -98,6 +100,7 @@ under the License.
 	  <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 <service engine="java" name="getExam" location="com.vastpro.service.ExamService" invoke="getAllExam">
+	<attribute name="userLoginId" mode="IN" type="String" optional="false"></attribute>
 	<attribute name="data" mode="OUT" type="List"></attribute>
 </service>
 	
@@ -462,6 +465,7 @@ under the License.
 </service>
 <service engine="java" name="getAssignedUser" location="com.vastpro.service.UserService" invoke="getAssignedUser">
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="userLoginId" mode="IN" type="String" optional="false"/>
 	<attribute name="allUser" mode="OUT" type="List" optional="true"/>
 </service>
 
@@ -483,7 +487,21 @@ under the License.
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	
 </service>
+<service engine="entity-auto" name="autoCreateExamAdminParty" invoke="create" default-entity-name="AdminPartyExamRel">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+</service>
+<service name="autoDeleteExamAdminPartyRel"
+         engine="entity-auto"
+         invoke="delete"
+         default-entity-name="AdminPartyExamRel"
+         auth="false">
+    <auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+</service>
 
+<service engine="java" name="getAssignUserExam" location="com.vastpro.service.UserService" invoke="getAssignUserExam">
+	<attribute name="userLoginId" mode="IN" type="String" optional="false"/>
+	<attribute name="userExam" mode="OUT" type="List" optional="false"/>
+</service>
 
 </services>
 

@@ -1,9 +1,11 @@
 package com.vastpro.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -17,7 +19,18 @@ public class ExamService {
 	public static Map<String, Object> getAllExam(DispatchContext context, Map<String, Object> input) {
 		Delegator delegator = context.getDelegator();
 		try {
-			List<GenericValue> value = delegator.findAll("ExamMaster", false);
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId")).queryFirst();
+			List<GenericValue> allExam = EntityQuery.use(delegator).from("AdminPartyExamRel").where("partyId", partyId.get("partyId"))
+							.queryList();
+			if (allExam == null || allExam.isEmpty()) {
+				return ServiceUtil.returnError("exam not there");
+			}
+			List<GenericValue> value = new ArrayList<>();
+			for (GenericValue exam : allExam) {
+				GenericValue examMaster = EntityQuery.use(delegator).from("ExamMaster").where("examId", exam.getString("examId"))
+								.queryFirst();
+				value.add(examMaster);
+			}
 			Map<String, Object> result = ServiceUtil.returnSuccess();
 			result.put("data", value);
 			return result;
@@ -47,20 +60,30 @@ public class ExamService {
 			String examId = delegator.getNextSeqId("ExamMaster");
 			examId = "SPX_EM_" + examId;
 			newVal.put("examId", examId);
+			String userLoginId = (String) input.get("userLoginId");
+			GenericValue value = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", userLoginId).queryFirst();
+			newVal.put("partyId", value.getString("partyId"));
+
+			dispatcher.runSync("autoCreateExamAdminParty", newVal);
 
 			newVal.put("examName", input.get("examName"));
+			GenericValue examMaster = EntityQuery.use(delegator).from("ExamMaster").where("examName", input.get("examName")).queryFirst();
+			if (examMaster != null) {
+				return ServiceUtil.returnError("Exam name already present");
+			}
 			newVal.put("description", input.get("description"));
 			newVal.put("noOfQuestions", Long.valueOf((String) input.get("noOfQuestions")));
 			newVal.put("duration", Long.valueOf((String) input.get("duration")));
 			newVal.put("passPercentage", Long.valueOf((String) input.get("passPercentage")));
 
-			Map<String, Object> result = dispatcher.runSync("examcreates", newVal);
-			System.out.println(result);
+			Map<String, Object> result2 = dispatcher.runSync("examcreates", newVal);
 
-			result.put("status", "created successfully");
-			result.put("examId", examId);
+			System.out.println(result2);
 
-			return result;
+			result2.put("status", "created successfully");
+			result2.put("examId", examId);
+
+			return result2;
 		} catch (GenericServiceException | GenericEntityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -168,6 +191,11 @@ public class ExamService {
 		try {
 
 			String examId = (String) input.get("examId");
+			if (examId == null) {
+				return ServiceUtil.returnError("examId is empty");
+			}
+			GenericValue userLogin = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId"))
+							.queryFirst();
 			Map<String, Object> contexts = new HashMap<>();
 			contexts.put("examId", examId);
 			System.out.println("exam id is service :" + examId);
@@ -198,6 +226,11 @@ public class ExamService {
 			if (ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError("exam Not Found");
 			} else {
+				if (userLogin != null) {
+					dispatcher.runSync("autoDeleteExamAdminPartyRel",
+									UtilMisc.toMap("examId", examId, "partyId", userLogin.getString("partyId")));
+				}
+
 				return ServiceUtil.returnSuccess("exam Deleted Successfully");
 			}
 		} catch (GenericServiceException | GenericEntityException e) {
