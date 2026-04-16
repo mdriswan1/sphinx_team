@@ -62,7 +62,13 @@
         <filter-name>ContextFilter</filter-name>
         <filter-class>org.apache.ofbiz.webapp.control.ContextFilter</filter-class>
     </filter>
-
+    <!-- control filter for login worker -->
+    <filter>
+        <display-name>WebSiteFilter</display-name>
+        <filter-name>WebSiteFilter</filter-name>
+        <filter-class>org.apache.ofbiz.cmssite.multisite.WebSiteFilter</filter-class>
+    </filter>
+    <!--  -->
     <filter>
         <display-name>SameSiteFilter</display-name>
         <filter-name>SameSiteFilter</filter-name>

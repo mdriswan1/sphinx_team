@@ -192,10 +192,10 @@ under the License.
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
 	
-	<service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
+	<!-- <service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
-	</service>
+	</service> -->
 	
 	<service engine="entity-auto" name="createContactMech" invoke="create" default-entity-name="ContactMech">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
@@ -230,7 +230,7 @@ under the License.
         <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		<attribute name="topicPassPercentage" type="java.lang.Double" mode="IN" optional="false"/>
 </service>
-
+ 
 <service name="autoInsertExamT" engine="entity-auto"
      default-entity-name="ExamTopicDetails"
          invoke="create"
@@ -238,6 +238,7 @@ under the License.
        <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
         <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		<attribute name="topicPassPercentage" type="java.lang.Double" mode="IN" optional="false"/>
+		<attribute name="percentage" type="java.lang.Double" mode="IN" optional="true"/>
 </service>
 
 <service name="getAllExamTopics" engine="java"

@@ -32,12 +32,12 @@ public class SigininService {
 
 					for (GenericValue value1 : roles) {
 						String roleTypeId = value1.getString("roleTypeId");
-						System.out.println("+++++++++++++++++" + value1.getString("roleTypeId") + "+++++++++++++++++++");
+
 						if (roleTypeId.equals("SPX_ADMIN")) {
-							role = "admin";
+							role = "/adminhome";
 							break;
 						} else if (roleTypeId.equals("SPX_USER")) {
-							role = "user";
+							role = "//userdashboard";
 							break;
 						}
 					}

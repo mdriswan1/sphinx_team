@@ -125,8 +125,30 @@ public class ExamService {
 
 	public Map<String, Object> insertExamTopicDetails(DispatchContext context, Map<String, Object> input) throws GenericEntityException {
 		LocalDispatcher dispatcher = context.getDispatcher();
+		Delegator delegator = context.getDelegator();
 
 		try {
+			String examId = (String) input.get("examId");
+			String topicId = (String) input.get("topicId");
+			double newPercentage = Double.parseDouble(input.get("topicPassPercentage").toString());
+			GenericValue value = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId, "topicId", topicId).queryOne();
+			if (value != null) {
+				return ServiceUtil.returnError("Topic already exists for this exam");
+			}
+
+			List<GenericValue> details = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
+
+			double total = 0;
+
+			for (GenericValue det : details) {
+				if (det.get("topicPassPercentage") != null) {
+					total += Double.parseDouble(det.get("topicPassPercentage").toString());
+				}
+			}
+
+			if (total + newPercentage > 100) {
+				return ServiceUtil.returnError("Total topic percentage cannot exceed 100. Current total: " + total);
+			}
 			Map<String, Object> result = dispatcher.runSync("autoInsertExamT", input);
 
 			if (ServiceUtil.isError(result)) {
@@ -147,7 +169,7 @@ public class ExamService {
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic getted successfully");
 		try {
 
-			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetail").queryList();
+			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetails").queryList();
 			if (topics.size() == 0) {
 				return ServiceUtil.returnSuccess("no topic found");
 
@@ -169,7 +191,7 @@ public class ExamService {
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic getted successfully");
 		try {
 
-			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetail").where("examId", examId).queryList();
+			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
 			if (topics.size() == 0) {
 				return ServiceUtil.returnSuccess("no topic found");
 
