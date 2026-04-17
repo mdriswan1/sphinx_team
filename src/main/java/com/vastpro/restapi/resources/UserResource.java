@@ -19,10 +19,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.http.HttpStatus;
 import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
+import org.apache.ofbiz.service.ServiceUtil;
+import org.apache.ofbiz.webapp.control.LoginWorker;
 
 /**
  * This class is used to handle user api
@@ -90,13 +93,25 @@ public class UserResource {
 			input.put("userLoginId", request.getAttribute("userLoginId"));
 			input.put("currentPassword", request.getAttribute("password"));
 
-			Map<String, Object> result = dispatcher.runSync("signIn", input);
-			if ("success".equals(result.get("responseMessage"))) {
-				return Response.ok(Map.of("status", "success", "message", result.get("successMessage"), "role", result.get("role")))
-								.build();
+			request.setAttribute("USERNAME", request.getAttribute("userLoginId"));
+			request.setAttribute("PASSWORD", request.getAttribute("password"));
+
+			if ("success".equalsIgnoreCase(LoginWorker.login(request, response))) {
+				// HttpSession session = request.getSession();
+				// session.setAttribute("partyId", partyId);
+				return Response.status(HttpStatus.SC_OK).entity(ServiceUtil.returnSuccess("Signed In Successfully!")).build();
 			} else {
-				return Response.status(401).entity(Map.of("status", "error", "message", "Invalid Credinatilas")).build();
+				return Response.status(HttpStatus.SC_BAD_REQUEST)
+								.entity(ServiceUtil.returnError((String) request.getAttribute("_ERROR_MESSAGE_"))).build();
 			}
+
+			// Map<String, Object> result = dispatcher.runSync("signIn", input);
+			// if ("success".equals(result.get("responseMessage"))) {
+			// return Response.ok(Map.of("status", "success", "message", result.get("successMessage"), "role", result.get("role")))
+			// .build();
+			// } else {
+			// return Response.status(401).entity(Map.of("status", "error", "message", "Invalid Credinatilas")).build();
+			// }
 
 		} catch (Exception e) {
 			return Response.status(500).entity(Map.of("status", "error", "message", "Invalid Credinatilas")).build();

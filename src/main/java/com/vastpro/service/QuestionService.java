@@ -222,9 +222,7 @@ public class QuestionService {
 				return ServiceUtil.returnError("Topic not Found");
 			}
 
-			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").where("topicId", topicId).orderBy("questionId")
-							.queryList();
-
+			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").orderBy("-lastUpdatedStamp").queryList();
 			List<Map<String, Object>> questionList = new ArrayList<>();
 
 			for (GenericValue ques : questions) {
@@ -415,9 +413,7 @@ public class QuestionService {
 		}
 	}
 
-	public Map<String, ? extends Object> uploadBulkQuestion(DispatchContext dctx, Map<String, ? extends Object> context) {
-
-		// process the excel file
+	public Map<String, Object> uploadBulkQuestion(DispatchContext dctx, Map<String, ? extends Object> context) {
 
 		try {
 
@@ -436,12 +432,10 @@ public class QuestionService {
 			Workbook workbook = WorkbookFactory.create(is);
 			Sheet sheet = workbook.getSheetAt(0);
 
-			// list of questions map
 			List<Map<String, Object>> questions = new ArrayList<>();
 
 			int totalRows = sheet.getLastRowNum();
 
-			// first row considered as Header
 			if (totalRows < 1) {
 				return ServiceUtil.returnError("Please fill the details and upload the file");
 			}
