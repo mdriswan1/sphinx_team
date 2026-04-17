@@ -35,7 +35,7 @@ public class QuestionResource {
 	 * Method is used to create question
 	 */
 	@POST
-	@Path("/createquestion")
+	@Path("/create-question")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createQuestion(@Context HttpServletRequest request) {
@@ -76,7 +76,7 @@ public class QuestionResource {
 	 * Method is used to get question by id
 	 */
 	@POST
-	@Path("/getquesbyid")
+	@Path("/get-ques-by-id")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getQuestion(@Context HttpServletRequest request) {
@@ -109,7 +109,7 @@ public class QuestionResource {
 	 * Method is used to update question
 	 */
 	@PUT
-	@Path("/updatequestion")
+	@Path("/update-question")
 	@Consumes(MediaType.APPLICATION_JSON)
 
 	@Produces(MediaType.APPLICATION_JSON)
@@ -160,7 +160,7 @@ public class QuestionResource {
 	 * Method is used to delete question
 	 */
 	@DELETE
-	@Path("/deletequestion")
+	@Path("/delete-question")
 	@Consumes(MediaType.APPLICATION_JSON)
 
 	@Produces(MediaType.APPLICATION_JSON)
@@ -290,8 +290,8 @@ public class QuestionResource {
 	/**
 	 * Method is used to generate exam questions
 	 */
-	@Path("/generateExamQuestions")
-	@POST
+	@Path("/generate-Exam-Questions")
+
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response generateExamQuestions(@Context HttpServletRequest request) {
@@ -327,7 +327,7 @@ public class QuestionResource {
 	 * Method is used to get exam questions
 	 */
 	@GET
-	@Path("/getExamQuestion")
+	@Path("/get-Exam-Question")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response getQuestions(@Context HttpServletRequest request, @Context ServletContext context) {

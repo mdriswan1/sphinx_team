@@ -64,6 +64,7 @@ public class QuestionService {
 			}
 
 			String questionId = "SPX_QM_" + delegator.getNextSeqId("QuestionMaster");
+
 			questions.put("questionId", questionId);
 			dispatcher.runSync("createQuestion", questions);
 
@@ -453,6 +454,7 @@ public class QuestionService {
 				Map<String, Object> question = new HashMap<>();
 				List<ColumnConfig> columns = ConfigColumn.getColumnConfigs();
 				String questionId = "SPX_QM_" + dctx.getDelegator().getNextSeqId("QuestionMaster");
+
 				question.put("questionId", questionId);
 				for (ColumnConfig col : columns) {
 					Cell cell = row.getCell(col.index);

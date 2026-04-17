@@ -69,16 +69,17 @@ under the License.
 	<attribute name="passPercentage" type="java.lang.String" mode="IN" optional="false"/> -->
 	
 	<implements service="examAttribute"/>
+	<attribute name="userLoginId" type="String" mode="IN" optional="false"/>	
 	<attribute name="examId" mode="OUT" type="java.lang.String"></attribute>
 </service>
 <service engine="java" name="examUpdate" location="com.vastpro.service.ExamService" invoke="examUpdate" auth="false">
 	<implements service="examAttribute"/>
 	<attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
-	<attribute name="description" mode="IN" type="String" optional="false"></attribute>
+	<!--<attribute name="description" mode="IN" type="String" optional="false"></attribute>
 	<attribute name="examName" mode="IN" type="String" optional="false"></attribute>
 	<attribute name="noOfQuestions" mode="IN" type="String" optional="false"></attribute>
 	<attribute name="duration" mode="IN" type="String" optional="false"></attribute>
-	<attribute name="passPercentage" mode="IN" type="String" optional="false"></attribute>
+	<attribute name="passPercentage" mode="IN" type="String" optional="false"></attribute>-->
 	
 	
 </service>
@@ -88,6 +89,7 @@ under the License.
 </service>
 <service engine="java" name="examDelete" location="com.vastpro.service.ExamService" invoke="deleteExamByDetails">
 	<attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
+	<attribute name="userLoginId" mode="IN" type="java.lang.String" optional="false"></attribute>
 </service>
 
 <service engine="entity-auto" name="examDeletes" invoke="delete" default-entity-name="ExamMaster">
@@ -98,6 +100,7 @@ under the License.
 	  <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 <service engine="java" name="getExam" location="com.vastpro.service.ExamService" invoke="getAllExam">
+	<attribute name="userLoginId" mode="IN" type="String" optional="false"></attribute>
 	<attribute name="data" mode="OUT" type="List"></attribute>
 </service>
 	
@@ -189,10 +192,10 @@ under the License.
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
 	
-	<service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
+	<!-- <service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
-	</service>
+	</service> -->
 	
 	<service engine="entity-auto" name="createContactMech" invoke="create" default-entity-name="ContactMech">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
@@ -227,7 +230,7 @@ under the License.
         <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		<attribute name="topicPassPercentage" type="java.lang.Double" mode="IN" optional="false"/>
 </service>
-
+ 
 <service name="autoInsertExamT" engine="entity-auto"
      default-entity-name="ExamTopicDetails"
          invoke="create"
@@ -235,6 +238,7 @@ under the License.
        <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
         <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		<attribute name="topicPassPercentage" type="java.lang.Double" mode="IN" optional="false"/>
+		<attribute name="percentage" type="java.lang.Double" mode="IN" optional="true"/>
 </service>
 
 <service name="getAllExamTopics" engine="java"
@@ -455,6 +459,7 @@ under the License.
 </service>
 <service engine="java" name="getAssignedUser" location="com.vastpro.service.UserService" invoke="getAssignedUser">
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="userLoginId" mode="IN" type="String" optional="false"/>
 	<attribute name="allUser" mode="OUT" type="List" optional="true"/>
 </service>
 
@@ -476,6 +481,88 @@ under the License.
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	
 </service>
+<service engine="entity-auto" name="autoCreateExamAdminParty" invoke="create" default-entity-name="AdminPartyExamRel">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+</service>
+<service name="autoDeleteExamAdminPartyRel"
+         engine="entity-auto"
+         invoke="delete"
+         default-entity-name="AdminPartyExamRel"
+         auth="false">
+    <auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+</service>
+
+<service engine="java" name="getAssignUserExam" location="com.vastpro.service.UserService" invoke="getAssignUserExam">
+	<attribute name="userLoginId" mode="IN" type="String" optional="false"/>
+	<attribute name="userExam" mode="OUT" type="List" optional="false"/>
+</service>
+<service engine="java" name="asssignTempoaryUpdate" location="com.vastpro.service.UserService" invoke="asssignTempoaryUpdate">
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="noOfAttempts" mode="IN" type="String" optional="false"/>
+	<attribute name="timeoutDays" mode="IN" type="String" optional="false"/>
+	<attribute name="allowedAttempts" mode="IN" type="String" optional="false"/>
+</service>
+<service engine="entity-auto" name="autoasssignTempoaryUpdate" invoke="update" default-entity-name="AssignExamTempoary">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	
+</service>
+
+<!-- user submit answer  -->
+<service engine="java" name="submitedAnswer" location="com.vastpro.service.UserService" invoke="submitedAnswer" auth="false">
+	<attribute name="questionId" mode="IN" type="String" optional="false"/>
+	<attribute name="examIdexamId" mode="IN" type="String" optional="false"/>
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="submittedAnswer" mode="IN" type="String" optional="false"/>
+	<attribute name="sNo" mode="IN" type="String" optional="false"/>
+	<attribute name="isFlagged" mode="IN" type="String" optional="false"/>
+</service>
+<service engine="entity-auto" name="autosubmittedAnswer" invoke="create" default-entity-name="AnswerMaster">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+</service>
+
+<!-- partyPerformance  -->
+
+<service engine="java" name="partyPerformance" location="com.vastpro.service.UserService" invoke="partyPerformance" auth="false">
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="score" mode="IN" type="String" optional="false"/>
+	<attribute name="date" mode="IN" type="String" optional="false"/>
+	<attribute name="noOfQuestions" mode="IN" type="String" optional="false"/>
+	<attribute name="totalCorrect" mode="IN" type="String" optional="false"/>
+	<attribute name="totalWrong" mode="IN" type="String" optional="false"/>
+	<attribute name="userPassed" mode="IN" type="String" optional="false"/>
+	<attribute name="performanceId" mode="IN" type="String" optional="false"/>
+	<attribute name="attemptNo" mode="IN" type="String" optional="false"/>
+</service>
+<service engine="entity-auto" name="autoPartyPerformance" invoke="create" default-entity-name="PartyPerformance">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+</service>
+
+<!-- DetailedPartyPerformance -->
+
+
+
+<service engine="java" name="detailedPartyPerformance" location="com.vastpro.service.UserService" invoke="detailedPartyPerformance" auth="false">
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="topicId" mode="IN" type="String" optional="false"/>
+	<attribute name="topicPassPercentage" mode="IN" type="String" optional="false"/>
+	<attribute name="userTopicPercentage" mode="IN" type="String" optional="false"/>
+	<attribute name="correctQuestionsInthisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="totalQuestionsInThisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="userPassedThisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="performanceId" mode="IN" type="String" optional="false"/>
+	
+</service>
+<service engine="entity-auto" name="autoDetailedPartyPerformance" invoke="create" default-entity-name="DetailedPartyPerformance">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+</service>
+
 
 
 <service engine="java" name="deleteExamTopic" location="com.vastpro.service.ExamService" invoke="deleteExamTopic" auth="false">

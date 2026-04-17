@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.service.GenericServiceException;
@@ -46,6 +47,7 @@ public class ExamResource {
 		input.put("noOfQuestions", request.getAttribute("noOfQuestions"));
 		input.put("duration", request.getAttribute("duration"));
 		input.put("passPercentage", request.getAttribute("passPercentage"));
+		input.put("userLoginId", request.getAttribute("userLoginId"));
 
 		try {
 			Map<String, Object> result = dispatcher.runSync("examcreate", input);
@@ -53,7 +55,7 @@ public class ExamResource {
 				return Response.ok(UtilMisc.toMap("status", "success", "message", result.get("successMessage"), "examId",
 								result.get("examId"))).build();
 			} else {
-				return Response.ok(UtilMisc.toMap("error", result.get("responseMessage"))).build();
+				return Response.status(Status.CONFLICT).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
 			}
 
 		} catch (GenericServiceException e) {
@@ -69,7 +71,7 @@ public class ExamResource {
 	 * Method is used to get exam details
 	 */
 	@GET
-	@Path("/getexam")
+	@Path("/get-exam")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getExamName(@Context HttpServletRequest request) {
@@ -78,7 +80,10 @@ public class ExamResource {
 			Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		}
 		try {
-			Map<String, Object> result = dispatcher.runSync("getExam", UtilMisc.toMap());
+			Map<String, Object> input = new HashMap<String, Object>();
+			input.put("userLoginId", request.getParameter("userLoginId"));
+
+			Map<String, Object> result = dispatcher.runSync("getExam", input);
 			return Response.ok(UtilMisc.toMap("data", result)).build();
 		} catch (GenericServiceException e) {
 
@@ -142,6 +147,7 @@ public class ExamResource {
 		} else {
 			Map<String, Object> examDelete = new HashMap<String, Object>();
 			examDelete.put("examId", examId);
+			examDelete.put("userLoginId", request.getAttribute("userLoginId"));
 			try {
 				Map<String, Object> result = dispatcher.runSync("examDelete", examDelete);
 				if (result.get("responseMessage").equals("success")) {

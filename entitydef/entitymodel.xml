@@ -144,36 +144,36 @@ under the License.
     
     
   <entity entity-name="ExamTopicDetails" package-name="in.vastpro.sphinx">
-
+ 
     <!-- Foreign Keys -->
     <field name="examId" type="id"/>
     <field name="topicId" type="name"/>
-
+ 
     <!-- Additional Fields -->
-    <field name="percentage" type="numeric" not-null="true"/>
-    <field name="startingQid" type="numeric" not-null="true"/>
-    <field name="endingQid" type="numeric" not-null="true"/>
-    <field name="questionsPerExam" type="numeric" not-null="true"/>
+    <field name="percentage" type="numeric" not-null="false"/>
+    <field name="startingQid" type="numeric" not-null="false"/>
+    <field name="endingQid" type="numeric" not-null="false"/>
+    <field name="questionsPerExam" type="numeric" not-null="false"/>
     <field name="topicPassPercentage" type="floating-point" not-null="true"/>
-
+ 
     <!-- Composite Primary Key -->
     <prim-key field="examId"/>
     <prim-key field="topicId"/>
-
+ 
     <!-- Relation with ExamMaster -->
     <relation rel-entity-name="ExamMaster"
               fk-name="EXAM_TOPIC_FK"
               type="one">
         <key-map field-name="examId" rel-field-name="examId"/>
     </relation>
-
+ 
     <!-- Relation with TopicMaster -->
     <relation rel-entity-name="TopicMaster"
               fk-name="EXAM_TOPIC_TOPIC_FK"
               type="one">
         <key-map field-name="topicId" rel-field-name="topicId"/>
     </relation>
-
+ 
 </entity>
 
     
@@ -252,7 +252,15 @@ under the License.
     <member-entity entity-alias="UL" entity-name="UserLogin"/>
     <member-entity entity-alias="EM" entity-name="ExamMaster"/>
 
-    <!-- 2. joins -->
+ 
+
+    <!-- 3. alias -->
+    <alias entity-alias="PER" name="partyId" field="partyId"/>
+    <alias entity-alias="UL" name="userLoginId" field="userLoginId"/>
+    <alias entity-alias="EM" name="examId" field="examId"/>
+    <alias entity-alias="EM" name="examName" field="examName"/>
+    
+       <!-- 2. joins -->
     <!-- PER -> UL -->
     <view-link entity-alias="PER" rel-entity-alias="UL" rel-optional="true">
         <key-map field-name="partyId" rel-field-name="partyId"/>
@@ -262,16 +270,12 @@ under the License.
     <view-link entity-alias="PER" rel-entity-alias="EM" rel-optional="true">
         <key-map field-name="examId" rel-field-name="examId"/>
     </view-link>
-
-    <!-- 3. alias -->
-    <alias entity-alias="PER" name="partyId" field="partyId"/>
-    <alias entity-alias="UL" name="userLoginId" field="userLoginId"/>
-    <alias entity-alias="EM" name="examId" field="examId"/>
-    <alias entity-alias="EM" name="examName" field="examName"/>
     
     
 
 </view-entity>
+
+
 
 <entity entity-name="AdminPartyExamRel" package-name="in.vastpro.sphinx">
 		<field name="partyId" type="id"></field>
@@ -287,10 +291,86 @@ under the License.
 		<relation rel-entity-name="ExamMaster" fk-name="USER_EXAM_EID_FK" type="many">
 			<key-map field-name="examId" rel-field-name="examid" />
 		</relation>			
-    </entity>
-    
+</entity>
+ <view-entity entity-name="UserLoginView" package-name="in.vastpro.sphinx">
+
+    <!-- 1. member entities -->
+    <member-entity entity-alias="PER" entity-name="PartyExamRelationship"/>
+    <member-entity entity-alias="UL" entity-name="UserLogin"/>
+    <member-entity entity-alias="EM" entity-name="ExamMaster"/>
+
+   
+
+   
+    <!-- 3. alias -->
     
    
+    <alias entity-alias="EM" name="examId" field="examId"/>
+    <alias entity-alias="EM" name="examName" field="examName"/>
+    
+    <alias entity-alias="PER" name="noOfAttempts" field="noOfAttempts"/>
+    <alias entity-alias="EM" name="description" field="description"/>
+    <alias entity-alias="PER" name="partyId" field="partyId"/>
+     <!-- 2. joins -->
+    <!-- PER -> UL -->
+   
+    
+     <view-link entity-alias="PER" rel-entity-alias="UL" rel-optional="true">
+        <key-map field-name="partyId" rel-field-name="partyId"/>
+    </view-link>
+    <view-link entity-alias="PER" rel-entity-alias="EM" rel-optional="true">
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </view-link>
+    
+    
+
+</view-entity>
+<entity entity-name="AnswerMaster" package-name="in.vastpro.sphinx">
+		<field name="questionId" type="numeric"></field>
+		<field name="examId" type="id"></field>
+		<field name="partyId" type="id"/>
+		<field name="submittedAnswer" type="very-short"></field>
+		<field name="sNo" type="numeric"></field>
+		<field name="isFlagged" type="numeric"/>		
+		<prim-key field="questionId" />
+		<prim-key field="examId" />
+		<prim-key field="partyId" />
+</entity>
+
+<entity entity-name="PartyPerformance" package-name="in.vastpro.sphinx">
+		<field name="partyId" type="id" not-null="true"></field>
+		<field name="examId" type="id" not-null="true"></field>
+		<field name="score" type="currency-amount" not-null="true"/>
+		<field name="date" type="date-time" not-null="true"></field>
+		<field name="noOfQuestions" type="numeric"></field>
+		<field name="totalCorrect" type="numeric"/>
+		<field name="totalWrong" type="numeric"></field>
+		<field name="userPassed" type="numeric"></field>
+		<field name="performanceId" type="numeric"/>
+		<field name="attemptNo" type="numeric"></field>		
+		<prim-key field="performanceId" />
+</entity>
+<!-- This entity is about detailed user performance in exams -->
+
+<entity entity-name="DetailedPartyPerformance" package-name="in.vastpro.sphinx">
+	<field name="detailedPerformanceId" type="numeric"></field>		
+		<field name="partyId" type="id"></field>
+		<field name="examId" type="id"></field>
+		<field name="topicId" type="short-varchar"/>
+		<field name="topicPassPercentage" type="currency-amount"></field>
+		<field name="userTopicPercentage" type="currency-amount"></field>
+		<field name="correctQuestionsInthisTopic" type="numeric" not-null="true"/>
+		<field name="totalQuestionsInThisTopic" type="numeric" not-null="true"></field>
+		<field name="userPassedThisTopic" type="numeric"></field>
+		<field name="performanceId" type="numeric" not-null="true"></field>
+				
+		<prim-key field="detailedPerformanceId" />
+		<relation rel-entity-name="PartyPerformance" fk-name="DETAILED_PERF_FK" type="one">
+			<key-map field-name="performanceId" rel-field-name="performanceId" />
+		</relation>			
+  </entity>
+ 
+>>>>>>> 829293f17df7343914ab0ebac46c5722b8894d5f
 
 </entitymodel>
 
