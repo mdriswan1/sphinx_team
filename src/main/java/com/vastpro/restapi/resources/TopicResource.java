@@ -42,9 +42,12 @@ public class TopicResource {
 			Map<String, Object> input = new HashMap<String, Object>();
 			input.put("topicName", (String) request.getAttribute("topicName"));
 
-			System.out.println("what is the eror " + input);
 			Map<String, Object> result = dispatcher.runSync("createtopic", input);
-			return Response.ok(result).build();
+			if (ServiceUtil.isError(result)) {
+				return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+			} else {
+				return Response.ok(result).build();
+			}
 
 		} catch (GenericServiceException e) {
 

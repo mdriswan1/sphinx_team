@@ -201,7 +201,7 @@ public class QuestionResource {
 	 * Method is used to get question by topic
 	 */
 	@POST
-	@Path("/getquesbytopic")
+	@Path("/get-ques-by-topic")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response getquesbytopic(@Context HttpServletRequest request) {
