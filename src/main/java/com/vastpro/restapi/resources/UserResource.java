@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -21,7 +22,10 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.HttpStatus;
 import org.apache.ofbiz.base.util.UtilMisc;
+import org.apache.ofbiz.base.util.UtilValidate;
+import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
@@ -88,7 +92,7 @@ public class UserResource {
 		try {
 
 			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-
+			Delegator delegator = (Delegator) request.getAttribute("delegator");
 			Map<String, Object> input = new HashMap<String, Object>();
 			input.put("userLoginId", request.getAttribute("userLoginId"));
 			input.put("currentPassword", request.getAttribute("password"));
@@ -97,9 +101,23 @@ public class UserResource {
 			request.setAttribute("PASSWORD", request.getAttribute("password"));
 
 			if ("success".equalsIgnoreCase(LoginWorker.login(request, response))) {
-				// HttpSession session = request.getSession();
-				// session.setAttribute("partyId", partyId);
-				return Response.status(HttpStatus.SC_OK).entity(ServiceUtil.returnSuccess("Signed In Successfully!")).build();
+
+				HttpSession session = request.getSession(false);
+				if (UtilValidate.isNotEmpty(session)) {
+					GenericValue userLogin = (GenericValue) session.getAttribute("userLogin");
+					if (UtilValidate.isNotEmpty(userLogin)) {
+						GenericValue userRole = EntityQuery.use(delegator).from("PartyRole")
+										.where("partyId", userLogin.getString("partyId")).queryFirst();
+						session.setAttribute("userRole", userRole.getString("roleTypeId"));
+						session.setAttribute("partyId", userRole.getString("partyId"));
+						input.put("role", userRole.getString("roleTypeId"));
+						input.put("partyId", userRole.getString("partyId"));
+						System.out.println("++++++++++++++++++++++role: " + session.getAttribute("userRole"));
+						System.out.println("++++++++++++++++++++++role: " + session.getAttribute("partyId"));
+					}
+				}
+				return Response.status(HttpStatus.SC_OK).entity(UtilMisc.toMap("success", "Signed In Successfully!", "result", input))
+								.build();
 			} else {
 				return Response.status(HttpStatus.SC_BAD_REQUEST)
 								.entity(ServiceUtil.returnError((String) request.getAttribute("_ERROR_MESSAGE_"))).build();
@@ -174,7 +192,6 @@ public class UserResource {
 				String serviceType = (String) request.getAttribute("servicetype");
 				Map<String, Object> result;
 				if (serviceType.equals("assigned")) {
-					input.put("userLoginId", request.getAttribute("examId"));
 					result = dispatcher.runSync("getAssignedUser", input);
 				} else {
 					result = dispatcher.runSync("getAllUser", input);
@@ -283,9 +300,9 @@ public class UserResource {
 			try {
 				result = dispatcher.runSync("assignTempoary", input);
 				if (result.get("responseMessage").equals("success")) {
-					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
 				} else {
-					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("errorMessage"))).build();
+					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
 				}
 			} catch (GenericServiceException e) {
 				// TODO Auto-generated catch block
@@ -352,33 +369,5 @@ public class UserResource {
 
 			}
 		}
-	}
-
-	// user
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getAssignUserExam")
-	public Response getAssignUserExam(@Context HttpServletRequest request, HttpServletResponse response) {
-		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-		if (dispatcher == null) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
-		} else {
-			Map<String, Object> input = new HashMap<>();
-			input.put("userLoginId", request.getAttribute("userLoginId"));
-			try {
-				Map<String, Object> result = dispatcher.runSync("getAssignUserExam", input);
-				return Response.status(Status.OK).entity(UtilMisc.toMap("userExam", result.get("userExam"), "success", "get success"))
-								.build();
-			} catch (GenericServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return Response.status(Status.INTERNAL_SERVER_ERROR)
-								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
-
-			}
-
-		}
-
 	}
 }
