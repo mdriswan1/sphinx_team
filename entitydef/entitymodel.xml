@@ -252,7 +252,15 @@ under the License.
     <member-entity entity-alias="UL" entity-name="UserLogin"/>
     <member-entity entity-alias="EM" entity-name="ExamMaster"/>
 
-    <!-- 2. joins -->
+ 
+
+    <!-- 3. alias -->
+    <alias entity-alias="PER" name="partyId" field="partyId"/>
+    <alias entity-alias="UL" name="userLoginId" field="userLoginId"/>
+    <alias entity-alias="EM" name="examId" field="examId"/>
+    <alias entity-alias="EM" name="examName" field="examName"/>
+    
+       <!-- 2. joins -->
     <!-- PER -> UL -->
     <view-link entity-alias="PER" rel-entity-alias="UL" rel-optional="true">
         <key-map field-name="partyId" rel-field-name="partyId"/>
@@ -262,16 +270,12 @@ under the License.
     <view-link entity-alias="PER" rel-entity-alias="EM" rel-optional="true">
         <key-map field-name="examId" rel-field-name="examId"/>
     </view-link>
-
-    <!-- 3. alias -->
-    <alias entity-alias="PER" name="partyId" field="partyId"/>
-    <alias entity-alias="UL" name="userLoginId" field="userLoginId"/>
-    <alias entity-alias="EM" name="examId" field="examId"/>
-    <alias entity-alias="EM" name="examName" field="examName"/>
     
     
 
 </view-entity>
+
+
 
 <entity entity-name="AdminPartyExamRel" package-name="in.vastpro.sphinx">
 		<field name="partyId" type="id"></field>
@@ -287,7 +291,40 @@ under the License.
 		<relation rel-entity-name="ExamMaster" fk-name="USER_EXAM_EID_FK" type="many">
 			<key-map field-name="examId" rel-field-name="examid" />
 		</relation>			
-    </entity>
+</entity>
+ <view-entity entity-name="UserLoginView" package-name="in.vastpro.sphinx">
+
+    <!-- 1. member entities -->
+    <member-entity entity-alias="PER" entity-name="PartyExamRelationship"/>
+    <member-entity entity-alias="UL" entity-name="UserLogin"/>
+    <member-entity entity-alias="EM" entity-name="ExamMaster"/>
+
+   
+
+   
+    <!-- 3. alias -->
+    
+   
+    <alias entity-alias="EM" name="examId" field="examId"/>
+    <alias entity-alias="EM" name="examName" field="examName"/>
+    
+    <alias entity-alias="PER" name="noOfAttempts" field="noOfAttempts"/>
+    <alias entity-alias="EM" name="description" field="description"/>
+    <alias entity-alias="PER" name="partyId" field="partyId"/>
+     <!-- 2. joins -->
+    <!-- PER -> UL -->
+   
+    
+     <view-link entity-alias="PER" rel-entity-alias="UL" rel-optional="true">
+        <key-map field-name="partyId" rel-field-name="partyId"/>
+    </view-link>
+    <view-link entity-alias="PER" rel-entity-alias="EM" rel-optional="true">
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </view-link>
+    
+    
+
+</view-entity>
  
 
 </entitymodel>

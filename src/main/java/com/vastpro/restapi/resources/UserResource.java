@@ -174,6 +174,7 @@ public class UserResource {
 				String serviceType = (String) request.getAttribute("servicetype");
 				Map<String, Object> result;
 				if (serviceType.equals("assigned")) {
+					input.put("userLoginId", request.getAttribute("examId"));
 					result = dispatcher.runSync("getAssignedUser", input);
 				} else {
 					result = dispatcher.runSync("getAllUser", input);
@@ -282,9 +283,9 @@ public class UserResource {
 			try {
 				result = dispatcher.runSync("assignTempoary", input);
 				if (result.get("responseMessage").equals("success")) {
-					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
 				} else {
-					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
+					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("errorMessage"))).build();
 				}
 			} catch (GenericServiceException e) {
 				// TODO Auto-generated catch block
@@ -351,5 +352,33 @@ public class UserResource {
 
 			}
 		}
+	}
+
+	// user
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getAssignUserExam")
+	public Response getAssignUserExam(@Context HttpServletRequest request, HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+			input.put("userLoginId", request.getAttribute("userLoginId"));
+			try {
+				Map<String, Object> result = dispatcher.runSync("getAssignUserExam", input);
+				return Response.status(Status.OK).entity(UtilMisc.toMap("userExam", result.get("userExam"), "success", "get success"))
+								.build();
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+			}
+
+		}
+
 	}
 }

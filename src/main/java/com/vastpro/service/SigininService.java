@@ -34,10 +34,10 @@ public class SigininService {
 						String roleTypeId = value1.getString("roleTypeId");
 
 						if (roleTypeId.equals("SPX_ADMIN")) {
-							role = "/adminhome";
+							role = "admin";
 							break;
 						} else if (roleTypeId.equals("SPX_USER")) {
-							role = "//userdashboard";
+							role = "user";
 							break;
 						}
 					}
