@@ -70,8 +70,8 @@ public class ExamResource {
 	/**
 	 * Method is used to get exam details
 	 */
-	@POST
-	@Path("/getexam")
+	@GET
+	@Path("/get-exam")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getExamName(@Context HttpServletRequest request) {
@@ -81,7 +81,7 @@ public class ExamResource {
 		}
 		try {
 			Map<String, Object> input = new HashMap<String, Object>();
-			input.put("userLoginId", request.getAttribute("userLoginId"));
+			input.put("userLoginId", request.getParameter("userLoginId"));
 
 			Map<String, Object> result = dispatcher.runSync("getExam", input);
 			return Response.ok(UtilMisc.toMap("data", result)).build();

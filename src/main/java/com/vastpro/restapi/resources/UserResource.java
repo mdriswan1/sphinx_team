@@ -339,6 +339,39 @@ public class UserResource {
 		}
 	}
 
+	// assignTempoaryUpdate
+	@Path("/asssignTempoaryUpdate")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response assignTemparyUpdate(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+			input.put("examId", request.getAttribute("examId"));
+			input.put("partyId", request.getAttribute("partyId"));
+			input.put("noOfAttempts", request.getAttribute("noOfAttempts"));
+			input.put("allowedAttempts", request.getAttribute("allowedAttempts"));
+			input.put("timeoutDays", request.getAttribute("timeoutDays"));
+			try {
+				Map<String, Object> result = dispatcher.runSync("asssignTempoaryUpdate", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+				}
+				return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+			}
+
+		}
+	}
+
 	// user
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -366,4 +399,110 @@ public class UserResource {
 		}
 
 	}
+
+	@POST
+	@Path("/submited-answer")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response submitedAnswer(@Context HttpServletRequest request, HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+			input.put("questionId", request.getAttribute("questionId"));
+			input.put("examId", request.getAttribute("examId"));
+			input.put("partyId", request.getAttribute("partyId"));
+			input.put("submittedAnswer", request.getAttribute("submittedAnswer"));
+			input.put("sNo", request.getAttribute("sNo"));
+			input.put("isFlagged", request.getAttribute("isFlagged"));
+			try {
+				Map<String, Object> result = dispatcher.runSync("submitedAnswer", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+				}
+				return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+			}
+
+		}
+	}
+
+	@POST
+	@Path("/party-performance")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response partyPerformance(@Context HttpServletRequest request, HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+			input.put("partyId", request.getAttribute("partyId"));
+			input.put("examId", request.getAttribute("examId"));
+			input.put("score", request.getAttribute("score"));
+			input.put("date", request.getAttribute("date"));
+			input.put("noOfQuestions", request.getAttribute("noOfQuestions"));
+			input.put("totalCorrect", request.getAttribute("totalCorrect"));
+			input.put("totalWrong", request.getAttribute("totalWrong"));
+			input.put("userPassed", request.getAttribute("userPassed"));
+			input.put("performanceId", request.getAttribute("performanceId"));
+			input.put("attemptNo", request.getAttribute("attemptNo"));
+			try {
+				Map<String, Object> result = dispatcher.runSync("partyPerformance", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+				}
+				return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+			}
+
+		}
+	}
+
+	// DetailedPartyPerformance
+	@POST
+	@Path("/detailed-party-performance")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response DetailedPartyPerformance(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+			input.put("partyId", request.getAttribute("partyId"));
+			input.put("examId", request.getAttribute("examId"));
+			input.put("topicId", request.getAttribute("topicId"));
+			input.put("topicPassPercentage", request.getAttribute("topicPassPercentage"));
+			input.put("userTopicPercentage", request.getAttribute("userTopicPercentage"));
+			input.put("correctQuestionsInthisTopic", request.getAttribute("correctQuestionsInthisTopic"));
+			input.put("totalQuestionsInThisTopic", request.getAttribute("totalQuestionsInThisTopic"));
+			input.put("userPassedThisTopic", request.getAttribute("userPassedThisTopic"));
+			input.put("performanceId", request.getAttribute("performanceId"));
+
+			try {
+				Map<String, Object> result = dispatcher.runSync("detailedPartyPerformance", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+				}
+				return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+			}
+
+		}
+	}
+
 }

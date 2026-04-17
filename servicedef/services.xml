@@ -503,6 +503,74 @@ under the License.
 	<attribute name="userLoginId" mode="IN" type="String" optional="false"/>
 	<attribute name="userExam" mode="OUT" type="List" optional="false"/>
 </service>
+<service engine="java" name="asssignTempoaryUpdate" location="com.vastpro.service.UserService" invoke="asssignTempoaryUpdate">
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="noOfAttempts" mode="IN" type="String" optional="false"/>
+	<attribute name="timeoutDays" mode="IN" type="String" optional="false"/>
+	<attribute name="allowedAttempts" mode="IN" type="String" optional="false"/>
+</service>
+<service engine="entity-auto" name="autoasssignTempoaryUpdate" invoke="update" default-entity-name="AssignExamTempoary">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
+	
+</service>
+
+<!-- user submit answer  -->
+<service engine="java" name="submitedAnswer" location="com.vastpro.service.UserService" invoke="submitedAnswer" auth="false">
+	<attribute name="questionId" mode="IN" type="String" optional="false"/>
+	<attribute name="examIdexamId" mode="IN" type="String" optional="false"/>
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="submittedAnswer" mode="IN" type="String" optional="false"/>
+	<attribute name="sNo" mode="IN" type="String" optional="false"/>
+	<attribute name="isFlagged" mode="IN" type="String" optional="false"/>
+</service>
+<service engine="entity-auto" name="autosubmittedAnswer" invoke="create" default-entity-name="AnswerMaster">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+</service>
+
+<!-- partyPerformance  -->
+
+<service engine="java" name="partyPerformance" location="com.vastpro.service.UserService" invoke="partyPerformance" auth="false">
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="score" mode="IN" type="String" optional="false"/>
+	<attribute name="date" mode="IN" type="String" optional="false"/>
+	<attribute name="noOfQuestions" mode="IN" type="String" optional="false"/>
+	<attribute name="totalCorrect" mode="IN" type="String" optional="false"/>
+	<attribute name="totalWrong" mode="IN" type="String" optional="false"/>
+	<attribute name="userPassed" mode="IN" type="String" optional="false"/>
+	<attribute name="performanceId" mode="IN" type="String" optional="false"/>
+	<attribute name="attemptNo" mode="IN" type="String" optional="false"/>
+</service>
+<service engine="entity-auto" name="autoPartyPerformance" invoke="create" default-entity-name="PartyPerformance">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+</service>
+
+<!-- DetailedPartyPerformance -->
+
+
+
+<service engine="java" name="detailedPartyPerformance" location="com.vastpro.service.UserService" invoke="detailedPartyPerformance" auth="false">
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	<attribute name="topicId" mode="IN" type="String" optional="false"/>
+	<attribute name="topicPassPercentage" mode="IN" type="String" optional="false"/>
+	<attribute name="userTopicPercentage" mode="IN" type="String" optional="false"/>
+	<attribute name="correctQuestionsInthisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="totalQuestionsInThisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="userPassedThisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="performanceId" mode="IN" type="String" optional="false"/>
+	
+</service>
+<service engine="entity-auto" name="autoDetailedPartyPerformance" invoke="create" default-entity-name="DetailedPartyPerformance">
+	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+</service>
+
+
 
 </services>
 
