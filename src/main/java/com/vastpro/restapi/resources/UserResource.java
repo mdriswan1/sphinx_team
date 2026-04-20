@@ -130,7 +130,7 @@ public class UserResource {
 				if (result.get("responseMessage").equals("success")) {
 					return Response.ok(UtilMisc.toMap("success", result.get("successMessage"))).build();
 				} else {
-					return Response.status(Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error", "mmm")).build();
+					return Response.status(Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error", "not created")).build();
 				}
 			} catch (GenericServiceException e) {
 
@@ -200,7 +200,7 @@ public class UserResource {
 			if (result.get("responseMessage").equals("success")) {
 				return Response.ok(UtilMisc.toMap("success", result.get("successMessage"))).build();
 			} else {
-				return Response.status(Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error", "mmm")).build();
+				return Response.status(Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error", "alreadycreated")).build();
 			}
 		} catch (GenericServiceException e) {
 
