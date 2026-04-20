@@ -262,6 +262,9 @@ public class ExamResource {
 		}
 	}
 
+	/**
+	 * Method is used to delete the assessment topic
+	 */
 	@DELETE
 	@Path("/examtopicDelete")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -287,7 +290,7 @@ public class ExamResource {
 			}
 
 		} catch (GenericServiceException e) {
-			e.printStackTrace();
+
 			// TODO: handle exception
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
@@ -295,6 +298,9 @@ public class ExamResource {
 		}
 	}
 
+	/**
+	 * Method is used to update the assessment topic
+	 */
 	@PUT
 	@Path("/examtopicUpdate")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -319,16 +325,11 @@ public class ExamResource {
 				return Response.ok(result).build();
 			}
 		} catch (GenericServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 
 		}
 
 	}
-	/**
-	 * Method is used to delete exam topic details by id
-	 */
-
 }
