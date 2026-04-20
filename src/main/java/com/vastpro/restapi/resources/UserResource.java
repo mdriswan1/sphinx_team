@@ -484,10 +484,11 @@ public class UserResource {
 			input.put("topicId", request.getAttribute("topicId"));
 			input.put("topicPassPercentage", request.getAttribute("topicPassPercentage"));
 			input.put("userTopicPercentage", request.getAttribute("userTopicPercentage"));
-			input.put("correctQuestionsInthisTopic", request.getAttribute("correctQuestionsInthisTopic"));
+			input.put("correctQuestionsInThisTopic", request.getAttribute("correctQuestionsInThisTopic"));
 			input.put("totalQuestionsInThisTopic", request.getAttribute("totalQuestionsInThisTopic"));
-			input.put("userPassedThisTopic", request.getAttribute("userPassedThisTopic"));
+			input.put("userPassedInThisTopic", request.getAttribute("userPassedInThisTopic"));
 			input.put("performanceId", request.getAttribute("performanceId"));
+			input.put("detailedPerformanceId", request.getAttribute("detailedPerformanceId"));
 
 			try {
 				Map<String, Object> result = dispatcher.runSync("detailedPartyPerformance", input);
