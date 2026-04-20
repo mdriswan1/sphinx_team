@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -75,8 +76,9 @@ public class UserService {
 					obj.put("passwordChangesAuto", password);
 					// kamal
 					Map<String, Object> result = dispatcher.runSync("examrelationshipcreates", obj);
-
+					Debug.log("++++++++++++++success=>====>email result two===>\n\n" + result);
 					Map<String, Object> res = dispatcher.runSync("sendEmailToUser", obj);
+					Debug.log("--------------------success=>====>email result threee===>\n\n" + res);
 					if (ServiceUtil.isError(res)) {
 						return ServiceUtil.returnError((String) result.get("errorMessage"));
 					}

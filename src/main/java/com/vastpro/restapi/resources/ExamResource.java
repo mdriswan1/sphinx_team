@@ -291,7 +291,6 @@ public class ExamResource {
 
 		} catch (GenericServiceException e) {
 
-			// TODO: handle exception
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 

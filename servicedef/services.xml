@@ -616,6 +616,7 @@ under the License.
 
     <attribute name="examId" type="String" mode="IN"/>
     <attribute name="passwordChangesAuto" type="Long" mode="IN"/>
+    <attribute name="partyId" type="String" mode="IN"/>  
 </service>
 </services>
 

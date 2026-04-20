@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.HttpStatus;
+import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.base.util.UtilValidate;
 import org.apache.ofbiz.entity.Delegator;
@@ -110,6 +111,7 @@ public class UserResource {
 										.where("partyId", userLogin.getString("partyId")).queryFirst();
 						session.setAttribute("userRole", userRole.getString("roleTypeId"));
 						session.setAttribute("partyId", userRole.getString("partyId"));
+						session.setAttribute("userLoginId", userLogin.getString("userLoginId"));
 						input.put("role", userRole.getString("roleTypeId"));
 						input.put("partyId", userRole.getString("partyId"));
 						System.out.println("++++++++++++++++++++++userLogin: " + userLogin);
@@ -188,6 +190,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			try {
 				Map<String, Object> input = new HashMap<>();
 				input.put("examId", request.getAttribute("examId"));
@@ -227,17 +233,23 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		}
+		HttpSession session = request.getSession(false);
+		if (UtilValidate.isEmpty(session)) {
+			return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+		}
 		try {
+
 			List<Map<String, Object>> list = (List<Map<String, Object>>) request.getAttribute("allData");
 
 			Map<String, Object> result = dispatcher.runSync("examrelationshipcreate", UtilMisc.toMap("allData", list));
+			Debug.log("===success=>====>email result===>\n\n" + result);
 			if (result.get("responseMessage").equals("success")) {
 				return Response.ok(UtilMisc.toMap("success", result.get("successMessage"))).build();
 			} else {
 				return Response.status(Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error", "alreadycreated")).build();
 			}
 		} catch (GenericServiceException e) {
-
+			Debug.log("===error=>====>email===>\n\n" + e);
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 							.entity(UtilMisc.toMap("error", "internal server error try again after some time")).build();
 		}
@@ -256,6 +268,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 
 			input.put("firstName", request.getAttribute("firstName"));
@@ -289,6 +305,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 
 			input.put("examId", request.getAttribute("examId"));
@@ -325,6 +345,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 			input.put("examId", request.getAttribute("examId"));
 			Map<String, Object> result;
@@ -353,6 +377,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 			input.put("examId", request.getAttribute("examId"));
 			input.put("partyId", request.getAttribute("partyId"));
@@ -383,6 +411,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 			input.put("examId", request.getAttribute("examId"));
 			input.put("partyId", request.getAttribute("partyId"));
@@ -416,6 +448,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 			input.put("userLoginId", request.getAttribute("userLoginId"));
 			try {
@@ -443,10 +479,15 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
+
 			input.put("questionId", request.getAttribute("questionId"));
 			input.put("examId", request.getAttribute("examId"));
-			input.put("partyId", request.getAttribute("partyId"));
+			input.put("partyId", session.getAttribute("partyId"));
 			input.put("submittedAnswer", request.getAttribute("submittedAnswer"));
 			input.put("sNo", request.getAttribute("sNo"));
 			input.put("isFlagged", request.getAttribute("isFlagged"));
@@ -475,8 +516,12 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
-			input.put("partyId", request.getAttribute("partyId"));
+			input.put("partyId", session.getAttribute("partyId"));
 			input.put("examId", request.getAttribute("examId"));
 			input.put("score", request.getAttribute("score"));
 			input.put("date", request.getAttribute("date"));
@@ -512,8 +557,12 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
-			input.put("partyId", request.getAttribute("partyId"));
+			input.put("partyId", session.getAttribute("partyId"));
 			input.put("examId", request.getAttribute("examId"));
 			input.put("topicId", request.getAttribute("topicId"));
 			input.put("topicPassPercentage", request.getAttribute("topicPassPercentage"));
