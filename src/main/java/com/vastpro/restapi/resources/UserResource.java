@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -19,10 +20,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.http.HttpStatus;
+import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.UtilMisc;
+import org.apache.ofbiz.base.util.UtilValidate;
+import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
+import org.apache.ofbiz.service.ServiceUtil;
+import org.apache.ofbiz.webapp.control.LoginWorker;
 
 /**
  * This class is used to handle user api
@@ -85,18 +93,47 @@ public class UserResource {
 		try {
 
 			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-
+			Delegator delegator = (Delegator) request.getAttribute("delegator");
 			Map<String, Object> input = new HashMap<String, Object>();
 			input.put("userLoginId", request.getAttribute("userLoginId"));
 			input.put("currentPassword", request.getAttribute("password"));
 
-			Map<String, Object> result = dispatcher.runSync("signIn", input);
-			if ("success".equals(result.get("responseMessage"))) {
-				return Response.ok(Map.of("status", "success", "message", result.get("successMessage"), "role", result.get("role")))
+			request.setAttribute("USERNAME", request.getAttribute("userLoginId"));
+			request.setAttribute("PASSWORD", request.getAttribute("password"));
+
+			if ("success".equalsIgnoreCase(LoginWorker.login(request, response))) {
+
+				HttpSession session = request.getSession(false);
+				if (UtilValidate.isNotEmpty(session)) {
+					GenericValue userLogin = (GenericValue) session.getAttribute("userLogin");
+					if (UtilValidate.isNotEmpty(userLogin)) {
+						GenericValue userRole = EntityQuery.use(delegator).from("PartyRole")
+										.where("partyId", userLogin.getString("partyId")).queryFirst();
+						session.setAttribute("userRole", userRole.getString("roleTypeId"));
+						session.setAttribute("partyId", userRole.getString("partyId"));
+						session.setAttribute("userLoginId", userLogin.getString("userLoginId"));
+						input.put("role", userRole.getString("roleTypeId"));
+						input.put("partyId", userRole.getString("partyId"));
+						System.out.println("++++++++++++++++++++++userLogin: " + userLogin);
+						System.out.println("++++++++++++++++++++++userRole: " + userRole);
+						System.out.println("++++++++++++++++++++++role: " + session.getAttribute("userRole"));
+						System.out.println("++++++++++++++++++++++role: " + session.getAttribute("partyId"));
+					}
+				}
+				return Response.status(HttpStatus.SC_OK).entity(UtilMisc.toMap("success", "Signed In Successfully!", "result", input))
 								.build();
 			} else {
-				return Response.status(401).entity(Map.of("status", "error", "message", "Invalid Credinatilas")).build();
+				return Response.status(HttpStatus.SC_BAD_REQUEST)
+								.entity(ServiceUtil.returnError((String) request.getAttribute("_ERROR_MESSAGE_"))).build();
 			}
+
+			// Map<String, Object> result = dispatcher.runSync("signIn", input);
+			// if ("success".equals(result.get("responseMessage"))) {
+			// return Response.ok(Map.of("status", "success", "message", result.get("successMessage"), "role", result.get("role")))
+			// .build();
+			// } else {
+			// return Response.status(401).entity(Map.of("status", "error", "message", "Invalid Credinatilas")).build();
+			// }
 
 		} catch (Exception e) {
 			return Response.status(500).entity(Map.of("status", "error", "message", "Invalid Credinatilas")).build();
@@ -153,13 +190,16 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			try {
 				Map<String, Object> input = new HashMap<>();
 				input.put("examId", request.getAttribute("examId"));
 				String serviceType = (String) request.getAttribute("servicetype");
 				Map<String, Object> result;
 				if (serviceType.equals("assigned")) {
-					input.put("userLoginId", request.getAttribute("examId"));
 					result = dispatcher.runSync("getAssignedUser", input);
 				} else {
 					result = dispatcher.runSync("getAllUser", input);
@@ -193,17 +233,23 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		}
+		HttpSession session = request.getSession(false);
+		if (UtilValidate.isEmpty(session)) {
+			return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+		}
 		try {
+
 			List<Map<String, Object>> list = (List<Map<String, Object>>) request.getAttribute("allData");
 
 			Map<String, Object> result = dispatcher.runSync("examrelationshipcreate", UtilMisc.toMap("allData", list));
+			Debug.log("===success=>====>email result===>\n\n" + result);
 			if (result.get("responseMessage").equals("success")) {
 				return Response.ok(UtilMisc.toMap("success", result.get("successMessage"))).build();
 			} else {
 				return Response.status(Status.NOT_ACCEPTABLE).entity(UtilMisc.toMap("error", "alreadycreated")).build();
 			}
 		} catch (GenericServiceException e) {
-
+			Debug.log("===error=>====>email===>\n\n" + e);
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 							.entity(UtilMisc.toMap("error", "internal server error try again after some time")).build();
 		}
@@ -222,6 +268,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 
 			input.put("firstName", request.getAttribute("firstName"));
@@ -255,6 +305,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 
 			input.put("examId", request.getAttribute("examId"));
@@ -268,9 +322,9 @@ public class UserResource {
 			try {
 				result = dispatcher.runSync("assignTempoary", input);
 				if (result.get("responseMessage").equals("success")) {
-					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
 				} else {
-					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("errorMessage"))).build();
+					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
 				}
 			} catch (GenericServiceException e) {
 				// TODO Auto-generated catch block
@@ -291,6 +345,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 			input.put("examId", request.getAttribute("examId"));
 			Map<String, Object> result;
@@ -319,6 +377,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 			input.put("examId", request.getAttribute("examId"));
 			input.put("partyId", request.getAttribute("partyId"));
@@ -349,6 +411,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 			input.put("examId", request.getAttribute("examId"));
 			input.put("partyId", request.getAttribute("partyId"));
@@ -382,6 +448,10 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
 			input.put("userLoginId", request.getAttribute("userLoginId"));
 			try {
@@ -409,10 +479,15 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
+
 			input.put("questionId", request.getAttribute("questionId"));
 			input.put("examId", request.getAttribute("examId"));
-			input.put("partyId", request.getAttribute("partyId"));
+			input.put("partyId", session.getAttribute("partyId"));
 			input.put("submittedAnswer", request.getAttribute("submittedAnswer"));
 			input.put("sNo", request.getAttribute("sNo"));
 			input.put("isFlagged", request.getAttribute("isFlagged"));
@@ -441,8 +516,12 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
-			input.put("partyId", request.getAttribute("partyId"));
+			input.put("partyId", session.getAttribute("partyId"));
 			input.put("examId", request.getAttribute("examId"));
 			input.put("score", request.getAttribute("score"));
 			input.put("date", request.getAttribute("date"));
@@ -478,8 +557,12 @@ public class UserResource {
 		if (dispatcher == null) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		} else {
+			HttpSession session = request.getSession(false);
+			if (UtilValidate.isEmpty(session)) {
+				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+			}
 			Map<String, Object> input = new HashMap<>();
-			input.put("partyId", request.getAttribute("partyId"));
+			input.put("partyId", session.getAttribute("partyId"));
 			input.put("examId", request.getAttribute("examId"));
 			input.put("topicId", request.getAttribute("topicId"));
 			input.put("topicPassPercentage", request.getAttribute("topicPassPercentage"));
@@ -506,4 +589,21 @@ public class UserResource {
 		}
 	}
 
+	/**
+	 * This class is responsible for sending email
+	 */
+	@POST
+	@Path("/send-email")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response sendEmail(@Context HttpServletRequest request) {
+		try {
+			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+			dispatcher.runSync("sendEmailService", UtilMisc.toMap("examId", request.getAttribute("examId")));
+			return Response.status(67).build();
+		} catch (GenericServiceException e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+		}
+	}
 }

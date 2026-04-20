@@ -167,7 +167,7 @@ under the License.
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
-
+<!-- 
 
 	<service engine="java" name="signIn" location="com.vastpro.service.SigininService" invoke="checkSigininService" auth="false" >
 		
@@ -192,7 +192,11 @@ under the License.
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
 	
+<<<<<<< HEAD
 	 <service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
+=======
+	<service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
+>>>>>>> ccdbcf7ed0620656c07f65d3d09a003436e8ba7e
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service> 
@@ -221,6 +225,7 @@ under the License.
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
+	 -->
 	
 	<service name="insertExamDetails" engine="java"
          location="com.vastpro.service.ExamService"
@@ -609,6 +614,7 @@ under the License.
 
 </service>
 
+
 <service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="checkOtpService" auth="false">
 	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
@@ -616,6 +622,16 @@ under the License.
 </service>
 
 
+
+<!-- email -->
+<service engine="java" name="sendEmailToUser"
+    location="com.vastpro.service.SendEmailService"
+    invoke="sendEmailToUser" auth="false">
+
+    <attribute name="examId" type="String" mode="IN"/>
+    <attribute name="passwordChangesAuto" type="Long" mode="IN"/>
+    <attribute name="partyId" type="String" mode="IN"/>  
+</service>
 
 </services>
 
