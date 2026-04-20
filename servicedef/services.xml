@@ -513,7 +513,7 @@ under the License.
 <!-- user submit answer  -->
 <service engine="java" name="submitedAnswer" location="com.vastpro.service.UserService" invoke="submitedAnswer" auth="false">
 	<attribute name="questionId" mode="IN" type="String" optional="false"/>
-	<attribute name="examIdexamId" mode="IN" type="String" optional="false"/>
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
 	<attribute name="partyId" mode="IN" type="String" optional="false"/>
 	<attribute name="submittedAnswer" mode="IN" type="String" optional="false"/>
 	<attribute name="sNo" mode="IN" type="String" optional="false"/>
@@ -552,11 +552,13 @@ under the License.
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
 	<attribute name="topicId" mode="IN" type="String" optional="false"/>
 	<attribute name="topicPassPercentage" mode="IN" type="String" optional="false"/>
-	<attribute name="userTopicPercentage" mode="IN" type="String" optional="false"/>
-	<attribute name="correctQuestionsInthisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="userPassedInThisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="correctQuestionsInThisTopic" mode="IN" type="String" optional="false"/>
 	<attribute name="totalQuestionsInThisTopic" mode="IN" type="String" optional="false"/>
-	<attribute name="userPassedThisTopic" mode="IN" type="String" optional="false"/>
+	<attribute name="userPassedInThisTopic" mode="IN" type="String" optional="false"/>
 	<attribute name="performanceId" mode="IN" type="String" optional="false"/>
+	<attribute name="userTopicPercentage" mode="IN" type="String" optional="false"/>
+	<attribute name="detailedPerformanceId" mode="IN" type="String" optional="false"/>
 	
 </service>
 <service engine="entity-auto" name="autoDetailedPartyPerformance" invoke="create" default-entity-name="DetailedPartyPerformance">
