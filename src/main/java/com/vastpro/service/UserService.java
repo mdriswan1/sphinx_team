@@ -1,11 +1,12 @@
 package com.vastpro.service;
 
-import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -290,14 +291,16 @@ public class UserService {
 			return ServiceUtil.returnError(errMsg);
 		}
 		try {
-			input.put("score", ((BigDecimal) input.get("score")));
-			input.put("noOfQuestions", Long.parseLong((String) input.get("sNo")));
-			input.put("totalCorrect", Long.parseLong((String) input.get("sNo")));
-			input.put("totalWrong", Long.parseLong((String) input.get("sNo")));
-			input.put("userPassed", Long.parseLong((String) input.get("sNo")));
-			input.put("performanceId", Long.parseLong((String) input.get("sNo")));
-			input.put("attemptNo", Long.parseLong((String) input.get("sNo")));
-			input.put("date", ((TimeStamp) input.get("date")));
+			input.put("score", Long.parseLong((String) input.get("score")));
+			input.put("noOfQuestions", Long.parseLong((String) input.get("noOfQuestions")));
+			input.put("totalCorrect", Long.parseLong((String) input.get("totalCorrect")));
+			input.put("totalWrong", Long.parseLong((String) input.get("totalWrong")));
+			input.put("userPassed", Long.parseLong((String) input.get("userPassed")));
+			input.put("performanceId", Long.parseLong((String) input.get("performanceId")));
+			input.put("attemptNo", Long.parseLong((String) input.get("attemptNo")));
+			LocalDateTime ldt = LocalDateTime.parse((String) input.get("date"));
+			Timestamp time = Timestamp.valueOf(ldt);
+			input.put("date", time);
 			Map<String, Object> result = dispatcher.runSync("autoPartyPerformance", input);
 			if (result.get("responseMessage").equals("success")) {
 
@@ -336,31 +339,44 @@ public class UserService {
 		if (input.get("userTopicPercentage") == null || input.get("userTopicPercentage").equals("")) {
 			errMsg += "userTopicPercentage id is null";
 		}
-		if (input.get("correctQuestionsInthisTopic") == null || input.get("correctQuestionsInthisTopic").equals("")) {
+		if (input.get("correctQuestionsInThisTopic") == null || input.get("correctQuestionsInThisTopic").equals("")) {
 			errMsg += "correctQuestionsInthisTopic id is null";
 		}
 		if (input.get("totalQuestionsInThisTopic") == null || input.get("totalQuestionsInThisTopic").equals("")) {
 			errMsg += "totalQuestionsInThisTopic id is null";
 		}
-		if (input.get("userPassedThisTopic") == null || input.get("userPassedThisTopic").equals("")) {
+		if (input.get("userPassedInThisTopic") == null || input.get("userPassedInThisTopic").equals("")) {
 			errMsg += "userPassedThisTopic id is null";
 		}
 		if (input.get("performanceId") == null || input.get("performanceId").equals("")) {
 			errMsg += "performanceId id is null";
+		}
+		if (input.get("detailedPerformanceId") == null || input.get("detailedPerformanceId").equals("")) {
+			errMsg += "detailedPerformanceId id is null";
 		}
 
 		if (!errMsg.equals("")) {
 			return ServiceUtil.returnError(errMsg);
 		}
 		try {
-			input.put("userTopicPercentage", ((BigDecimal) input.get("userTopicPercentage")));
-			input.put("topicPassPercentage", ((BigDecimal) input.get("topicPassPercentage")));
-			input.put("performanceId", Long.parseLong((String) input.get("performanceId")));
-			input.put("userPassedThisTopic", Long.parseLong((String) input.get("userPassedThisTopic")));
-			input.put("totalQuestionsInThisTopic", Long.parseLong((String) input.get("totalQuestionsInThisTopic")));
-			input.put("correctQuestionsInthisTopic", Long.parseLong((String) input.get("correctQuestionsInthisTopic")));
+			Map<String, Object> value = new HashMap<>();
 
-			Map<String, Object> result = dispatcher.runSync("autoPartyPerformance", input);
+			// input.put("userTopicPercentage", Long.parseLong((String) input.get("userTopicPercentage")));
+			// input.put("topicPassPercentage", Long.parseLong((String) input.get("topicPassPercentage")));
+			// input.put("performanceId", Long.parseLong((String) input.get("performanceId")));
+			// input.put("userPassedInThisTopic", Long.parseLong((String) input.get("userPassedInThisTopic")));
+			// input.put("totalQuestionsInThisTopic", Long.parseLong((String) input.get("totalQuestionsInThisTopic")));
+			// input.put("correctQuestionsInThisTopic", Long.parseLong((String) input.get("correctQuestionsInThisTopic")));
+
+			input.put("userTopicPercentage", Long.parseLong(input.get("userTopicPercentage").toString()));
+			input.put("detailedPerformanceId", Long.parseLong(input.get("detailedPerformanceId").toString()));
+			input.put("topicPassPercentage", Long.parseLong(input.get("topicPassPercentage").toString()));
+			input.put("performanceId", Long.parseLong(input.get("performanceId").toString()));
+			input.put("userPassedInThisTopic", Long.parseLong(input.get("userPassedInThisTopic").toString()));
+			input.put("totalQuestionsInThisTopic", Long.parseLong(input.get("totalQuestionsInThisTopic").toString()));
+			input.put("correctQuestionsInThisTopic", Long.parseLong(input.get("correctQuestionsInThisTopic").toString()));
+
+			Map<String, Object> result = dispatcher.runSync("autoDetailedPartyPerformance", input);
 			if (result.get("responseMessage").equals("success")) {
 
 				return result;
