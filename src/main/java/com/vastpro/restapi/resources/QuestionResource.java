@@ -291,7 +291,7 @@ public class QuestionResource {
 	 * Method is used to generate exam questions
 	 */
 	@Path("/generate-Exam-Questions")
-
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response generateExamQuestions(@Context HttpServletRequest request) {
@@ -342,7 +342,9 @@ public class QuestionResource {
 		try {
 			String examId = (String) request.getParameter("examId");
 			System.out.println("exam id : " + examId);
+			int offSet = Integer.parseInt((String) request.getParameter("offSet"));
 			input.put("examId", examId);
+			input.put("offSet", offSet);
 
 			result = dispatcher.runSync("getQuestions", input);
 			if (ServiceUtil.isError(result)) {

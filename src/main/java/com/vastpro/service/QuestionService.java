@@ -286,7 +286,14 @@ public class QuestionService {
 			if (exam == null) {
 				return ServiceUtil.returnError("Exam not found for examId: " + examId);
 			}
-
+			List<GenericValue> examTopics = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
+			double questionPercentage = 0;
+			for (GenericValue topic : examTopics) {
+				questionPercentage += topic.getDouble("topicPassPercentage");
+			}
+			if (questionPercentage != 100) {
+				return ServiceUtil.returnError("Total topic percentage must equal 100%. Currently it is " + questionPercentage + "%.");
+			}
 			int totalQuestions = 0;
 			if (exam.getString("noOfQuestions") != null) {
 				totalQuestions = Integer.parseInt(exam.getString("noOfQuestions"));
@@ -295,8 +302,6 @@ public class QuestionService {
 			if (totalQuestions == 0) {
 				return ServiceUtil.returnError("noOfQuestions is 0 for this exam");
 			}
-
-			List<GenericValue> examTopics = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
 
 			if (examTopics == null || examTopics.isEmpty()) {
 				return ServiceUtil.returnError("No topics found for examId: " + examId);
@@ -385,17 +390,12 @@ public class QuestionService {
 		Map<String, Object> result = ServiceUtil.returnSuccess("questions getted successfully");
 		try {
 			String examId = (String) input.get("examId");
+			int offSet = (int) input.get("offSet");
 			System.out.println("exam id inside service method : " + examId);
 			result.put("examId", examId);
-			try {
-				Map<String, Object> res = dispatcher.runSync("deleteMasterB", result);
-			} catch (GenericServiceException e) {
 
-				e.printStackTrace();
-				return ServiceUtil.returnError("Error while deleted exam questions: " + e.getMessage());
-			}
-
-			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).queryList();
+			GenericValue questions = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).orderBy("qId")
+							.cursorScrollSensitive().offset(offSet).limit(1).queryOne();
 
 			System.out.println("questions found : " + questions.size());
 			if (questions == null || questions.size() == 0) {

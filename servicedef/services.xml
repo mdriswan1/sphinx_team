@@ -266,14 +266,7 @@ under the License.
 </service>
 
 
-<service name="autoDeleteTopicbyDetails" engine="entity-auto"
-     default-entity-name="ExamTopicDetails"
-         invoke="delete"
-         auth="false">
-      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
-      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 
-</service>
 
  <service name="createQuestion"
         engine="java"
@@ -444,6 +437,7 @@ under the License.
          location="com.vastpro.service.QuestionService"
          auth="false">
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="offSet" type="java.lang.Integer" mode="IN" optional="false"/>
        <attribute name="questions" type="java.util.List" mode="OUT" optional="true"/>
     <attribute name="examId"    type="java.lang.String" mode="OUT" optional="true"/>
     <attribute name="totalQuestions" type="java.lang.Integer" mode="OUT" optional="true"/>
@@ -574,6 +568,46 @@ under the License.
 
 
 
+<service engine="java" name="deleteExamTopic" location="com.vastpro.service.ExamService" invoke="deleteExamTopic" auth="false">
+	 <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+	
+</service>
+
+
+<service name="deleteExamTopicAuto" engine="entity-auto"
+     default-entity-name="ExamTopicDetails"
+         invoke="delete"
+         auth="false">
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+
+</service>
+
+<service engine="java" name="examUpdateTopic" location="com.vastpro.service.ExamService" invoke="examUpdateTopic" auth="false">
+	 <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+		<attribute name="topicPassPercentage" type="java.lang.String" mode="IN" optional="false"/>
+</service>
+
+<service name="examTopicUpdateAuto" engine="entity-auto"
+     default-entity-name="ExamTopicDetails"
+         invoke="update"
+         auth="false">
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="topicPassPercentage" type="java.lang.Double" mode="IN" optional="false"/>
+
+</service>
+
+<service name="insertTopicAuto" engine="entity-auto"
+     default-entity-name="TopicMaster"
+         invoke="create"
+         auth="false">
+      <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
+
+</service>
 </services>
 
 
