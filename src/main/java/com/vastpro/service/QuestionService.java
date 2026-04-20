@@ -388,10 +388,12 @@ public class QuestionService {
 		Map<String, Object> result = ServiceUtil.returnSuccess("questions getted successfully");
 		try {
 			String examId = (String) input.get("examId");
+			int offSet = (int) input.get("offSet");
 			System.out.println("exam id inside service method : " + examId);
 			result.put("examId", examId);
 
-			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).queryList();
+			GenericValue questions = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).orderBy("qId")
+							.cursorScrollSensitive().offset(offSet).limit(1).queryOne();
 
 			System.out.println("questions found : " + questions.size());
 			if (questions == null || questions.size() == 0) {
