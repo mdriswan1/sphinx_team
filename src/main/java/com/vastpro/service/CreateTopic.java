@@ -7,6 +7,9 @@ import java.util.Map;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.condition.EntityCondition;
+import org.apache.ofbiz.entity.condition.EntityFunction;
+import org.apache.ofbiz.entity.condition.EntityOperator;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
@@ -14,20 +17,50 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 public class CreateTopic {
-
 	public Map<String, Object> createTopic(DispatchContext context, Map<String, Object> input) {
 		Delegator delegator = context.getDelegator();
-		String topicId = "SPX_TM_" + delegator.getNextSeqId("TopicMaster");
-		GenericValue topicMaster = delegator.makeValue("TopicMaster");
-		topicMaster.set("topicName", input.get("topicName"));
-		topicMaster.set("topicId", topicId);
-		try {
-			delegator.create(topicMaster);
-		} catch (GenericEntityException e) {
-			e.printStackTrace();
-		}
-		return ServiceUtil.returnSuccess("created topic");
+		String topicName = (String) input.get("topicName");
+		LocalDispatcher dispatcher = context.getDispatcher();
 
+		// 1. Validate input
+		if (topicName == null || topicName.trim().isEmpty()) {
+			return ServiceUtil.returnError("Topic name cannot be empty");
+		}
+
+		topicName = topicName.trim();
+
+		try {
+			// 2. Case-insensitive check using UPPER (FIXED)
+			EntityCondition condition = EntityCondition.makeCondition(EntityFunction.upperField("topicName"), EntityOperator.EQUALS,
+							topicName.toUpperCase());
+
+			GenericValue existingTopic = EntityQuery.use(delegator).from("TopicMaster").where(condition).queryFirst();
+
+			if (existingTopic != null) {
+				return ServiceUtil.returnError("Topic already exists. Try another name.");
+			}
+
+			// 3. Generate ID
+			String topicId = "SPX_TM_" + delegator.getNextSeqId("TopicMaster");
+
+			Map<String, Object> inputs = new HashMap<String, Object>();
+			inputs.put("topicId", topicId);
+			inputs.put("topicName", topicName);
+
+			Map<String, Object> result;
+
+			result = dispatcher.runSync("insertTopicAuto", inputs);
+
+			if (ServiceUtil.isError(result)) {
+				return ServiceUtil.returnError("Topic Not Created");
+			} else {
+				return ServiceUtil.returnSuccess("Topic Created Successfully");
+			}
+
+		} catch (GenericEntityException | GenericServiceException e) {
+			e.printStackTrace();
+			return ServiceUtil.returnError("Error while creating topic: " + e.getMessage());
+		}
 	}
 
 	public Map<String, Object> getAllTopics(DispatchContext context, Map<String, Object> input) {
@@ -35,7 +68,7 @@ public class CreateTopic {
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic getted successfully");
 		try {
 			// List<GenericValue> topics=delegator.findAll("TopicMaster", false);
-			List<GenericValue> topicList = EntityQuery.use(delegator).from("TopicMaster").queryList();
+			List<GenericValue> topicList = EntityQuery.use(delegator).from("TopicMaster").orderBy("-lastUpdatedStamp").queryList();
 
 			if (topicList.size() == 0) {
 				return ServiceUtil.returnSuccess("no topic found");
@@ -114,7 +147,7 @@ public class CreateTopic {
 
 			Map<String, Object> result = dispatcher.runSync("updateTopic", updateMap);
 			if (ServiceUtil.isError(result)) {
-				return ServiceUtil.returnError("error,occur during uodate topic");
+				return ServiceUtil.returnError("error,occur during update topic");
 			}
 			return ServiceUtil.returnSuccess("topic update successfully");
 

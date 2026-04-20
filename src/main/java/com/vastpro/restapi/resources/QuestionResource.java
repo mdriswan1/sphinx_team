@@ -291,7 +291,7 @@ public class QuestionResource {
 	 * Method is used to generate exam questions
 	 */
 	@Path("/generate-Exam-Questions")
-
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response generateExamQuestions(@Context HttpServletRequest request) {

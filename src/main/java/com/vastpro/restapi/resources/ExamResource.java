@@ -70,8 +70,8 @@ public class ExamResource {
 	/**
 	 * Method is used to get exam details
 	 */
-	@POST
-	@Path("/getexam")
+	@GET
+	@Path("/get-exam")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getExamName(@Context HttpServletRequest request) {
@@ -81,7 +81,7 @@ public class ExamResource {
 		}
 		try {
 			Map<String, Object> input = new HashMap<String, Object>();
-			input.put("userLoginId", request.getAttribute("userLoginId"));
+			input.put("userLoginId", request.getParameter("userLoginId"));
 
 			Map<String, Object> result = dispatcher.runSync("getExam", input);
 			return Response.ok(UtilMisc.toMap("data", result)).build();
@@ -262,6 +262,71 @@ public class ExamResource {
 		}
 	}
 
+	@DELETE
+	@Path("/examtopicDelete")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response examTopicDelete(@Context HttpServletRequest request) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		}
+		try {
+			Map<String, Object> input = new HashMap<String, Object>();
+
+			String examId = (String) request.getAttribute("examId");
+			input.put("examId", examId);
+			String topicId = (String) request.getAttribute("topicId");
+			input.put("topicId", topicId);
+			Map<String, Object> result = dispatcher.runSync("deleteExamTopic", input);
+			if (ServiceUtil.isError(result)) {
+				return Response.status(Response.Status.NOT_FOUND).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} else {
+
+				return Response.ok(result).build();
+			}
+
+		} catch (GenericServiceException e) {
+			e.printStackTrace();
+			// TODO: handle exception
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+		}
+	}
+
+	@PUT
+	@Path("/examtopicUpdate")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response examTopicUpdate(@Context HttpServletRequest request) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		Map<String, Object> input = new HashMap<String, Object>();
+
+		String topicPassPercentage = (String) request.getAttribute("topicPassPercentage");
+
+		input.put("examId", request.getAttribute("examId"));
+		input.put("topicId", request.getAttribute("topicId"));
+		input.put("topicPassPercentage", topicPassPercentage);
+
+		try {
+			Map<String, Object> result = dispatcher.runSync("examUpdateTopic", input);
+
+			if (ServiceUtil.isError(result)) {
+				return Response.status(Response.Status.NOT_FOUND).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} else {
+
+				return Response.ok(result).build();
+			}
+		} catch (GenericServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+		}
+
+	}
 	/**
 	 * Method is used to delete exam topic details by id
 	 */

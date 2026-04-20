@@ -169,7 +169,8 @@ public class ExamService {
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic getted successfully");
 		try {
 
-			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetails").queryList();
+			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetail").orderBy("-lastUpdatedStamp").queryList();
+
 			if (topics.size() == 0) {
 				return ServiceUtil.returnSuccess("no topic found");
 
@@ -191,7 +192,7 @@ public class ExamService {
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic getted successfully");
 		try {
 
-			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetails").where("examId", examId).queryList();
+			List<GenericValue> topics = EntityQuery.use(delegator).from("ExamTopicDetail").where("examId", examId).queryList();
 			if (topics.size() == 0) {
 				return ServiceUtil.returnSuccess("no topic found");
 
@@ -220,7 +221,6 @@ public class ExamService {
 							.queryFirst();
 			Map<String, Object> contexts = new HashMap<>();
 			contexts.put("examId", examId);
-			System.out.println("exam id is service :" + examId);
 
 			List<GenericValue> questionMasterB = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).queryList();
 
@@ -290,6 +290,45 @@ public class ExamService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return ServiceUtil.returnError("exception" + e.getMessage());
+		}
+	}
+
+	public Map<String, Object> deleteExamTopic(DispatchContext context, Map<String, Object> input) {
+		LocalDispatcher dispatcher = context.getDispatcher();
+
+		try {
+			Map<String, Object> result = dispatcher.runSync("deleteExamTopicAuto", input);
+			if (ServiceUtil.isError(result)) {
+				return ServiceUtil.returnError("not deleted");
+			} else {
+				return ServiceUtil.returnSuccess("topic Deleted Successfully");
+			}
+		} catch (GenericServiceException e) {
+
+			e.printStackTrace();
+			return ServiceUtil.returnError("error" + e.getMessage());
+		}
+	}
+
+	public Map<String, Object> examUpdateTopic(DispatchContext context, Map<String, Object> input) {
+		LocalDispatcher dispatcher = context.getDispatcher();
+
+		try {
+			double newPercentage = Double.parseDouble(input.get("topicPassPercentage").toString());
+			if (newPercentage > 100) {
+				return ServiceUtil.returnError("topic must should less than  100");
+			}
+			input.put("topicPassPercentage", newPercentage);
+			Map<String, Object> result = dispatcher.runSync("examTopicUpdateAuto", input);
+			if (ServiceUtil.isError(result)) {
+				return ServiceUtil.returnError("topic not updated");
+			} else {
+				return ServiceUtil.returnSuccess("topic updated Successfully");
+			}
+		} catch (GenericServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ServiceUtil.returnError("error" + e.getMessage());
 		}
 	}
 
