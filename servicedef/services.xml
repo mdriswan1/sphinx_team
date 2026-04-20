@@ -437,6 +437,7 @@ under the License.
          location="com.vastpro.service.QuestionService"
          auth="false">
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="offSet" type="java.lang.Integer" mode="IN" optional="false"/>
        <attribute name="questions" type="java.util.List" mode="OUT" optional="true"/>
     <attribute name="examId"    type="java.lang.String" mode="OUT" optional="true"/>
     <attribute name="totalQuestions" type="java.lang.Integer" mode="OUT" optional="true"/>

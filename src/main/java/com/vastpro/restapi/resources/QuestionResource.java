@@ -342,7 +342,9 @@ public class QuestionResource {
 		try {
 			String examId = (String) request.getParameter("examId");
 			System.out.println("exam id : " + examId);
+			int offSet = Integer.parseInt((String) request.getParameter("offSet"));
 			input.put("examId", examId);
+			input.put("offSet", offSet);
 
 			result = dispatcher.runSync("getQuestions", input);
 			if (ServiceUtil.isError(result)) {
