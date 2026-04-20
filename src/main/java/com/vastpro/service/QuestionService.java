@@ -403,7 +403,6 @@ public class QuestionService {
 			}
 
 			result.put("questions", questions);
-			result.put("totalQuestions", questions.size());
 
 			return result;
 

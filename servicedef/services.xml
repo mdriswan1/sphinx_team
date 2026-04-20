@@ -192,10 +192,10 @@ under the License.
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
 	
-	<!-- <service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
+	 <service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
-	</service> -->
+	</service> 
 	
 	<service engine="entity-auto" name="createContactMech" invoke="create" default-entity-name="ContactMech">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
@@ -608,6 +608,15 @@ under the License.
       <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
+
+<service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="checkOtpService" auth="false">
+	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+		<attribute name="otpIn" type="java.lang.String" mode="IN" optional="false"/>
+</service>
+
+
+
 </services>
 
 

@@ -334,4 +334,32 @@ public class ExamService {
 		}
 	}
 
+	public Map<String, Object> checkOtpService(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+
+		String examId = (String) input.get("examId");
+		String partyId = (String) input.get("partyId");
+		Long otpIn = Long.parseLong((String) input.get("otpIn"));
+		try {
+
+			GenericValue value = EntityQuery.use(delegator).from("PartyExamRelationship").where("partyId", partyId, "examId", examId)
+							.queryOne();
+
+			if (value == null) {
+				return ServiceUtil.returnError("No record found");
+			}
+
+			Long dbOtp = value.getLong("passwordChangesAuto");
+			if (dbOtp != null && dbOtp.equals(otpIn)) {
+				return ServiceUtil.returnSuccess("Successfully verified");
+			}
+			return ServiceUtil.returnError("password is wrong");
+
+		} catch (GenericEntityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ServiceUtil.returnError("error" + e.getMessage());
+		}
+
+	}
 }
