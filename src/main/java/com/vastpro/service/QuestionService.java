@@ -222,7 +222,8 @@ public class QuestionService {
 				return ServiceUtil.returnError("Topic not Found");
 			}
 
-			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").orderBy("-lastUpdatedStamp").queryList();
+			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").where("topicId", topicId)
+							.orderBy("-lastUpdatedStamp").queryList();
 			List<Map<String, Object>> questionList = new ArrayList<>();
 
 			for (GenericValue ques : questions) {
@@ -396,12 +397,16 @@ public class QuestionService {
 							.cursorScrollSensitive().offset(offSet).limit(1).queryOne();
 
 			System.out.println("questions found : " + questions.size());
+			long totalCount = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).queryCount();
+			if (offSet < 0 || offSet >= totalCount) {
+				return ServiceUtil.returnError("question finished");
+			}
 			if (questions == null || questions.size() == 0) {
 				return ServiceUtil.returnError("No questions found for examId: " + examId);
 			}
 
 			result.put("questions", questions);
-			result.put("totalQuestions", questions.size());
+			result.put("totalQuestions", totalCount);
 
 			return result;
 
