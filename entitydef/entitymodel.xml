@@ -260,6 +260,7 @@ under the License.
     <alias entity-alias="EM" name="examId" field="examId"/>
     <alias entity-alias="EM" name="examName" field="examName"/>
     
+    
        <!-- 2. joins -->
     <!-- PER -> UL -->
     <view-link entity-alias="PER" rel-entity-alias="UL" rel-optional="true">
@@ -310,7 +311,9 @@ under the License.
     
     <alias entity-alias="PER" name="noOfAttempts" field="noOfAttempts"/>
     <alias entity-alias="EM" name="description" field="description"/>
+    <alias entity-alias="EM" name="duration" field="duration"/>
     <alias entity-alias="PER" name="partyId" field="partyId"/>
+    <alias entity-alias="PER" name="allowedAttempts" field="allowedAttempts"/>
      <!-- 2. joins -->
     <!-- PER -> UL -->
    
@@ -369,6 +372,7 @@ under the License.
 			<key-map field-name="performanceId" rel-field-name="performanceId" />
 		</relation>		
 </entity>
+
 
 <!-- email purpose -->
 <view-entity entity-name="UserDetailsForEmail" package-name="com.sphinx" >

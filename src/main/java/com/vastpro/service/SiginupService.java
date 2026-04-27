@@ -42,7 +42,7 @@ public class SiginupService {
 			Map<String, Object> userLogin = new HashMap<>();
 			userLogin.put("userLoginId", input.get("userName"));
 			if (role.equals("SPX_ADMIN")) {
-
+				String pass = (String) input.get("password");
 				String password = HashPassword.hashPassword((String) input.get("password"));
 				userLogin.put("currentPassword", password);
 			} else if (role.equals("SPX_USER")) {

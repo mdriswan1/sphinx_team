@@ -31,6 +31,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.vastpro.utility.ConfigColumn;
 import com.vastpro.utility.ConfigColumn.ColumnConfig;
+import com.vastpro.utility.QuestionUtil;
 
 public class QuestionService {
 	public static Map<String, Object> createQuestionService(DispatchContext dctx, Map<String, Object> questions) {
@@ -237,7 +238,7 @@ public class QuestionService {
 				qMap.put("optionD", ques.getString("optionD"));
 				qMap.put("answer", ques.getString("answer"));
 				qMap.put("numAnswers", ques.getLong("numAnswers"));
-				qMap.put("questionTypeId", ques.getString("questionTypeId"));
+				qMap.put("questionTypeId", QuestionUtil.convertQuesTypeId((ques.getString("questionTypeId"))));
 				qMap.put("difficultyLevel", ques.getString("difficultyLevel"));
 				qMap.put("topicId", ques.getString("topicId"));
 				qMap.put("answerValue", ques.getString("answerValue"));
