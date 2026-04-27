@@ -47,6 +47,7 @@ public class SiginupService {
 				userLogin.put("currentPassword", password);
 			} else if (role.equals("SPX_USER")) {
 				String password = new GeneratePssword().generatePassword();
+				System.out.println("++++++++" + password + "+++++++++");
 				password = HashPassword.hashPassword(password);
 				userLogin.put("currentPassword", password);
 			}

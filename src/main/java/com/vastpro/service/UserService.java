@@ -167,6 +167,23 @@ public class UserService {
 		return ServiceUtil.returnSuccess("succesfuly created");
 	}
 
+	public Map<String, Object> deleteAssign(DispatchContext context, Map<String, Object> input) {
+		LocalDispatcher dispatcher = context.getDispatcher();
+		if (dispatcher == null) {
+			return ServiceUtil.returnError("in service dispatcher is null");
+		}
+		try {
+			Map<String, Object> result = dispatcher.runSync("deleteAssignTempoary", input);
+			if (result.get("responseMessage").equals("success")) {
+				return ServiceUtil.returnSuccess("deleted success");
+			}
+			return ServiceUtil.returnError("not deleted");
+		} catch (GenericServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ServiceUtil.returnError(e.getMessage());
+		}
+	}
 	// user
 
 	public Map<String, Object> getAssignUserExam(DispatchContext context, Map<String, Object> input) {
@@ -316,34 +333,34 @@ public class UserService {
 		}
 		String errMsg = "";
 		if (input.get("partyId") == null || input.get("partyId").equals("")) {
-			errMsg += "partyId id is null";
+			errMsg += "partyId id is required";
 		}
 		if (input.get("examId") == null || input.get("examId").equals("")) {
-			errMsg += "examId id is null";
+			errMsg += "examId id is required";
 		}
 		if (input.get("topicId") == null || input.get("topicId").equals("")) {
-			errMsg += "topicId id is null";
+			errMsg += "topicId id is required";
 		}
 		if (input.get("topicPassPercentage") == null || input.get("topicPassPercentage").equals("")) {
-			errMsg += "topicPassPercentage id is null";
+			errMsg += "topicPassPercentage id is required";
 		}
 		if (input.get("userTopicPercentage") == null || input.get("userTopicPercentage").equals("")) {
-			errMsg += "userTopicPercentage id is null";
+			errMsg += "userTopicPercentage id is required";
 		}
 		if (input.get("correctQuestionsInThisTopic") == null || input.get("correctQuestionsInThisTopic").equals("")) {
-			errMsg += "correctQuestionsInthisTopic id is null";
+			errMsg += "correctQuestionsInthisTopic id is required";
 		}
 		if (input.get("totalQuestionsInThisTopic") == null || input.get("totalQuestionsInThisTopic").equals("")) {
-			errMsg += "totalQuestionsInThisTopic id is null";
+			errMsg += "totalQuestionsInThisTopic id is required";
 		}
 		if (input.get("userPassedInThisTopic") == null || input.get("userPassedInThisTopic").equals("")) {
-			errMsg += "userPassedThisTopic id is null";
+			errMsg += "userPassedThisTopic id is required";
 		}
 		if (input.get("performanceId") == null || input.get("performanceId").equals("")) {
-			errMsg += "performanceId id is null";
+			errMsg += "performanceId id is required";
 		}
 		if (input.get("detailedPerformanceId") == null || input.get("detailedPerformanceId").equals("")) {
-			errMsg += "detailedPerformanceId id is null";
+			errMsg += "detailedPerformanceId id is required";
 		}
 
 		if (!errMsg.equals("")) {

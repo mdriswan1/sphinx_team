@@ -169,12 +169,12 @@ under the License.
 	</service>
 
 
-	<service engine="java" name="signIn" location="com.vastpro.service.SigininService" invoke="checkSigininService" auth="false" >
+<!-- <service engine="java" name="signIn" location="com.vastpro.service.SigininService" invoke="checkSigininService" auth="false" >
 		
 	    <attribute name="userLoginId" type="String" mode="IN" optional="false"/>
 	    <attribute name="currentPassword" type="String" mode="IN" optional="false"/>
 	    <attribute name="role" type="String" mode="OUT" optional="false"/>
-	</service>
+	</service> -->	
 
 	
 	<service engine="entity-auto" name="createParty" invoke="create" default-entity-name="Party">
@@ -464,10 +464,21 @@ under the License.
 	<attribute name="allUser" mode="OUT" type="List" optional="true"/>
 </service>
 
+
 <service engine="entity-auto" name="deleteAssignTempoary" invoke="delete" default-entity-name="AssignExamTempoary">
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	
 </service>
+
+
+
+<service engine="java" name="deleteAssign" location="com.vastpro.service.UserService" invoke="deleteAssign">
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	
+</service>
+
+
 <service engine="java" name="getPartyExam" location="com.vastpro.service.ExamService" invoke="getPartyExam" auth="false">
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
 	<attribute name="allData" mode="OUT" type="List" optional="true"/>
@@ -608,6 +619,8 @@ under the License.
       <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
+
+
 </services>
 
 

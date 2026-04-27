@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,9 +21,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.ofbiz.base.util.UtilMisc;
+import org.apache.ofbiz.base.util.UtilValidate;
+import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
+import org.apache.ofbiz.service.ServiceContainer;
+import org.apache.ofbiz.service.ServiceUtil;
+import org.apache.ofbiz.webapp.control.LoginWorker;
 
 /**
  * This class is used to handle user api
@@ -372,6 +379,36 @@ public class UserResource {
 		}
 	}
 
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/deleteAssign")
+	public Response deleteAssign(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+
+			input.put("partyId", request.getAttribute("partyId"));
+			input.put("examId", request.getAttribute("examId"));
+			Map<String, Object> result;
+			try {
+				result = dispatcher.runSync("deleteAssign", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+				}
+
+				return Response.status(Status.NOT_FOUND).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} catch (GenericServiceException e) {
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+			}
+		}
+	}
+
 	// user
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -503,6 +540,51 @@ public class UserResource {
 								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 			}
 
+		}
+	}
+
+	@POST
+	@Path("/login")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response validateUser(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+
+		try {
+			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+			if (dispatcher == null) {
+				dispatcher = ServiceContainer.getLocalDispatcher("sphinx", (Delegator) request.getAttribute("delegator"));
+			}
+			Delegator delegator = (Delegator) request.getAttribute("delegator");
+			if (UtilValidate.isEmpty(request.getAttribute("userName"))) {
+
+			}
+
+			request.setAttribute("USERNAME", request.getAttribute("userName"));
+			request.setAttribute("PASSWORD", request.getAttribute("password"));
+			String msg = LoginWorker.login(request, response);
+			System.out.println(msg);
+			if ("success".equalsIgnoreCase(LoginWorker.login(request, response))) {
+				Map<String, Object> result = ServiceUtil.returnSuccess("Logged In Successfully!");
+				HttpSession session = request.getSession(false);
+				if (UtilValidate.isNotEmpty(session)) {
+					GenericValue userLogin = (GenericValue) session.getAttribute("userLogin");
+					if (UtilValidate.isNotEmpty(userLogin)) {
+						GenericValue userRole = EntityQuery.use(delegator).from("PartyRole")
+										.where("partyId", userLogin.getString("partyId")).queryFirst();
+						session.setAttribute("userRole", userRole);
+						result.put("role", userRole.getString("roleTypeId"));
+						result.put("partyId", userRole.getString("partyId"));
+					}
+				}
+
+				return Response.status(200).entity(result).build();
+			}
+			Map<String, Object> result = ServiceUtil.returnError((String) request.getAttribute("_ERROR_MESSAGE_"));
+
+			return Response.ok(result).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(500).entity(Map.of("error", e.getMessage())).build();
 		}
 	}
 
