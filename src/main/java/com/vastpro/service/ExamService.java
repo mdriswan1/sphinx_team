@@ -221,7 +221,6 @@ public class ExamService {
 							.queryFirst();
 			Map<String, Object> contexts = new HashMap<>();
 			contexts.put("examId", examId);
-			System.out.println("exam id is service :" + examId);
 
 			List<GenericValue> questionMasterB = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).queryList();
 
@@ -334,4 +333,44 @@ public class ExamService {
 		}
 	}
 
+	public Map<String, Object> checkOtpService(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+
+		String examId = (String) input.get("examId");
+		String partyId = (String) input.get("partyId");
+		Long otpIn = Long.parseLong((String) input.get("otpIn"));
+		try {
+
+			GenericValue value = EntityQuery.use(delegator).from("PartyExamRelationship").where("partyId", partyId, "examId", examId)
+							.queryOne();
+
+			if (value == null) {
+				return ServiceUtil.returnError("No record found");
+			}
+
+			Long dbOtp = value.getLong("passwordChangesAuto");
+			if (dbOtp != null && dbOtp.equals(otpIn)) {
+
+				Long allowedAttempts = value.getLong("allowedAttempts");
+				Long noOfAttempts = value.getLong("noOfAttempts");
+
+				allowedAttempts = (allowedAttempts == null) ? 0L : allowedAttempts;
+				noOfAttempts = (noOfAttempts == null) ? 0L : noOfAttempts;
+
+				value.set("allowedAttempts", allowedAttempts - 1);
+				value.set("noOfAttempts", noOfAttempts + 1);
+
+				value.store();
+
+				return ServiceUtil.returnSuccess("Successfully verified");
+			}
+			return ServiceUtil.returnError("enter the valid password");
+
+		} catch (GenericEntityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ServiceUtil.returnError("error" + e.getMessage());
+		}
+
+	}
 }

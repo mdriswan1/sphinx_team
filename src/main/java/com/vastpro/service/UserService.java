@@ -1,12 +1,13 @@
 package com.vastpro.service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ofbiz.base.util.Debug;
+import org.apache.ofbiz.base.util.UtilDateTime;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -32,7 +33,7 @@ public class UserService {
 				for (GenericValue partyRole : partyRoles) {
 					String roleTypeId = partyRole.getString("roleTypeId");
 
-					if (roleTypeId.equals("SPX_USER")) {
+					if (roleTypeId.equals("SPX_EXAMINEE")) {
 						isUser = true;
 						break;
 					}
@@ -69,7 +70,19 @@ public class UserService {
 
 			for (Map<String, Object> obj : allData) {
 				try {
+					// kamal
+					// String password = new GeneratePssword().generatePassword();
+					Long password = 12345678L;
+					obj.put("passwordChangesAuto", password);
+					// kamal
 					Map<String, Object> result = dispatcher.runSync("examrelationshipcreates", obj);
+					Debug.log("++++++++++++++success=>====>email result two===>\n\n" + result);
+
+					// Map<String, Object> res = dispatcher.runSync("sendEmailToUser", obj);
+					// Debug.log("--------------------success=>====>email result threee===>\n\n" + res);
+					// if (ServiceUtil.isError(res)) {
+					// return ServiceUtil.returnError((String) result.get("errorMessage"));
+					// }
 
 					Map<String, Object> result1 = dispatcher.runSync("deleteAssignTempoary", obj);
 
@@ -213,6 +226,7 @@ public class UserService {
 
 	public Map<String, Object> submitedAnswer(DispatchContext context, Map<String, Object> input) {
 		LocalDispatcher dispatcher = context.getDispatcher();
+		Delegator delegator = context.getDelegator();
 		if (dispatcher == null) {
 			return ServiceUtil.returnError("in service dispatcher is null");
 		}
@@ -223,8 +237,8 @@ public class UserService {
 		if (input.get("examId") == null || input.get("examId").equals("")) {
 			errMsg += "examId id is null";
 		}
-		if (input.get("partyId") == null || input.get("partyId").equals("")) {
-			errMsg += "question id is null";
+		if (input.get("userLoginId") == null || input.get("userLoginId").equals("")) {
+			errMsg += "userLoginId id is null";
 		}
 		if (input.get("isFlagged") == null || input.get("isFlagged").equals("")) {
 			errMsg += "isFlagged id is null";
@@ -239,10 +253,21 @@ public class UserService {
 			return ServiceUtil.returnError(errMsg);
 		}
 		try {
+			GenericValue value = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId")).queryFirst();
 			input.put("isFlagged", Long.parseLong((String) input.get("isFlagged")));
 			input.put("sNo", Long.parseLong((String) input.get("sNo")));
-			input.put("questionId", Long.parseLong((String) input.get("questionId")));
-			Map<String, Object> result = dispatcher.runSync("autosubmittedAnswer", input);
+			input.put("questionId", (String) input.get("questionId"));
+
+			input.put("partyId", value.getString("partyId"));
+			GenericValue allreadyPresent = EntityQuery.use(delegator).from("AnswerMaster").where("questionId", input.get("questionId"),
+							"partyId", value.getString("partyId"), "examId", input.get("examId")).queryFirst();
+			input.remove("userLoginId");
+			Map<String, Object> result = ServiceUtil.returnSuccess();
+			if (allreadyPresent != null) {
+				result = dispatcher.runSync("autoAnswerUpdate", input);
+			} else {
+				result = dispatcher.runSync("autosubmittedAnswer", input);
+			}
 			if (result.get("responseMessage").equals("success")) {
 
 				return result;
@@ -256,73 +281,10 @@ public class UserService {
 			e.printStackTrace();
 			return ServiceUtil.returnError("exception" + e.getMessage());
 
-		}
-	}
-
-	public Map<String, Object> partyPerformance(DispatchContext context, Map<String, Object> input) {
-		LocalDispatcher dispatcher = context.getDispatcher();
-		if (dispatcher == null) {
-			return ServiceUtil.returnError("in service dispatcher is null");
-		}
-		String errMsg = "";
-		if (input.get("partyId") == null || input.get("partyId").equals("")) {
-			errMsg += "partyId  is null";
-		}
-		if (input.get("examId") == null || input.get("examId").equals("")) {
-			errMsg += "examId id is null";
-		}
-		if (input.get("score") == null || input.get("score").equals("")) {
-			errMsg += "score id is null";
-		}
-		if (input.get("date") == null || input.get("date").equals("")) {
-			errMsg += "date id is null";
-		}
-		if (input.get("noOfQuestions") == null || input.get("noOfQuestions").equals("")) {
-			errMsg += "noOfQuestions id is null";
-		}
-		if (input.get("totalCorrect") == null || input.get("totalCorrect").equals("")) {
-			errMsg += "totalCorrect id is null";
-		}
-		if (input.get("totalWrong") == null || input.get("totalWrong").equals("")) {
-			errMsg += "totalWrong id is null";
-		}
-		if (input.get("userPassed") == null || input.get("userPassed").equals("")) {
-			errMsg += "userPassed id is null";
-		}
-		if (input.get("performanceId") == null || input.get("performanceId").equals("")) {
-			errMsg += "performanceId id is null";
-		}
-		if (input.get("attemptNo") == null || input.get("attemptNo").equals("")) {
-			errMsg += "attemptNo id is null";
-		}
-		if (!errMsg.equals("")) {
-			return ServiceUtil.returnError(errMsg);
-		}
-		try {
-			input.put("score", Long.parseLong((String) input.get("score")));
-			input.put("noOfQuestions", Long.parseLong((String) input.get("noOfQuestions")));
-			input.put("totalCorrect", Long.parseLong((String) input.get("totalCorrect")));
-			input.put("totalWrong", Long.parseLong((String) input.get("totalWrong")));
-			input.put("userPassed", Long.parseLong((String) input.get("userPassed")));
-			input.put("performanceId", Long.parseLong((String) input.get("performanceId")));
-			input.put("attemptNo", Long.parseLong((String) input.get("attemptNo")));
-			LocalDateTime ldt = LocalDateTime.parse((String) input.get("date"));
-			Timestamp time = Timestamp.valueOf(ldt);
-			input.put("date", time);
-			Map<String, Object> result = dispatcher.runSync("autoPartyPerformance", input);
-			if (result.get("responseMessage").equals("success")) {
-
-				return result;
-			}
-			return ServiceUtil.returnError("it not updated");
-
-		}
-
-		catch (GenericServiceException e) {
+		} catch (GenericEntityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return ServiceUtil.returnError("exception" + e.getMessage());
-
 		}
 	}
 
@@ -367,7 +329,6 @@ public class UserService {
 			return ServiceUtil.returnError(errMsg);
 		}
 		try {
-			Map<String, Object> value = new HashMap<>();
 
 			// input.put("userTopicPercentage", Long.parseLong((String) input.get("userTopicPercentage")));
 			// input.put("topicPassPercentage", Long.parseLong((String) input.get("topicPassPercentage")));
@@ -399,6 +360,134 @@ public class UserService {
 			return ServiceUtil.returnError("exception" + e.getMessage());
 
 		}
+	}
+
+	public Map<String, Object> finalSubmit(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+		if (delegator == null) {
+			return ServiceUtil.returnError("in service delegator is null");
+		} else {
+			try {
+				GenericValue value = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId"))
+								.queryFirst();
+				List<GenericValue> values = EntityQuery.use(delegator).from("AnswerMaster").where("exmId", input.get("examId"))
+								.where("partyId", value.getString("partyId")).queryList();
+				// for (GenericValue answer : values) {
+				// if (answer.getLong("isFlagged") == 0) {
+				// return ServiceUtil.returnError("must submit all answer");
+				// }
+				// }
+
+				long totalCount = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", input.get("examId")).queryCount();
+				int total = values.size();
+				if (total < totalCount - 1) {
+					return ServiceUtil.returnError("must submit all answer");
+				}
+				return ServiceUtil.returnSuccess("submited");
+
+			} catch (GenericEntityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return ServiceUtil.returnError("exception" + e.getMessage());
+
+			}
+		}
+
+	}
+
+	public Map<String, Object> examResult(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+		if (delegator == null) {
+			return ServiceUtil.returnError("in service delegator is null");
+		} else {
+			try {
+				GenericValue value = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId"))
+								.queryFirst();
+				List<GenericValue> values = EntityQuery.use(delegator).from("PartyPerformance").where("exmId", input.get("examId"))
+								.where("partyId", value.getString("partyId")).queryList();
+				if (values.isEmpty()) {
+					return ServiceUtil.returnError("no result found");
+				}
+				Map<String, Object> result = ServiceUtil.returnSuccess("success");
+				result.put("result", values);
+				return result;
+			} catch (GenericEntityException e) {
+				e.printStackTrace();
+				return ServiceUtil.returnError("exception" + e.getMessage());
+			}
+		}
+
+	}
+
+	// validate
+	public Map<String, Object> validateExam(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+		String examId = (String) input.get("examId");
+		String partyId = (String) input.get("partyId");
+
+		try {
+			GenericValue exam = EntityQuery.use(delegator).from("ExamMaster").where("examId", examId).queryOne();
+
+			if (exam == null) {
+				return ServiceUtil.returnError("exam not found");
+
+			}
+
+			double examPassPercentage = exam.getDouble("passPercentage");
+			int totalQuestion = exam.getInteger("noOfQuestions");
+
+			List<GenericValue> list = EntityQuery.use(delegator).from("QuestionAnswerView").queryList();
+
+			long correctCount = list.stream().filter(gv -> gv.getString("answer").equals(gv.getString("submittedAnswer"))).count();
+			int attempted = list.size();
+
+			long wrongCount = attempted - correctCount;
+
+			double percentage = 0;
+			if (totalQuestion > 0) {
+				percentage = (correctCount * 100.0) / totalQuestion;
+			}
+
+			boolean isPassed = percentage >= examPassPercentage;
+
+			GenericValue partyvalue = EntityQuery.use(delegator).from("PartyExamRelationship").where("partyId", partyId, "examId", examId)
+							.queryOne();
+			Long noOfAttempts = partyvalue.getLong("noOfAttempts");
+
+			Map<String, Object> saveInput = new HashMap<>();
+
+			saveInput.put("performanceId", delegator.getNextSeqId("PartyPerformance"));
+			saveInput.put("partyId", partyId);
+			saveInput.put("examId", examId);
+
+			saveInput.put("score", BigDecimal.valueOf(percentage));
+			saveInput.put("noOfQuestions", Long.valueOf(totalQuestion));
+			saveInput.put("totalCorrect", Long.valueOf(correctCount));
+			saveInput.put("totalWrong", Long.valueOf(wrongCount));
+			saveInput.put("userPassed", isPassed ? 1L : 0L);
+			saveInput.put("attemptNo", Long.valueOf(noOfAttempts));
+			saveInput.put("date", UtilDateTime.nowTimestamp());
+
+			GenericValue partyPerf = delegator.makeValue("PartyPerformance", saveInput);
+			delegator.create(partyPerf);
+
+			// Success response
+			Map<String, Object> result = ServiceUtil.returnSuccess("Exam submitted successfully");
+
+			result.put("score", percentage);
+			result.put("totalCorrect", correctCount);
+			result.put("totalWrong", wrongCount);
+			result.put("attemptNo", noOfAttempts);
+			result.put("passed", isPassed);
+
+			return result;
+
+		} catch (GenericEntityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ServiceUtil.returnError("exam not submitted");
+		}
+
 	}
 
 }

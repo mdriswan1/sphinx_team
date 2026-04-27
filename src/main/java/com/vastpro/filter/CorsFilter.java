@@ -55,16 +55,40 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CorsFilter implements Filter {
 
+	// public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+	//
+	// HttpServletRequest request = (HttpServletRequest) req;
+	// HttpServletResponse response = (HttpServletResponse) res;
+	//
+	// response.setHeader("Access-Control-Allow-Origin", "*");
+	// response.setHeader("Access-Control-Allow-Credentials", "true");
+	// response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+	// response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+	//
+	// // important for preflight
+	// if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+	// response.setStatus(HttpServletResponse.SC_OK);
+	// return;
+	// }
+	//
+	// chain.doFilter(request, response);
+	// }
+
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
 
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
 
-		response.setHeader("Access-Control-Allow-Origin", "*");
+		String origin = request.getHeader("Origin");
+
+		if ("http://localhost:3000".equals(origin)) {
+			response.setHeader("Access-Control-Allow-Origin", origin);
+		}
+
+		response.setHeader("Access-Control-Allow-Credentials", "true");
 		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 		response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-		// 🔥 important for preflight
 		if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
 			response.setStatus(HttpServletResponse.SC_OK);
 			return;

@@ -31,11 +31,13 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.vastpro.utility.ConfigColumn;
 import com.vastpro.utility.ConfigColumn.ColumnConfig;
+import com.vastpro.utility.QuestionUtil;
 
 public class QuestionService {
 	public static Map<String, Object> createQuestionService(DispatchContext dctx, Map<String, Object> questions) {
 		LocalDispatcher dispatcher = dctx.getDispatcher();
 		try {
+
 			Delegator delegator = dctx.getDelegator();
 
 			String topicId = (String) questions.get("topicId");
@@ -222,9 +224,8 @@ public class QuestionService {
 				return ServiceUtil.returnError("Topic not Found");
 			}
 
-			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").where("topicId", topicId).orderBy("questionId")
-							.queryList();
-
+			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").where("topicId", topicId)
+							.orderBy("-lastUpdatedStamp").queryList();
 			List<Map<String, Object>> questionList = new ArrayList<>();
 
 			for (GenericValue ques : questions) {
@@ -238,7 +239,7 @@ public class QuestionService {
 				qMap.put("optionD", ques.getString("optionD"));
 				qMap.put("answer", ques.getString("answer"));
 				qMap.put("numAnswers", ques.getLong("numAnswers"));
-				qMap.put("questionTypeId", ques.getString("questionTypeId"));
+				qMap.put("questionTypeId", QuestionUtil.convertQuesTypeId((ques.getString("questionTypeId"))));
 				qMap.put("difficultyLevel", ques.getString("difficultyLevel"));
 				qMap.put("topicId", ques.getString("topicId"));
 				qMap.put("answerValue", ques.getString("answerValue"));
@@ -398,12 +399,16 @@ public class QuestionService {
 							.cursorScrollSensitive().offset(offSet).limit(1).queryOne();
 
 			System.out.println("questions found : " + questions.size());
+			long totalCount = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", examId).queryCount();
+			if (offSet < 0 || offSet >= totalCount) {
+				return ServiceUtil.returnError("question finished");
+			}
 			if (questions == null || questions.size() == 0) {
 				return ServiceUtil.returnError("No questions found for examId: " + examId);
 			}
 
 			result.put("questions", questions);
-			result.put("totalQuestions", questions.size());
+			result.put("totalQuestions", totalCount);
 
 			return result;
 
@@ -415,9 +420,7 @@ public class QuestionService {
 		}
 	}
 
-	public Map<String, ? extends Object> uploadBulkQuestion(DispatchContext dctx, Map<String, ? extends Object> context) {
-
-		// process the excel file
+	public Map<String, Object> uploadBulkQuestion(DispatchContext dctx, Map<String, ? extends Object> context) {
 
 		try {
 
@@ -436,12 +439,10 @@ public class QuestionService {
 			Workbook workbook = WorkbookFactory.create(is);
 			Sheet sheet = workbook.getSheetAt(0);
 
-			// list of questions map
 			List<Map<String, Object>> questions = new ArrayList<>();
 
 			int totalRows = sheet.getLastRowNum();
 
-			// first row considered as Header
 			if (totalRows < 1) {
 				return ServiceUtil.returnError("Please fill the details and upload the file");
 			}

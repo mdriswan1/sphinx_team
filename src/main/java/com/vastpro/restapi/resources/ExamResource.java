@@ -262,6 +262,9 @@ public class ExamResource {
 		}
 	}
 
+	/**
+	 * Method is used to delete the assessment topic
+	 */
 	@DELETE
 	@Path("/examtopicDelete")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -287,14 +290,16 @@ public class ExamResource {
 			}
 
 		} catch (GenericServiceException e) {
-			e.printStackTrace();
-			// TODO: handle exception
+
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
 
 		}
 	}
 
+	/**
+	 * Method is used to update the assessment topic
+	 */
 	@PUT
 	@Path("/examtopicUpdate")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -319,7 +324,42 @@ public class ExamResource {
 				return Response.ok(result).build();
 			}
 		} catch (GenericServiceException e) {
-			// TODO Auto-generated catch block
+
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+		}
+
+	}
+
+	@POST
+	@Path("/check-otp")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response otpCheck(@Context HttpServletRequest request) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		}
+
+		Map<String, Object> input = new HashMap<String, Object>();
+		String otpIn = (String) request.getAttribute("otpIn");
+		input.put("otpIn", otpIn);
+		String partyId = (String) request.getAttribute("partyId");
+		input.put("partyId", partyId);
+		String examId = (String) request.getAttribute("examId");
+		input.put("examId", examId);
+
+		try {
+			Map<String, Object> result = dispatcher.runSync("checkOtp", input);
+			if (ServiceUtil.isError(result)) {
+				return Response.status(Response.Status.NOT_FOUND).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} else {
+
+				return Response.ok(result).build();
+			}
+		} catch (GenericServiceException e) {
+
 			e.printStackTrace();
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
