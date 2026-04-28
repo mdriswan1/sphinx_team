@@ -1,8 +1,8 @@
 package com.vastpro.utility;
 	import java.util.ArrayList;
-	import java.util.List;
+import java.util.List;
 
-	import org.apache.ofbiz.base.util.UtilProperties;
+import org.apache.ofbiz.base.util.UtilProperties;
 
 	public class ConfigColumn {
 		private static final String CONFIG_NAME = "questionColumnConfig";

@@ -614,14 +614,20 @@ under the License.
 
 </service>
 
-
+<!-- checkotp -->
 <service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="checkOtpService" auth="false">
 	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		<attribute name="otpIn" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
+<!-- validateExam -->
 
+<service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="validateExam" auth="false">
+	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+		
+</service>
 
 <!-- email -->
 <service engine="java" name="sendEmailToUser"
@@ -633,6 +639,11 @@ under the License.
     <attribute name="partyId" type="String" mode="IN"/>  
 </service>
 
+<service engine="java" name="validateExam" location="com.vastpro.service.ExamService" invoke="validateExam" auth="false">
+	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+		
+</service>
 </services>
 
 

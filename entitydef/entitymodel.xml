@@ -85,7 +85,7 @@ under the License.
     
          <entity entity-name="QuestionBankMasterB" package-name="in.vastpro.sphinx">
 		<field name="examId" type="id"></field>
-		<field name="qId" type="numeric"></field>
+		<field name="qId" type="id"></field>
 		<field name="topicId" type="numeric" not-null="true"/>
 		<field name="questionDetail" type="very-long" not-null="true"></field>
 		<field name="optiona" type="very-long" not-null="true"></field>
@@ -325,8 +325,25 @@ under the License.
     
 
 </view-entity>
+
+<view-entity entity-name="QuestionAnswerView">
+    <member-entity entity-alias="Q" entity-name="QuestionBankMasterB"/>
+    <member-entity entity-alias="A" entity-name="AnswerMaster"/>
+
+    <alias entity-alias="Q" name="examId"/>
+    <alias entity-alias="Q" name="qId"/>
+    <alias entity-alias="Q" name="answer"/>
+
+    <alias entity-alias="A" name="submittedAnswer"/>
+
+    <view-link entity-alias="Q" rel-entity-alias="A">
+        <key-map field-name="qId" rel-field-name="qId"/>
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </view-link>
+</view-entity>
+
 <entity entity-name="AnswerMaster" package-name="in.vastpro.sphinx">
-		<field name="questionId" type="numeric"></field>
+		<field name="qId" type="id"></field>
 		<field name="examId" type="id"></field>
 		<field name="partyId" type="id"/>
 		<field name="submittedAnswer" type="very-short"></field>
