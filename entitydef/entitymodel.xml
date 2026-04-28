@@ -74,6 +74,8 @@ under the License.
 		<field name="answerValue" type="fixed-point" />
 		<field name="topicId" type="id" />
 		<field name="negativeMarkValue" type="fixed-point" />
+		<field name="partyId" type="id"/>
+		
 		<prim-key field="questionId" />
 		<relation type="one" rel-entity-name="TopicMaster">
 			<key-map field-name="topicId" />
@@ -132,13 +134,16 @@ under the License.
 		<field name="topicId" type="name"></field>
 		
 		<field name="topicName" type="name"  not-null="true" />
+		<field name="partyId" type="id-long"></field>
 		
 		
 		<prim-key field="topicId" />
-	<index name="TOPIC_NAME_UNIQUE" unique="true">
-        <index-field name="topicName"/>
-    </index>
-			
+		<prim-key field="partyId" />	
+		<relation rel-entity-name="Party"
+              fk-name="PART_ID_FK"
+              type="one">
+        <key-map field-name="partyId" rel-field-name="partyId"/>
+    </relation>		
     </entity>
     
     
