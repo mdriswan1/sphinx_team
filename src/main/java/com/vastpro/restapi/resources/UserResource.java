@@ -29,6 +29,7 @@ import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
+import org.apache.ofbiz.service.ServiceContainer;
 import org.apache.ofbiz.service.ServiceUtil;
 import org.apache.ofbiz.webapp.control.LoginWorker;
 
@@ -585,6 +586,50 @@ public class UserResource {
 	}
 
 	@POST
+	@Path("/login")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response validateUser(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+
+		try {
+			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+			if (dispatcher == null) {
+				dispatcher = ServiceContainer.getLocalDispatcher("sphinx", (Delegator) request.getAttribute("delegator"));
+			}
+			Delegator delegator = (Delegator) request.getAttribute("delegator");
+			if (UtilValidate.isEmpty(request.getAttribute("userName"))) {
+
+			}
+
+			request.setAttribute("USERNAME", request.getAttribute("userName"));
+			request.setAttribute("PASSWORD", request.getAttribute("password"));
+			String msg = LoginWorker.login(request, response);
+			System.out.println(msg);
+			if ("success".equalsIgnoreCase(LoginWorker.login(request, response))) {
+				Map<String, Object> result = ServiceUtil.returnSuccess("Logged In Successfully!");
+				HttpSession session = request.getSession(false);
+				if (UtilValidate.isNotEmpty(session)) {
+					GenericValue userLogin = (GenericValue) session.getAttribute("userLogin");
+					if (UtilValidate.isNotEmpty(userLogin)) {
+						GenericValue userRole = EntityQuery.use(delegator).from("PartyRole")
+										.where("partyId", userLogin.getString("partyId")).queryFirst();
+						session.setAttribute("userRole", userRole);
+						result.put("role", userRole.getString("roleTypeId"));
+						result.put("partyId", userRole.getString("partyId"));
+					}
+				}
+
+				return Response.status(200).entity(result).build();
+			}
+			Map<String, Object> result = ServiceUtil.returnError((String) request.getAttribute("_ERROR_MESSAGE_"));
+
+			return Response.ok(result).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(500).entity(Map.of("error", e.getMessage())).build();
+		}
+	}
+
 	@Path("/submit-final")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)

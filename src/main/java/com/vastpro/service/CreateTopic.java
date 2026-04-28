@@ -34,8 +34,12 @@ public class CreateTopic {
 			EntityCondition condition = EntityCondition.makeCondition(EntityFunction.upperField("topicName"), EntityOperator.EQUALS,
 							topicName.toUpperCase());
 
-			GenericValue existingTopic = EntityQuery.use(delegator).from("TopicMaster").where(condition).queryFirst();
+			// GenericValue existingTopic = EntityQuery.use(delegator).from("TopicMaster").where(condition).queryFirst();
 
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", (String) input.get("userLoginId"))
+							.queryFirst();
+			GenericValue existingTopic = EntityQuery.use(delegator).from("TopicMaster")
+							.where("topicName", topicName, "partyId", partyId.getString("partyId")).queryFirst();
 			if (existingTopic != null) {
 				return ServiceUtil.returnError("Topic already exists. Try another name.");
 			}
@@ -46,7 +50,7 @@ public class CreateTopic {
 			Map<String, Object> inputs = new HashMap<String, Object>();
 			inputs.put("topicId", topicId);
 			inputs.put("topicName", topicName);
-
+			inputs.put("partyId", partyId.getString("partyId"));
 			Map<String, Object> result;
 
 			result = dispatcher.runSync("insertTopicAuto", inputs);

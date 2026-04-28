@@ -37,6 +37,7 @@ public class QuestionService {
 	public static Map<String, Object> createQuestionService(DispatchContext dctx, Map<String, Object> questions) {
 		LocalDispatcher dispatcher = dctx.getDispatcher();
 		try {
+
 			Delegator delegator = dctx.getDelegator();
 
 			String topicId = (String) questions.get("topicId");
