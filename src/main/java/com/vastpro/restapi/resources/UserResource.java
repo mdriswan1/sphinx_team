@@ -114,10 +114,12 @@ public class UserResource {
 						session.setAttribute("userLoginId", userLogin.getString("userLoginId"));
 						input.put("role", userRole.getString("roleTypeId"));
 						input.put("partyId", userRole.getString("partyId"));
-						System.out.println("++++++++++++++++++++++userLogin: " + userLogin);
-						System.out.println("++++++++++++++++++++++userRole: " + userRole);
-						System.out.println("++++++++++++++++++++++role: " + session.getAttribute("userRole"));
-						System.out.println("++++++++++++++++++++++role: " + session.getAttribute("partyId"));
+						/*
+						 * System.out.println("++++++++++++++++++++++userLogin: " + userLogin);
+						 * System.out.println("++++++++++++++++++++++userRole: " + userRole);
+						 * System.out.println("++++++++++++++++++++++role: " + session.getAttribute("userRole"));
+						 * System.out.println("++++++++++++++++++++++role: " + session.getAttribute("partyId"));
+						 */
 					}
 				}
 				return Response.status(HttpStatus.SC_OK).entity(UtilMisc.toMap("success", "Signed In Successfully!", "result", input))
@@ -136,7 +138,7 @@ public class UserResource {
 			// }
 
 		} catch (Exception e) {
-			return Response.status(500).entity(Map.of("status", "error", "message", "Invalid Credinatilas")).build();
+			return Response.status(500).entity(Map.of("status", "error", "message", "Invalid credentials")).build();
 		}
 	}
 
@@ -297,7 +299,7 @@ public class UserResource {
 	}
 
 	@POST
-	@Path("/assigntempoary")
+	@Path("/partyExamCreate")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response AsignTempoary(@Context HttpServletRequest request, @Context HttpServletResponse response) {
@@ -320,7 +322,7 @@ public class UserResource {
 
 			Map<String, Object> result;
 			try {
-				result = dispatcher.runSync("assignTempoary", input);
+				result = dispatcher.runSync("partyExamCreate", input);
 				if (result.get("responseMessage").equals("success")) {
 					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
 				} else {

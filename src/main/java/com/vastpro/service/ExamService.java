@@ -267,7 +267,7 @@ public class ExamService {
 		Delegator delegator = context.getDelegator();
 		String examId = (String) input.get("examId");
 		try {
-			List<GenericValue> values = EntityQuery.use(delegator).from("ExamPartyUserLoginView").where("examId", examId).queryList();
+			List<GenericValue> values = EntityQuery.use(delegator).from("ExamPartyexamMaiew").where("examId", examId).queryList();
 			Map<String, Object> result = ServiceUtil.returnSuccess("success");
 			if (values.isEmpty()) {
 				return ServiceUtil.returnSuccess("data not found");

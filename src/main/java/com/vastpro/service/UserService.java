@@ -101,7 +101,7 @@ public class UserService {
 
 	}
 
-	public Map<String, Object> assignTempoary(DispatchContext context, Map<String, Object> input) {
+	public Map<String, Object> partyExamCreate(DispatchContext context, Map<String, Object> input) {
 		LocalDispatcher dispatcher = context.getDispatcher();
 		if (dispatcher == null) {
 			return ServiceUtil.returnError("in service dispatcher is null");
@@ -112,7 +112,7 @@ public class UserService {
 				String partyId = list.get(0);
 				input.put("partyId", partyId);
 
-				Map<String, Object> result = dispatcher.runSync("autoassignTempoary", input);
+				Map<String, Object> result = dispatcher.runSync("autoPartyExamCreate", input);
 				if (ServiceUtil.isError(result)) {
 					return ServiceUtil.returnError((String) result.get("errorMessage"));
 				}

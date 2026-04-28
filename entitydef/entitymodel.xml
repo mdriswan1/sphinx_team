@@ -245,7 +245,7 @@ under the License.
 
 </entity>
 
-<view-entity entity-name="ExamPartyUserLoginView" package-name="in.vastpro.sphinx">
+<view-entity entity-name="ExamPartyexamMaiew" package-name="in.vastpro.sphinx">
 
     <!-- 1. member entities -->
     <member-entity entity-alias="PER" entity-name="PartyExamRelationship"/>
@@ -259,6 +259,9 @@ under the License.
     <alias entity-alias="UL" name="userLoginId" field="userLoginId"/>
     <alias entity-alias="EM" name="examId" field="examId"/>
     <alias entity-alias="EM" name="examName" field="examName"/>
+    <alias entity-alias="PER" name="allowedAttempts" field="allowedAttempts"/>
+    <alias entity-alias="PER" name="timeoutDays" field="timeoutDays"/>
+    
     
     
        <!-- 2. joins -->
@@ -293,7 +296,7 @@ under the License.
 			<key-map field-name="examId" rel-field-name="examid" />
 		</relation>			
 </entity>
- <view-entity entity-name="UserLoginView" package-name="in.vastpro.sphinx">
+ <view-entity entity-name="examMaiew" package-name="in.vastpro.sphinx">
 
     <!-- 1. member entities -->
     <member-entity entity-alias="PER" entity-name="PartyExamRelationship"/>

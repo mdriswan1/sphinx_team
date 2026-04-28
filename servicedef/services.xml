@@ -448,20 +448,20 @@ under the License.
     <attribute name="totalQuestions" type="java.lang.Integer" mode="OUT" optional="true"/>
      
 </service>
-<service name="assignTempoary" engine="java" location="com.vastpro.service.UserService" invoke="assignTempoary" auth="false">
+<service name="partyExamCreate" engine="java" location="com.vastpro.service.UserService" invoke="partyExamCreate" auth="false">
 	    
-     <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="partyId" type="java.util.List" mode="IN" optional="false"/>
-    <attribute name="noOfAttempts"    type="java.lang.String" mode="IN" optional="false"/>
-    <attribute name="timeoutDays" type="String" mode="IN" optional="false"/>
+      <attribute name="noOfAttempts"    type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="timeoutDays" type="String" mode="IN" optional="false"/>
       <attribute name="userLoginId" mode="IN" type="String" optional="false"></attribute>
       <attribute name="allowedAttempts" type="java.lang.String" mode="IN" optional="false"/>
       
 </service>
 
-<service engine="entity-auto" name="autoassignTempoary" invoke="create" default-entity-name="AssignExamTempoary">
+<service engine="entity-auto" name="autoPartyExamCreate" invoke="create" default-entity-name="PartyExamRelationship">
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
-	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 </service>
 <service engine="java" name="getAssignedUser" location="com.vastpro.service.UserService" invoke="getAssignedUser">
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
@@ -508,11 +508,12 @@ under the License.
 <service engine="java" name="asssignTempoaryUpdate" location="com.vastpro.service.UserService" invoke="asssignTempoaryUpdate">
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
 	<attribute name="partyId" mode="IN" type="String" optional="false"/>
-	<attribute name="noOfAttempts" mode="IN" type="String" optional="false"/>
+	
 	<attribute name="timeoutDays" mode="IN" type="String" optional="false"/>
 	<attribute name="allowedAttempts" mode="IN" type="String" optional="false"/>
 </service>
-<service engine="entity-auto" name="autoasssignTempoaryUpdate" invoke="update" default-entity-name="AssignExamTempoary">
+
+<service engine="entity-auto" name="autoasssignTempoaryUpdate" invoke="update" default-entity-name="PartyExamRelationship">
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	
