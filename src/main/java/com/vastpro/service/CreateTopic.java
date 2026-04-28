@@ -20,6 +20,7 @@ public class CreateTopic {
 	public Map<String, Object> createTopic(DispatchContext context, Map<String, Object> input) {
 		Delegator delegator = context.getDelegator();
 		String topicName = (String) input.get("topicName");
+		String userId = (String) input.get("userId");
 		LocalDispatcher dispatcher = context.getDispatcher();
 
 		// 1. Validate input
@@ -34,7 +35,12 @@ public class CreateTopic {
 			EntityCondition condition = EntityCondition.makeCondition(EntityFunction.upperField("topicName"), EntityOperator.EQUALS,
 							topicName.toUpperCase());
 
-			GenericValue existingTopic = EntityQuery.use(delegator).from("TopicMaster").where(condition).queryFirst();
+			// GenericValue existingTopic = EntityQuery.use(delegator).from("TopicMaster").where(condition).queryFirst();
+
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", userId).queryFirst();
+
+			GenericValue existingTopic = EntityQuery.use(delegator).from("TopicMaster")
+							.where("topicName", topicName, "partyId", partyId.getString("partyId")).queryFirst();
 
 			if (existingTopic != null) {
 				return ServiceUtil.returnError("Topic already exists. Try another name.");
@@ -46,7 +52,7 @@ public class CreateTopic {
 			Map<String, Object> inputs = new HashMap<String, Object>();
 			inputs.put("topicId", topicId);
 			inputs.put("topicName", topicName);
-
+			inputs.put("partyId", partyId.getString("partyId"));
 			Map<String, Object> result;
 
 			result = dispatcher.runSync("insertTopicAuto", inputs);
@@ -66,10 +72,13 @@ public class CreateTopic {
 	public Map<String, Object> getAllTopics(DispatchContext context, Map<String, Object> input) {
 		Delegator delegator = context.getDelegator();
 		Map<String, Object> result = ServiceUtil.returnSuccess("Topic getted successfully");
-		try {
-			// List<GenericValue> topics=delegator.findAll("TopicMaster", false);
-			List<GenericValue> topicList = EntityQuery.use(delegator).from("TopicMaster").orderBy("-lastUpdatedStamp").queryList();
+		String userId = (String) input.get("userId");
 
+		try {
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", userId).queryFirst();
+			// List<GenericValue> topics=delegator.findAll("TopicMaster", false);
+			List<GenericValue> topicList = EntityQuery.use(delegator).from("TopicMaster").where("partyId", partyId.getString("partyId"))
+							.orderBy("-lastUpdatedStamp").queryList();
 			if (topicList.size() == 0) {
 				return ServiceUtil.returnSuccess("no topic found");
 			}
@@ -85,10 +94,13 @@ public class CreateTopic {
 		Delegator delegator = context.getDelegator();
 		LocalDispatcher dispatcher = context.getDispatcher();
 		String topicId = (String) input.get("topicId");
+		String userId = (String) input.get("userId");
 
 		try {
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", userId).queryFirst();
 
-			GenericValue topicMaster = EntityQuery.use(delegator).from("TopicMaster").where("topicId", topicId).queryOne();
+			GenericValue topicMaster = EntityQuery.use(delegator).from("TopicMaster")
+							.where("topicId", topicId, "partyId", partyId.getString("partyId")).queryOne();
 
 			List<GenericValue> questionMaster = EntityQuery.use(delegator).from("QuestionMaster").where("topicId", topicId).queryList();
 
@@ -114,6 +126,7 @@ public class CreateTopic {
 			}
 			Map<String, Object> deleteMap = new HashMap<String, Object>();
 			deleteMap.put("topicId", topicId);
+			deleteMap.put("partyId", partyId.getString("partyId"));
 			Map<String, Object> result = dispatcher.runSync("deleteTopic", deleteMap);
 			if (ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError("Topic Not Found");
@@ -137,6 +150,8 @@ public class CreateTopic {
 				return ServiceUtil.returnError("field cannot be empty");
 			}
 			GenericValue updateTopicId = EntityQuery.use(delegator).from("TopicMaster").where("topicId", topicId).queryOne();
+			String userId = (String) input.get("userId");
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", userId).queryFirst();
 
 			if (updateTopicId == null) {
 				return ServiceUtil.returnError("Topic with Id" + topicId + " not found");
@@ -144,6 +159,7 @@ public class CreateTopic {
 			Map<String, Object> updateMap = new HashMap<String, Object>();
 			updateMap.put("topicId", topicId);
 			updateMap.put("topicName", topicName);
+			updateMap.put("partyId", partyId.getString("partyId"));
 
 			Map<String, Object> result = dispatcher.runSync("updateTopic", updateMap);
 			if (ServiceUtil.isError(result)) {

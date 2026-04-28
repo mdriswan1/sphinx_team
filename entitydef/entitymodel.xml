@@ -126,19 +126,23 @@ under the License.
 		<prim-key field="qId" />
 		<relation rel-entity-name="ExamMaster" fk-name="QUESTION_BANK_FK" type="many">
 			<key-map field-name="examId" rel-field-name="examId" />
-		</relation>			
-    </entity>
+		</relation>		
+		
+		</entity>	
     <entity entity-name="TopicMaster" package-name="">
 		<field name="topicId" type="name"></field>
 		
 		<field name="topicName" type="name"  not-null="true" />
+		<field name="partyId" type="id-long"></field>
 		
 		
 		<prim-key field="topicId" />
-	<index name="TOPIC_NAME_UNIQUE" unique="true">
-        <index-field name="topicName"/>
-    </index>
-			
+		<prim-key field="partyId" />	
+		<relation rel-entity-name="Party"
+              fk-name="PART_ID_FK"
+              type="one">
+        <key-map field-name="partyId" rel-field-name="partyId"/>
+    </relation>		
     </entity>
     
     
@@ -347,9 +351,7 @@ under the License.
 
 <entity entity-name="AnswerMaster" package-name="in.vastpro.sphinx">
 
-
-		<field name="questionId" type="id"></field>
-
+<field name="questionId" type="id"></field>
 		<field name="examId" type="id"></field>
 		<field name="partyId" type="id"/>
 		<field name="submittedAnswer" type="very-short"></field>
@@ -451,5 +453,6 @@ under the License.
         <key-map field-name="examId" rel-field-name="examId"/>
     </view-link>
 </view-entity>
+
 </entitymodel>
 

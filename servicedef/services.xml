@@ -110,6 +110,7 @@ under the License.
          auth="false">
 
     <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
+    <attribute name="userId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
 
@@ -120,6 +121,7 @@ under the License.
          invoke="getAllTopics"
          auth="false">
       <attribute name="topic" type="List" mode="OUT" optional="false"/>
+      <attribute name="userId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
 
@@ -129,7 +131,7 @@ under the License.
          invoke="deleteById"
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
-
+		<attribute name="userId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
 
@@ -138,7 +140,7 @@ under the License.
          invoke="delete"
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
-
+	<attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
 
@@ -148,7 +150,7 @@ under the License.
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
             <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
-
+			 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
 <service name="updateTopicOwn" engine="java"
@@ -157,7 +159,7 @@ under the License.
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
             <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
-
+		<attribute name="userId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
 
@@ -167,14 +169,14 @@ under the License.
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
-<!-- 
 
-	<service engine="java" name="signIn" location="com.vastpro.service.SigininService" invoke="checkSigininService" auth="false" >
+
+<!-- <service engine="java" name="signIn" location="com.vastpro.service.SigininService" invoke="checkSigininService" auth="false" >
 		
 	    <attribute name="userLoginId" type="String" mode="IN" optional="false"/>
 	    <attribute name="currentPassword" type="String" mode="IN" optional="false"/>
 	    <attribute name="role" type="String" mode="OUT" optional="false"/>
-	</service>
+	</service> 	
 
 	
 	<service engine="entity-auto" name="createParty" invoke="create" default-entity-name="Party">
@@ -192,11 +194,8 @@ under the License.
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
 	
-<<<<<<< HEAD
-	 <service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
-=======
+
 	<service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
->>>>>>> ccdbcf7ed0620656c07f65d3d09a003436e8ba7e
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service> 
@@ -468,10 +467,21 @@ under the License.
 	<attribute name="allUser" mode="OUT" type="List" optional="true"/>
 </service>
 
+
 <service engine="entity-auto" name="deleteAssignTempoary" invoke="delete" default-entity-name="AssignExamTempoary">
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	
 </service>
+
+
+
+<service engine="java" name="deleteAssign" location="com.vastpro.service.UserService" invoke="deleteAssign">
+	<attribute name="partyId" mode="IN" type="String" optional="false"/>
+	<attribute name="examId" mode="IN" type="String" optional="false"/>
+	
+</service>
+
+
 <service engine="java" name="getPartyExam" location="com.vastpro.service.ExamService" invoke="getPartyExam" auth="false">
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
 	<attribute name="allData" mode="OUT" type="List" optional="true"/>
@@ -599,17 +609,18 @@ under the License.
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
 
-<<<<<<< HEAD
+
 <!-- checkotp -->
-=======
+
 <service engine="java" name="finalSubmit" location="com.vastpro.service.UserService" invoke="finalSubmit">
 	<attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="userLoginId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
->>>>>>> ab5a02653c673caedf80066f9232705260aeef8b
+
 <service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="checkOtpService" auth="false">
 	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>

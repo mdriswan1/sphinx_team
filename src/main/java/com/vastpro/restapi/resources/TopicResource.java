@@ -41,6 +41,7 @@ public class TopicResource {
 		try {
 			Map<String, Object> input = new HashMap<String, Object>();
 			input.put("topicName", (String) request.getAttribute("topicName"));
+			input.put("userId", (String) request.getAttribute("userId"));
 
 			Map<String, Object> result = dispatcher.runSync("createtopic", input);
 			if (ServiceUtil.isError(result)) {
@@ -70,8 +71,11 @@ public class TopicResource {
 		if (dispatcher == null) {
 			Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", "Dispatcher not found")).build();
 		}
+		Map<String, Object> input = new HashMap<String, Object>();
+		input.put("userId", (String) request.getParameter("userLoginId"));
+
 		try {
-			Map<String, Object> result = dispatcher.runSync("getAllTopic", Map.of());
+			Map<String, Object> result = dispatcher.runSync("getAllTopic", input);
 			return Response.ok(result).build();
 
 		} catch (GenericServiceException e) {
@@ -98,10 +102,12 @@ public class TopicResource {
 		try {
 			Map<String, Object> input = new HashMap<>();
 			String topicId = request.getParameter("topicId");
+			String userLoginId = request.getParameter("userLoginId");
 			if (topicId == null || topicId.isEmpty()) {
 				return Response.status(400).entity(Map.of("error", "topicId is required")).build();
 			}
 			input.put("topicId", topicId);
+			input.put("userId", userLoginId);
 
 			Map<String, Object> result = dispatcher.runSync("deleteTopicById", input);
 
@@ -133,6 +139,7 @@ public class TopicResource {
 			Map<String, Object> input = new HashMap<String, Object>();
 			input.put("topicId", request.getAttribute("topicId"));
 			input.put("topicName", request.getAttribute("topicName"));
+			input.put("userId", request.getAttribute("userLoginId"));
 			Map<String, Object> result = dispatcher.runSync("updateTopicOwn", input);
 			return Response.ok(result).build();
 		} catch (Exception e) {
