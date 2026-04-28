@@ -438,6 +438,36 @@ public class UserResource {
 		}
 	}
 
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/deleteAssign")
+	public Response deleteAssign(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+
+			input.put("partyId", request.getAttribute("partyId"));
+			input.put("examId", request.getAttribute("examId"));
+			Map<String, Object> result;
+			try {
+				result = dispatcher.runSync("deleteAssign", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+				}
+
+				return Response.status(Status.NOT_FOUND).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} catch (GenericServiceException e) {
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+			}
+		}
+	}
+
 	// user
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -487,52 +517,15 @@ public class UserResource {
 
 			input.put("questionId", request.getAttribute("questionId"));
 			input.put("examId", request.getAttribute("examId"));
-			input.put("partyId", session.getAttribute("partyId"));
+			// input.put("partyId", session.getAttribute("partyId"));
+			input.put("userLoginId", request.getAttribute("userLoginId"));
 			input.put("submittedAnswer", request.getAttribute("submittedAnswer"));
+			// input.put("sNo", request.getAttribute("sNo"));
+			// input.put("isFlagged", request.getAttribute("isFlagged"));
 			input.put("sNo", request.getAttribute("sNo"));
 			input.put("isFlagged", request.getAttribute("isFlagged"));
 			try {
 				Map<String, Object> result = dispatcher.runSync("submitedAnswer", input);
-				if (result.get("responseMessage").equals("success")) {
-					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
-				}
-				return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
-			} catch (GenericServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return Response.status(Status.INTERNAL_SERVER_ERROR)
-								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
-			}
-
-		}
-	}
-
-	@POST
-	@Path("/party-performance")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response partyPerformance(@Context HttpServletRequest request, HttpServletResponse response) {
-		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-		if (dispatcher == null) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
-		} else {
-			HttpSession session = request.getSession(false);
-			if (UtilValidate.isEmpty(session)) {
-				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
-			}
-			Map<String, Object> input = new HashMap<>();
-			input.put("partyId", session.getAttribute("partyId"));
-			input.put("examId", request.getAttribute("examId"));
-			input.put("score", request.getAttribute("score"));
-			input.put("date", request.getAttribute("date"));
-			input.put("noOfQuestions", request.getAttribute("noOfQuestions"));
-			input.put("totalCorrect", request.getAttribute("totalCorrect"));
-			input.put("totalWrong", request.getAttribute("totalWrong"));
-			input.put("userPassed", request.getAttribute("userPassed"));
-			input.put("performanceId", request.getAttribute("performanceId"));
-			input.put("attemptNo", request.getAttribute("attemptNo"));
-			try {
-				Map<String, Object> result = dispatcher.runSync("partyPerformance", input);
 				if (result.get("responseMessage").equals("success")) {
 					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
 				}
@@ -587,6 +580,95 @@ public class UserResource {
 			}
 
 		}
+	}
+
+	@POST
+	@Path("/submit-final")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response finalSubmit(@Context HttpServletRequest request) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		} else {
+			Map<String, Object> input = new HashMap<>();
+			input.put("userLoginId", request.getAttribute("userLoginId"));
+			input.put("examId", request.getAttribute("examId"));
+			try {
+				Map<String, Object> result = dispatcher.runSync("finalSubmit", input);
+				if (result.get("responseMessage").equals("success")) {
+					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+				}
+				return Response.status(Status.BAD_GATEWAY).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+
+			} catch (GenericServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+			}
+
+		}
+	}
+
+	@POST
+	@Path("/exam-result")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response examResult(@Context HttpServletRequest request) {
+		try {
+			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+			if (dispatcher == null) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+			}
+			Map<String, Object> result = dispatcher.runSync("examResult",
+							UtilMisc.toMap("examId", request.getAttribute("examId"), "partyId", request.getAttribute("partyId")));
+			if (result.get("responseMessage").equals("success")) {
+				return Response.status(Status.OK).entity(UtilMisc.toMap("result", result.get("result"))).build();
+			} else {
+				return Response.status(Status.NO_CONTENT).entity(UtilMisc.toMap("error", "not found data")).build();
+			}
+
+		} catch (GenericServiceException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+		}
+	}
+
+	// validate
+	@POST
+	@Path("validate-exam")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response validateAnswer(@Context HttpServletRequest request) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		}
+
+		Map<String, Object> input = new HashMap<String, Object>();
+
+		String partyId = (String) request.getParameter("partyId");
+		input.put("partyId", partyId);
+		String examId = (String) request.getParameter("examId");
+		input.put("examId", examId);
+
+		try {
+			Map<String, Object> result = dispatcher.runSync("validateExam", input);
+			if (ServiceUtil.isError(result)) {
+				return Response.status(Response.Status.NOT_FOUND).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} else {
+
+				return Response.ok(result).build();
+			}
+		} catch (GenericServiceException e) {
+
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+		}
+
 	}
 
 	/**

@@ -260,6 +260,7 @@ under the License.
     <alias entity-alias="EM" name="examId" field="examId"/>
     <alias entity-alias="EM" name="examName" field="examName"/>
     
+    
        <!-- 2. joins -->
     <!-- PER -> UL -->
     <view-link entity-alias="PER" rel-entity-alias="UL" rel-optional="true">
@@ -310,7 +311,9 @@ under the License.
     
     <alias entity-alias="PER" name="noOfAttempts" field="noOfAttempts"/>
     <alias entity-alias="EM" name="description" field="description"/>
+    <alias entity-alias="EM" name="duration" field="duration"/>
     <alias entity-alias="PER" name="partyId" field="partyId"/>
+    <alias entity-alias="PER" name="allowedAttempts" field="allowedAttempts"/>
      <!-- 2. joins -->
     <!-- PER -> UL -->
    
@@ -343,7 +346,10 @@ under the License.
 </view-entity>
 
 <entity entity-name="AnswerMaster" package-name="in.vastpro.sphinx">
-		<field name="qId" type="id"></field>
+
+
+		<field name="questionId" type="id"></field>
+
 		<field name="examId" type="id"></field>
 		<field name="partyId" type="id"/>
 		<field name="submittedAnswer" type="very-short"></field>
@@ -357,7 +363,7 @@ under the License.
 <entity entity-name="PartyPerformance" package-name="in.vastpro.sphinx">
 		<field name="partyId" type="id" not-null="true"></field>
 		<field name="examId" type="id" not-null="true"></field>
-		<field name="score" type="numeric" not-null="true"/>
+		<field name="score" type="fixed-point" not-null="true"/>
 		<field name="date" type="date-time" not-null="true"></field>
 		<field name="noOfQuestions" type="numeric"></field>
 		<field name="totalCorrect" type="numeric"/>
@@ -430,6 +436,20 @@ under the License.
 		
     </view-entity>
 
-
+<view-entity entity-name="QuestionAnswerView" package-name="">
+    <member-entity entity-alias="Q" entity-name="QuestionBankMasterB"/>
+    <member-entity entity-alias="A" entity-name="AnswerMaster"/>
+ 
+    <alias entity-alias="Q" name="examId"/>
+    <alias entity-alias="Q" name="qId"/>
+    <alias entity-alias="Q" name="answer"/>
+ 
+    <alias entity-alias="A" name="submittedAnswer"/>
+ 
+    <view-link entity-alias="Q" rel-entity-alias="A">
+        <key-map field-name="qId" rel-field-name="qId"/>
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </view-link>
+</view-entity>
 </entitymodel>
 
