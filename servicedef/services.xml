@@ -634,8 +634,8 @@ under the License.
 </service>
 
 <service engine="java" name="examResult" location="com.vastpro.service.UserService" invoke="examResult">
-	<attribute name="examId" type="String" mode="IN"/>
-    <attribute name="userLoginId" type="String" mode="IN"/>  
+	<attribute name="examId" type="String" mode="IN" optional="false"/>
+    <attribute name="userLoginId" type="String" mode="IN" optional="false"/>  
     <attribute name="result" mode="OUT" type="List"></attribute>
 </service>
 <service engine="entity-auto" name="autoAnswerUpdate" invoke="update" default-entity-name="AnswerMaster">
@@ -647,6 +647,16 @@ under the License.
 	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		
+</service>
+
+<service engine="java" name="getUserReport" location="com.vastpro.service.UserService" invoke="getUserReport" auth="false">
+	 <attribute name="userLoginId" type="java.lang.String" mode="IN" optional="false"/>
+	 <attribute name="data" mode="OUT" type="List" optional="true"></attribute>
+</service>
+<service engine="entity-auto" name="autoAnswerMasterDelete" invoke="delete" default-entity-name="AnswerMaster">
+	<attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
+	 <attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
+	 <attribute name="questionId" type="java.lang.String" mode="IN" optional="true"/>
 </service>
 </services>
 

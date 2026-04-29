@@ -109,7 +109,7 @@ under the License.
     </entity>
     
      <entity entity-name="QuestionBankMaster" package-name="in.vastpro.sphinx">
-		<field name="examId" type="id-ne"></field>
+		<field name="examId" type="id"></field>
 		<field name="qId" type="numeric"></field>
 		<field name="topicId" type="numeric" not-null="true"/>
 		<field name="questionDetail" type="very-long" not-null="true"></field>
@@ -118,7 +118,7 @@ under the License.
 		<field name="optionc" type="very-long" not-null="true"></field>
 		<field name="optiond" type="very-long" not-null="true"></field>
 		<field name="optione" type="very-long" not-null="true"></field>
-		<field name="answer" type="id-ne" not-null="true"></field>
+		<field name="answer" type="id" not-null="true"></field>
 		<field name="numAnswers" type="numeric" not-null="true"/>
 		<field name="questionType" type="numeric" not-null="true"></field>
 		<field name="difficultyLevel" type="numeric"></field>
@@ -424,7 +424,7 @@ under the License.
 		
     </view-entity>
 
-<view-entity entity-name="QuestionAnswerView" package-name="">
+<view-entity entity-name="QuestionAnswerView" package-name="in.vastpro.sphinxx">
     <member-entity entity-alias="Q" entity-name="QuestionBankMasterB"/>
     <member-entity entity-alias="A" entity-name="AnswerMaster"/>
  
@@ -435,9 +435,40 @@ under the License.
     <alias entity-alias="A" name="submittedAnswer"/>
  
     <view-link entity-alias="Q" rel-entity-alias="A">
-        <key-map field-name="qId" rel-field-name="qId"/>
+        <key-map field-name="qId" rel-field-name="questionId"/>
         <key-map field-name="examId" rel-field-name="examId"/>
     </view-link>
 </view-entity>
+
+
+<view-entity entity-name="UserLoginView" package-name="in.vastpro.sphinx">
+ 
+   
+    <member-entity entity-alias="PER" entity-name="PartyExamRelationship"/>
+    <member-entity entity-alias="UL" entity-name="UserLogin"/>
+    <member-entity entity-alias="EM" entity-name="ExamMaster"/>
+
+  
+    <alias entity-alias="EM" name="examId" field="examId"/>
+    <alias entity-alias="EM" name="examName" field="examName"/>
+    <alias entity-alias="PER" name="noOfAttempts" field="noOfAttempts"/>
+    <alias entity-alias="EM" name="description" field="description"/>
+    <alias entity-alias="EM" name="duration" field="duration"/>
+    <alias entity-alias="PER" name="partyId" field="partyId"/>
+    <alias entity-alias="PER" name="allowedAttempts" field="allowedAttempts"/>
+     
+   
+    
+     <view-link entity-alias="PER" rel-entity-alias="UL" rel-optional="true">
+        <key-map field-name="partyId" rel-field-name="partyId"/>
+    </view-link>
+    <view-link entity-alias="PER" rel-entity-alias="EM" rel-optional="true">
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </view-link>
+    
+    
+ 
+</view-entity>
+ 
 </entitymodel>
 
