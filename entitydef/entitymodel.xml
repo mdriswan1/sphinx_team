@@ -40,7 +40,7 @@ under the License.
      <!-- This entity holds exams & their information -->
 	<entity entity-name="ExamMaster" package-name="in.vastpro.sphinx">
 		<field name="examId" type="id"></field>
-		<field name="examName" type="id-long"></field>		
+		<field name="examName" type="id"></field>		
 		<field name="description" type="description"></field>
 		<field name="noOfQuestions" type="numeric" not-null="true"></field>
 		<field name="duration" type="numeric" not-null="true"></field>
@@ -74,8 +74,6 @@ under the License.
 		<field name="answerValue" type="fixed-point" />
 		<field name="topicId" type="id" />
 		<field name="negativeMarkValue" type="fixed-point" />
-		<field name="partyId" type="id"/>
-		
 		<prim-key field="questionId" />
 		<relation type="one" rel-entity-name="TopicMaster">
 			<key-map field-name="topicId" />
@@ -87,7 +85,7 @@ under the License.
     
          <entity entity-name="QuestionBankMasterB" package-name="in.vastpro.sphinx">
 		<field name="examId" type="id"></field>
-		<field name="qId" type="numeric"></field>
+		<field name="qId" type="id"></field>
 		<field name="topicId" type="numeric" not-null="true"/>
 		<field name="questionDetail" type="very-long" not-null="true"></field>
 		<field name="optiona" type="very-long" not-null="true"></field>
@@ -128,8 +126,9 @@ under the License.
 		<prim-key field="qId" />
 		<relation rel-entity-name="ExamMaster" fk-name="QUESTION_BANK_FK" type="many">
 			<key-map field-name="examId" rel-field-name="examId" />
-		</relation>			
-    </entity>
+		</relation>		
+		
+		</entity>	
     <entity entity-name="TopicMaster" package-name="">
 		<field name="topicId" type="name"></field>
 		
@@ -336,8 +335,26 @@ under the License.
     
 
 </view-entity>
+
+<view-entity entity-name="QuestionAnswerView">
+    <member-entity entity-alias="Q" entity-name="QuestionBankMasterB"/>
+    <member-entity entity-alias="A" entity-name="AnswerMaster"/>
+
+    <alias entity-alias="Q" name="examId"/>
+    <alias entity-alias="Q" name="qId"/>
+    <alias entity-alias="Q" name="answer"/>
+
+    <alias entity-alias="A" name="submittedAnswer"/>
+
+    <view-link entity-alias="Q" rel-entity-alias="A">
+        <key-map field-name="qId" rel-field-name="qId"/>
+        <key-map field-name="examId" rel-field-name="examId"/>
+    </view-link>
+</view-entity>
+
 <entity entity-name="AnswerMaster" package-name="in.vastpro.sphinx">
-		<field name="questionId" type="id"></field>
+
+<field name="questionId" type="id"></field>
 		<field name="examId" type="id"></field>
 		<field name="partyId" type="id"/>
 		<field name="submittedAnswer" type="very-short"></field>
@@ -470,5 +487,6 @@ under the License.
  
 </view-entity>
  
+
 </entitymodel>
 

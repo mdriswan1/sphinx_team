@@ -367,8 +367,39 @@ public class ExamResource {
 		}
 
 	}
-	/**
-	 * Method is used to delete exam topic details by id
-	 */
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response validateAnswer(@Context HttpServletRequest request) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		}
+
+		Map<String, Object> input = new HashMap<String, Object>();
+
+		String partyId = (String) request.getParameter("partyId");
+		input.put("partyId", partyId);
+		String examId = (String) request.getParameter("examId");
+		input.put("examId", examId);
+
+		try {
+			Map<String, Object> result = dispatcher.runSync("validateExam", input);
+			if (ServiceUtil.isError(result)) {
+				return Response.status(Response.Status.NOT_FOUND).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			} else {
+
+				return Response.ok(result).build();
+			}
+		} catch (GenericServiceException e) {
+
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+
+		}
+
+	}
 
 }

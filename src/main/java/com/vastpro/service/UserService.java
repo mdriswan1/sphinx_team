@@ -186,7 +186,7 @@ public class UserService {
 			}
 
 		}
-		return ServiceUtil.returnSuccess("succesfuly created");
+		return ServiceUtil.returnSuccess("succesfuly updated");
 	}
 
 	public Map<String, Object> deleteAssign(DispatchContext context, Map<String, Object> input) {
