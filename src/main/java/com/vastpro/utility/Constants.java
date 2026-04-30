@@ -1,12 +1,12 @@
 package com.vastpro.utility;
 
-public class Constants {
+public interface Constants {
 
-	public static String QUESTION_MASTER = "QuestionMaster";
+	String QUESTION_MASTER = "QuestionMaster";
 
-	public static String TOPIC_MASTER = "TopicMaster";
+	String TOPIC_MASTER = "TopicMaster";
 
-	public static String EXAM_MASTER = "ExamMaster";
+	String EXAM_MASTER = "ExamMaster";
 
-	public static final String QUESTION_BANK_MASTER_B = "TopicMaster";
+	String QUESTION_BANK_MASTER_B = "TopicMaster";
 }

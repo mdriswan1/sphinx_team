@@ -63,6 +63,7 @@ public class QuestionResource {
 			data.put("topicId", request.getAttribute("topicId"));
 			data.put("negativeMarkValue", request.getAttribute("negativeMarkValue"));
 
+			data.put("userLoginId", request.getAttribute("userLoginId"));
 			Map<String, Object> result = dispatcher.runSync("createQuestionService", data);
 			if (ServiceUtil.isError(result)) {
 				resp.put("status", "error");
@@ -221,7 +222,7 @@ public class QuestionResource {
 		}
 
 		data.put("topicId", request.getAttribute("topicId"));
-
+		data.put("userLoginId", request.getAttribute("userLoginId"));
 		try {
 			Map<String, Object> result = dispatcher.runSync("getquesbytopic", data);
 
@@ -252,6 +253,7 @@ public class QuestionResource {
 		if (dispatcher == null) {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 		}
+		String userLoginId = (String) request.getParameter("userLoginId");
 		try {
 			filePart = request.getPart("file");
 
@@ -275,7 +277,8 @@ public class QuestionResource {
 		}
 
 		try {
-			Map<String, Object> result = dispatcher.runSync("uploadBulkQuestion", UtilMisc.toMap("file", buffer));
+			Map<String, Object> result = dispatcher.runSync("uploadBulkQuestion",
+							UtilMisc.toMap("file", buffer, "userLoginId", userLoginId));
 			if (result.get("responseMessage") != null && result.get("responseMessage").equals("error")) {
 				return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
 			} else {

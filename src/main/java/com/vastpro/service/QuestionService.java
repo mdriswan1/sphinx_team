@@ -14,7 +14,6 @@ import java.util.Map;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
-import org.apache.ofbiz.entity.transaction.GenericTransactionException;
 import org.apache.ofbiz.entity.transaction.TransactionUtil;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.DispatchContext;
@@ -68,6 +67,10 @@ public class QuestionService {
 			String questionId = "SPX_QM_" + delegator.getNextSeqId("QuestionMaster");
 
 			questions.put("questionId", questionId);
+
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", (String) questions.get("userLoginId"))
+							.queryFirst();
+			questions.put("partyId", partyId.getString("partyId"));
 			dispatcher.runSync("createQuestion", questions);
 
 			Map<String, Object> result = ServiceUtil.returnSuccess("Question created Successfully");
@@ -223,9 +226,11 @@ public class QuestionService {
 			if (topic == null) {
 				return ServiceUtil.returnError("Topic not Found");
 			}
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", (String) context.get("userLoginId"))
+							.queryFirst();
 
-			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").where("topicId", topicId)
-							.orderBy("-lastUpdatedStamp").queryList();
+			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster")
+							.where("topicId", topicId, "partyId", partyId.getString("partyId")).orderBy("-lastUpdatedStamp").queryList();
 			List<Map<String, Object>> questionList = new ArrayList<>();
 
 			for (GenericValue ques : questions) {
@@ -423,6 +428,11 @@ public class QuestionService {
 	public Map<String, Object> uploadBulkQuestion(DispatchContext dctx, Map<String, ? extends Object> context) {
 
 		try {
+			Delegator delegator = dctx.getDelegator();
+
+			String userLoginId = (String) context.get("userLoginId");
+			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", (String) context.get("userLoginId"))
+							.queryFirst();
 
 			ByteBuffer buffer = (ByteBuffer) context.get("file");
 
@@ -495,6 +505,7 @@ public class QuestionService {
 						break;
 					}
 				}
+				question.put("partyId", partyId);
 				questions.add(question);
 			}
 
@@ -518,7 +529,7 @@ public class QuestionService {
 
 			return result;
 
-		} catch (EncryptedDocumentException | IOException | GenericServiceException | GenericTransactionException e) {
+		} catch (EncryptedDocumentException | IOException | GenericServiceException | GenericEntityException e) {
 
 			return ServiceUtil.returnError("Unexpected error occured, try again after sometime!");
 		}

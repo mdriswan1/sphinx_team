@@ -149,6 +149,11 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response signup(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		HttpSession session = request.getSession(false);
+		GenericValue userLogin = null;
+		if (UtilValidate.isNotEmpty(session)) {
+			userLogin = (GenericValue) session.getAttribute("userLogin");
+		}
 		Map<String, Object> user = new HashMap<String, Object>();
 		user.put("userName", request.getAttribute("userName"));
 		user.put("firstName", request.getAttribute("firstName"));
@@ -157,6 +162,7 @@ public class UserResource {
 		user.put("email", request.getAttribute("email"));
 		user.put("password", request.getAttribute("password"));
 		user.put("role", request.getAttribute("role"));
+		user.put("userLogin", userLogin);
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 
 		if (dispatcher == null) {
@@ -266,35 +272,43 @@ public class UserResource {
 	public Response createUser(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-		if (dispatcher == null) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
-		} else {
-			HttpSession session = request.getSession(false);
-			if (UtilValidate.isEmpty(session)) {
-				return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
-			}
-			Map<String, Object> input = new HashMap<>();
+		// if (dispatcher == null) {
+		// return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		// } else {
+		// HttpSession session = request.getSession(false);
+		// if (UtilValidate.isEmpty(session)) {
+		// return Response.status(Status.UNAUTHORIZED).entity(UtilMisc.toMap("error", "pls login first")).build();
+		// }
 
-			input.put("firstName", request.getAttribute("firstName"));
-			input.put("lastName", request.getAttribute("lastName"));
-			input.put("userName", request.getAttribute("userName"));
-			input.put("email", request.getAttribute("email"));
-			input.put("role", request.getAttribute("role"));
-			try {
-				Map<String, Object> result = dispatcher.runSync("regService", input);
-				if (result.get("responseMessage").equals("success")) {
-					return Response.status(Status.OK).entity(UtilMisc.toMap("sucess", result.get("responseMessage"))).build();
-				} else {
-					return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
-				}
-
-			} catch (GenericServiceException e) {
-
-				return Response.status(Status.INTERNAL_SERVER_ERROR)
-								.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
-			}
+		HttpSession session = request.getSession(false);
+		GenericValue userLogin = null;
+		if (UtilValidate.isNotEmpty(session)) {
+			userLogin = (GenericValue) session.getAttribute("userLogin");
 		}
 
+		Debug.log("-----------------------------------------" + session.getAttribute("partyId"));
+
+		Map<String, Object> input = new HashMap<>();
+
+		input.put("firstName", request.getAttribute("firstName"));
+		input.put("lastName", request.getAttribute("lastName"));
+		input.put("userName", request.getAttribute("userName"));
+		input.put("email", request.getAttribute("email"));
+		input.put("role", request.getAttribute("role"));
+		input.put("userLogin", userLogin);
+		try {
+			Map<String, Object> result = dispatcher.runSync("regService", input);
+			if (result.get("responseMessage").equals("success")) {
+				return Response.status(Status.OK).entity(UtilMisc.toMap("sucess", result.get("responseMessage"))).build();
+			} else {
+				return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
+			}
+
+		} catch (GenericServiceException e) {
+
+			return Response.status(Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+		}
 	}
 
 	@POST

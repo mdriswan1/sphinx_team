@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.ofbiz.entity.Delegator;
+import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 import com.vastpro.utility.GeneratePssword;
-import com.vastpro.utility.HashPassword;
 
 public class SiginupService {
 
@@ -43,18 +43,46 @@ public class SiginupService {
 			userLogin.put("userLoginId", input.get("userName"));
 			if (role.equals("SPX_ADMIN")) {
 				String pass = (String) input.get("password");
-				String password = HashPassword.hashPassword((String) input.get("password"));
-				userLogin.put("currentPassword", password);
+				// String password = HashPassword.hashPassword((String) input.get("password"));
+				userLogin.put("currentPassword", pass);
 			} else if (role.equals("SPX_USER")) {
 				String password = new GeneratePssword().generatePassword();
 				System.out.println("++++++++" + password + "+++++++++");
-				password = HashPassword.hashPassword(password);
+				// password = HashPassword.hashPassword(password);
 				userLogin.put("currentPassword", password);
+				userLogin.put("currentPasswordVerify", password);
 			}
 
 			userLogin.put("partyId", partyId);
-			userLogin.put("enabled", "N");
+			userLogin.put("enabled", "Y");
+			userLogin.put("requirePasswordChange", "N");
+			userLogin.put("userLogin", input.get("userLogin"));
 			Map<String, Object> result3 = dispatcher.runSync("createUserLogin", userLogin);
+
+			GenericValue secGroup = delegator.makeValue("UserLoginSecurityGroup");
+			secGroup.set("userLoginId", input.get("userName"));
+			secGroup.set("groupId", "SPHINX_ADMIN_GROUP");
+			secGroup.set("fromDate", Timestamp.valueOf(LocalDateTime.now()));
+			delegator.create(secGroup);
+			//
+			if (!("SPX_USER".equals(role))) {
+				GenericValue set = delegator.makeValue("UserLoginSecurityGroup");
+				secGroup.set("userLoginId", input.get("userName"));
+				secGroup.set("groupId", "PARTYADMIN");
+				secGroup.set("fromDate", Timestamp.valueOf(LocalDateTime.now()));
+				delegator.create(secGroup);
+				// Map<String,Object> setPartyToCreateUserResult=dctx.getDispatcher().runSync("addUserLoginToSecurityGroup",
+				// UtilMisc.toMap("userLoginId", username, "groupId", "PARTYADMIN", "fromDate",
+				// Timestamp.valueOf(LocalDateTime.now()),
+				// "userLogin",
+				// params.get("userLogin")
+				// ));
+				// if(ServiceUtil.isError(setPartyToCreateUserResult)) {
+				// Debug.logError("Error while create the user using the addUserLoginToSecurityGroup out box service when set the
+				// PARTYADMIN"+(String)userLoginResult.get("errorMessage"),UserSignUpService.class.getName());
+				// return handleTransaction();
+				// }
+			}
 
 			Map<String, Object> partyRole = new HashMap<>();
 
