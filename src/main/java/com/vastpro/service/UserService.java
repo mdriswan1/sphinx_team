@@ -421,8 +421,12 @@ public class UserService {
 
 				GenericValue value = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId"))
 								.queryFirst();
-				List<GenericValue> values = EntityQuery.use(delegator).from("PartyPerformance").where("examId", input.get("examId"))
-								.where("partyId", value.getString("partyId")).queryList();
+				GenericValue values = EntityQuery.use(delegator).from("PartyPerformanceAndExam")
+								.where("examId", input.get("examId"), "partyId", value.getString("partyId")).orderBy("-date") // descending
+																																// order
+																																// (latest
+																																// first)
+								.queryFirst(); // get only the first (latest) record
 				if (values.isEmpty()) {
 					return ServiceUtil.returnError("no result found");
 				}

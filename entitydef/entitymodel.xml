@@ -378,6 +378,40 @@ under the License.
 		<field name="attemptNo" type="numeric"></field>		
 		<prim-key field="performanceId" />
 </entity>
+<view-entity entity-name="PartyPerformanceAndExam"
+             package-name="in.vastpro.sphinx"
+             title="Party Performance With Exam Name">
+
+    <!-- Member entities -->
+    <member-entity entity-alias="PP" entity-name="PartyPerformance"/>
+    <member-entity entity-alias="EM" entity-name="ExamMaster"/>
+
+    <!-- Join condition -->
+    <view-link entity-alias="PP" rel-entity-alias="EM">
+        <key-map field-name="examId"/>
+    </view-link>
+
+    <!-- Primary key (important for OFBiz caching/handling) -->
+    <alias entity-alias="PP" name="performanceId" field="performanceId" prim-key="true"/>
+
+    <!-- All PartyPerformance fields -->
+    <alias-all entity-alias="PP"/>
+
+    <!-- Explicit aliases (optional but clearer) -->
+    <alias entity-alias="PP" name="partyId" field="partyId"/>
+    <alias entity-alias="PP" name="examId" field="examId"/>
+    <alias entity-alias="PP" name="score" field="score"/>
+    <alias entity-alias="PP" name="date" field="date"/>
+    <alias entity-alias="PP" name="noOfQuestions" field="noOfQuestions"/>
+    <alias entity-alias="PP" name="totalCorrect" field="totalCorrect"/>
+    <alias entity-alias="PP" name="totalWrong" field="totalWrong"/>
+    <alias entity-alias="PP" name="userPassed" field="userPassed"/>
+    <alias entity-alias="PP" name="attemptNo" field="attemptNo"/>
+
+    <!-- ExamMaster field -->
+    <alias entity-alias="EM" name="examName" field="examName"/>
+
+</view-entity>
 <!-- This entity is about detailed user performance in exams -->
 
 <entity entity-name="DetailedPartyPerformance" package-name="in.vastpro.sphinx">
