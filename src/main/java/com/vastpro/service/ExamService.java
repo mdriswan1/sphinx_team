@@ -1,10 +1,12 @@
 package com.vastpro.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ofbiz.base.util.UtilDateTime;
 import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
@@ -267,7 +269,7 @@ public class ExamService {
 		Delegator delegator = context.getDelegator();
 		String examId = (String) input.get("examId");
 		try {
-			List<GenericValue> values = EntityQuery.use(delegator).from("ExamPartyUserLoginView").where("examId", examId).queryList();
+			List<GenericValue> values = EntityQuery.use(delegator).from("ExamPartyexamMaiew").where("examId", examId).queryList();
 			Map<String, Object> result = ServiceUtil.returnSuccess("success");
 			if (values.isEmpty()) {
 				return ServiceUtil.returnSuccess("data not found");
@@ -370,6 +372,76 @@ public class ExamService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return ServiceUtil.returnError("error" + e.getMessage());
+		}
+
+	}
+
+	public Map<String, Object> validateExam(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+		String examId = (String) input.get("examId");
+		String partyId = (String) input.get("partyId");
+
+		try {
+			GenericValue exam = EntityQuery.use(delegator).from("ExamMaster").where("examId", examId).queryOne();
+
+			if (exam == null) {
+				return ServiceUtil.returnError("exam not found");
+
+			}
+
+			double examPassPercentage = exam.getDouble("passPercentage");
+			int totalQuestion = exam.getInteger("noOfQuestions");
+
+			List<GenericValue> list = EntityQuery.use(delegator).from("QuestionAnswerView").queryList();
+
+			long correctCount = list.stream().filter(gv -> gv.getString("answer").equals(gv.getString("submittedAnswer"))).count();
+			int attempted = list.size();
+
+			long wrongCount = attempted - correctCount;
+
+			double percentage = 0;
+			if (totalQuestion > 0) {
+				percentage = (correctCount * 100.0) / totalQuestion;
+			}
+
+			boolean isPassed = percentage >= examPassPercentage;
+
+			GenericValue partyvalue = EntityQuery.use(delegator).from("PartyExamRelationship").where("partyId", partyId, "examId", examId)
+							.queryOne();
+			Long noOfAttempts = partyvalue.getLong("noOfAttempts");
+
+			Map<String, Object> saveInput = new HashMap<>();
+
+			saveInput.put("performanceId", delegator.getNextSeqId("PartyPerformance"));
+			saveInput.put("partyId", partyId);
+			saveInput.put("examId", examId);
+
+			saveInput.put("score", BigDecimal.valueOf(percentage));
+			saveInput.put("noOfQuestions", Long.valueOf(totalQuestion));
+			saveInput.put("totalCorrect", Long.valueOf(correctCount));
+			saveInput.put("totalWrong", Long.valueOf(wrongCount));
+			saveInput.put("userPassed", isPassed ? 1L : 0L);
+			saveInput.put("attemptNo", Long.valueOf(noOfAttempts));
+			saveInput.put("date", UtilDateTime.nowTimestamp());
+
+			GenericValue partyPerf = delegator.makeValue("PartyPerformance", saveInput);
+			delegator.create(partyPerf);
+
+			// Success response
+			Map<String, Object> result = ServiceUtil.returnSuccess("Exam submitted successfully");
+
+			result.put("score", percentage);
+			result.put("totalCorrect", correctCount);
+			result.put("totalWrong", wrongCount);
+			result.put("attemptNo", noOfAttempts);
+			result.put("passed", isPassed);
+
+			return result;
+
+		} catch (GenericEntityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ServiceUtil.returnError("exam not submitted");
 		}
 
 	}

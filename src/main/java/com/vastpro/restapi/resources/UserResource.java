@@ -115,10 +115,12 @@ public class UserResource {
 						session.setAttribute("userLoginId", userLogin.getString("userLoginId"));
 						input.put("role", userRole.getString("roleTypeId"));
 						input.put("partyId", userRole.getString("partyId"));
-						System.out.println("++++++++++++++++++++++userLogin: " + userLogin);
-						System.out.println("++++++++++++++++++++++userRole: " + userRole);
-						System.out.println("++++++++++++++++++++++role: " + session.getAttribute("userRole"));
-						System.out.println("++++++++++++++++++++++role: " + session.getAttribute("partyId"));
+						/*
+						 * System.out.println("++++++++++++++++++++++userLogin: " + userLogin);
+						 * System.out.println("++++++++++++++++++++++userRole: " + userRole);
+						 * System.out.println("++++++++++++++++++++++role: " + session.getAttribute("userRole"));
+						 * System.out.println("++++++++++++++++++++++role: " + session.getAttribute("partyId"));
+						 */
 					}
 				}
 				return Response.status(HttpStatus.SC_OK).entity(UtilMisc.toMap("success", "Signed In Successfully!", "result", input))
@@ -137,7 +139,7 @@ public class UserResource {
 			// }
 
 		} catch (Exception e) {
-			return Response.status(500).entity(Map.of("status", "error", "message", "Invalid Credinatilas")).build();
+			return Response.status(500).entity(Map.of("status", "error", "message", "Invalid credentials")).build();
 		}
 	}
 
@@ -312,7 +314,7 @@ public class UserResource {
 	}
 
 	@POST
-	@Path("/assigntempoary")
+	@Path("/partyExamCreate")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response AsignTempoary(@Context HttpServletRequest request, @Context HttpServletResponse response) {
@@ -335,7 +337,7 @@ public class UserResource {
 
 			Map<String, Object> result;
 			try {
-				result = dispatcher.runSync("assignTempoary", input);
+				result = dispatcher.runSync("partyExamCreate", input);
 				if (result.get("responseMessage").equals("success")) {
 					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
 				} else {
@@ -643,6 +645,7 @@ public class UserResource {
 	}
 
 	@Path("/submit-final")
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response finalSubmit(@Context HttpServletRequest request) {
@@ -680,8 +683,9 @@ public class UserResource {
 			if (dispatcher == null) {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
 			}
-			Map<String, Object> result = dispatcher.runSync("examResult",
-							UtilMisc.toMap("examId", request.getAttribute("examId"), "partyId", request.getAttribute("partyId")));
+			String examId = (String) request.getAttribute("examId");
+			String userLoginId = (String) request.getAttribute("userLoginId");
+			Map<String, Object> result = dispatcher.runSync("examResult", UtilMisc.toMap("examId", examId, "userLoginId", userLoginId));
 			if (result.get("responseMessage").equals("success")) {
 				return Response.status(Status.OK).entity(UtilMisc.toMap("result", result.get("result"))).build();
 			} else {
@@ -745,6 +749,37 @@ public class UserResource {
 		} catch (GenericServiceException e) {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+		}
+	}
+
+	@POST
+	@Path("/getUserReport")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getUserReport(@Context HttpServletRequest request) {
+		try {
+			LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+
+			if (dispatcher == null) {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found"))
+								.build();
+			}
+
+			Map<String, Object> input = new HashMap<>();
+			input.put("userLoginId", request.getAttribute("userLoginId"));
+
+			Map<String, Object> result = dispatcher.runSync("getUserReport", input);
+
+			if (ServiceUtil.isSuccess(result)) {
+				return Response.status(Response.Status.OK).entity(UtilMisc.toMap("data", result.get("data"))).build();
+			} else {
+				return Response.status(Response.Status.NO_CONTENT).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
+			}
+
+		} catch (GenericServiceException e) {
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occurred, try again later")).build();
 		}
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.UtilDateTime;
+import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -16,6 +17,8 @@ import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
+
+import com.vastpro.utility.GeneratePssword;
 
 public class UserService {
 
@@ -71,14 +74,14 @@ public class UserService {
 			for (Map<String, Object> obj : allData) {
 				try {
 					// kamal
-					// String password = new GeneratePssword().generatePassword();
-					Long password = 12345678L;
-					obj.put("passwordChangesAuto", password);
+					long otp = new GeneratePssword().generateOTP();
+					// Long password = 12345678L;
+					obj.put("passwordChangesAuto", otp);
 					// kamal
 					Map<String, Object> result = dispatcher.runSync("examrelationshipcreates", obj);
 					Debug.log("++++++++++++++success=>====>email result two===>\n\n" + result);
 
-					// Map<String, Object> res = dispatcher.runSync("sendEmailToUser", obj);
+					Map<String, Object> res = dispatcher.runSync("sendEmailToUser", obj);
 					// Debug.log("--------------------success=>====>email result threee===>\n\n" + res);
 					// if (ServiceUtil.isError(res)) {
 					// return ServiceUtil.returnError((String) result.get("errorMessage"));
@@ -101,18 +104,24 @@ public class UserService {
 
 	}
 
-	public Map<String, Object> assignTempoary(DispatchContext context, Map<String, Object> input) {
+	public Map<String, Object> partyExamCreate(DispatchContext context, Map<String, Object> input) {
 		LocalDispatcher dispatcher = context.getDispatcher();
 		if (dispatcher == null) {
 			return ServiceUtil.returnError("in service dispatcher is null");
 		} else {
 			try {
 
+				long otp = new GeneratePssword().generateOTP();
+				// Long password = 12345678L;
+				input.put("passwordChangesAuto", otp);
+
 				List<String> list = (List<String>) input.get("partyId");
 				String partyId = list.get(0);
 				input.put("partyId", partyId);
 
-				Map<String, Object> result = dispatcher.runSync("autoassignTempoary", input);
+				Map<String, Object> result = dispatcher.runSync("autoPartyExamCreate", input);
+				Map<String, Object> res = dispatcher.runSync("sendEmailToUser", input);
+
 				if (ServiceUtil.isError(result)) {
 					return ServiceUtil.returnError((String) result.get("errorMessage"));
 				}
@@ -177,7 +186,7 @@ public class UserService {
 			}
 
 		}
-		return ServiceUtil.returnSuccess("succesfuly created");
+		return ServiceUtil.returnSuccess("succesfuly updated");
 	}
 
 	public Map<String, Object> deleteAssign(DispatchContext context, Map<String, Object> input) {
@@ -364,6 +373,7 @@ public class UserService {
 
 	public Map<String, Object> finalSubmit(DispatchContext context, Map<String, Object> input) {
 		Delegator delegator = context.getDelegator();
+		LocalDispatcher dispatcher = context.getDispatcher();
 		if (delegator == null) {
 			return ServiceUtil.returnError("in service delegator is null");
 		} else {
@@ -380,10 +390,23 @@ public class UserService {
 
 				long totalCount = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", input.get("examId")).queryCount();
 				int total = values.size();
-				if (total < totalCount - 1) {
+				if (total != totalCount) {
 					return ServiceUtil.returnError("must submit all answer");
+				} else {
+					input.put("partyId", value.getString("partyId"));
+					Map<String, Object> result = validateExam(context, input);
+					if (ServiceUtil.isSuccess(result)) {
+						// List<GenericValue> answers = EntityQuery.use(delegator).from("AnswerMaster")
+						// .where("examId", input.get("examId"), "partyId", value.getString("partyId")).queryList();
+						// if (answers != null) {
+						delegator.removeByAnd("AnswerMaster",
+										UtilMisc.toMap("examId", input.get("examId"), "partyId", value.getString("partyId")));
+						// }
+						return ServiceUtil.returnSuccess("submited");
+					}
+					return ServiceUtil.returnError("not submitted party perfornmance");
+
 				}
-				return ServiceUtil.returnSuccess("submited");
 
 			} catch (GenericEntityException e) {
 				// TODO Auto-generated catch block
@@ -401,9 +424,10 @@ public class UserService {
 			return ServiceUtil.returnError("in service delegator is null");
 		} else {
 			try {
+
 				GenericValue value = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId"))
 								.queryFirst();
-				List<GenericValue> values = EntityQuery.use(delegator).from("PartyPerformance").where("exmId", input.get("examId"))
+				List<GenericValue> values = EntityQuery.use(delegator).from("PartyPerformance").where("examId", input.get("examId"))
 								.where("partyId", value.getString("partyId")).queryList();
 				if (values.isEmpty()) {
 					return ServiceUtil.returnError("no result found");
@@ -432,9 +456,8 @@ public class UserService {
 				return ServiceUtil.returnError("exam not found");
 
 			}
-
-			double examPassPercentage = exam.getDouble("passPercentage");
-			int totalQuestion = exam.getInteger("noOfQuestions");
+			long totalQuestion = exam.getLong("noOfQuestions");
+			long examPassPercentage = exam.getLong("passPercentage");
 
 			List<GenericValue> list = EntityQuery.use(delegator).from("QuestionAnswerView").queryList();
 
@@ -488,6 +511,40 @@ public class UserService {
 			return ServiceUtil.returnError("exam not submitted");
 		}
 
+	}
+
+	public Map<String, Object> getUserReport(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+
+		try {
+			// Validate input
+			String userLoginId = (String) input.get("userLoginId");
+			if (userLoginId == null) {
+				return ServiceUtil.returnError("userLoginId is required");
+			}
+
+			// Fetch user
+			GenericValue userLogin = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", userLoginId).queryFirst();
+
+			if (userLogin == null) {
+				return ServiceUtil.returnError("User not found");
+			}
+
+			// Fetch report data
+			List<GenericValue> values = EntityQuery.use(delegator).from("PartyPerformance").where("partyId", userLogin.getString("partyId"))
+							.queryList();
+			if (values != null && !values.isEmpty()) {
+				Map<String, Object> result = ServiceUtil.returnSuccess();
+				result.put("data", values);
+				return result;
+			}
+
+			return ServiceUtil.returnError("No data found");
+
+		} catch (GenericEntityException e) {
+			e.printStackTrace();
+			return ServiceUtil.returnError("Exception: " + e.getMessage());
+		}
 	}
 
 }

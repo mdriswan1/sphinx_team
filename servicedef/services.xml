@@ -110,6 +110,7 @@ under the License.
          auth="false">
 
     <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
+    <attribute name="userId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
 
@@ -120,6 +121,7 @@ under the License.
          invoke="getAllTopics"
          auth="false">
       <attribute name="topic" type="List" mode="OUT" optional="false"/>
+      <attribute name="userId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
 
@@ -129,7 +131,7 @@ under the License.
          invoke="deleteById"
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
-
+		<attribute name="userId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
 
@@ -138,7 +140,7 @@ under the License.
          invoke="delete"
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
-
+	<attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
 
@@ -148,7 +150,7 @@ under the License.
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
             <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
-
+			 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
 <service name="updateTopicOwn" engine="java"
@@ -157,7 +159,7 @@ under the License.
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
             <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
-
+		<attribute name="userId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
 
 
@@ -449,20 +451,20 @@ under the License.
     <attribute name="totalQuestions" type="java.lang.Integer" mode="OUT" optional="true"/>
      
 </service>
-<service name="assignTempoary" engine="java" location="com.vastpro.service.UserService" invoke="assignTempoary" auth="false">
+<service name="partyExamCreate" engine="java" location="com.vastpro.service.UserService" invoke="partyExamCreate" auth="false">
 	    
-     <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="partyId" type="java.util.List" mode="IN" optional="false"/>
-    <attribute name="noOfAttempts"    type="java.lang.String" mode="IN" optional="false"/>
-    <attribute name="timeoutDays" type="String" mode="IN" optional="false"/>
+      <attribute name="noOfAttempts"    type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="timeoutDays" type="String" mode="IN" optional="false"/>
       <attribute name="userLoginId" mode="IN" type="String" optional="false"></attribute>
       <attribute name="allowedAttempts" type="java.lang.String" mode="IN" optional="false"/>
       
 </service>
 
-<service engine="entity-auto" name="autoassignTempoary" invoke="create" default-entity-name="AssignExamTempoary">
+<service engine="entity-auto" name="autoPartyExamCreate" invoke="create" default-entity-name="PartyExamRelationship">
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
-	<auto-attributes mode="IN" include="nonpk" optional="false"></auto-attributes>
+	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 </service>
 <service engine="java" name="getAssignedUser" location="com.vastpro.service.UserService" invoke="getAssignedUser">
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
@@ -520,11 +522,12 @@ under the License.
 <service engine="java" name="asssignTempoaryUpdate" location="com.vastpro.service.UserService" invoke="asssignTempoaryUpdate">
 	<attribute name="examId" mode="IN" type="String" optional="false"/>
 	<attribute name="partyId" mode="IN" type="String" optional="false"/>
-	<attribute name="noOfAttempts" mode="IN" type="String" optional="false"/>
+	
 	<attribute name="timeoutDays" mode="IN" type="String" optional="false"/>
 	<attribute name="allowedAttempts" mode="IN" type="String" optional="false"/>
 </service>
-<service engine="entity-auto" name="autoasssignTempoaryUpdate" invoke="update" default-entity-name="AssignExamTempoary">
+
+<service engine="entity-auto" name="autoasssignTempoaryUpdate" invoke="update" default-entity-name="PartyExamRelationship">
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	
@@ -611,18 +614,30 @@ under the License.
          auth="false">
       <attribute name="topicId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="topicName" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
 
 </service>
 
+
+<!-- checkotp -->
 
 <service engine="java" name="finalSubmit" location="com.vastpro.service.UserService" invoke="finalSubmit">
 	<attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="userLoginId" type="java.lang.String" mode="IN" optional="false"/>
 </service>
+
 <service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="checkOtpService" auth="false">
 	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		<attribute name="otpIn" type="java.lang.String" mode="IN" optional="false"/>
+</service>
+
+<!-- validateExam -->
+
+<service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="validateExam" auth="false">
+	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
+		
 </service>
 
 
@@ -636,9 +651,10 @@ under the License.
     <attribute name="partyId" type="String" mode="IN"/>  
 </service>
 
+
 <service engine="java" name="examResult" location="com.vastpro.service.UserService" invoke="examResult">
-	<attribute name="examId" type="String" mode="IN"/>
-    <attribute name="userLoginId" type="String" mode="IN"/>  
+	<attribute name="examId" type="String" mode="IN" optional="false"/>
+    <attribute name="userLoginId" type="String" mode="IN" optional="false"/>  
     <attribute name="result" mode="OUT" type="List"></attribute>
 </service>
 <service engine="entity-auto" name="autoAnswerUpdate" invoke="update" default-entity-name="AnswerMaster">
@@ -646,10 +662,21 @@ under the License.
 	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 </service>
 <!-- validate exam -->
+
 <service engine="java" name="validateExam" location="com.vastpro.service.ExamService" invoke="validateExam" auth="false">
 	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		
+</service>
+
+<service engine="java" name="getUserReport" location="com.vastpro.service.UserService" invoke="getUserReport" auth="false">
+	 <attribute name="userLoginId" type="java.lang.String" mode="IN" optional="false"/>
+	 <attribute name="data" mode="OUT" type="List" optional="true"></attribute>
+</service>
+<service engine="entity-auto" name="autoAnswerMasterDelete" invoke="delete" default-entity-name="AnswerMaster">
+	<attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
+	 <attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
+	 <attribute name="questionId" type="java.lang.String" mode="IN" optional="true"/>
 </service>
 </services>
 
