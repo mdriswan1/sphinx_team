@@ -380,42 +380,36 @@ public class UserService {
 			try {
 				GenericValue value = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId"))
 								.queryFirst();
+
 				List<GenericValue> values = EntityQuery.use(delegator).from("AnswerMaster").where("exmId", input.get("examId"))
 								.where("partyId", value.getString("partyId")).queryList();
-				// for (GenericValue answer : values) {
-				// if (answer.getLong("isFlagged") == 0) {
-				// return ServiceUtil.returnError("must submit all answer");
-				// }
-				// }
 
 				long totalCount = EntityQuery.use(delegator).from("QuestionBankMasterB").where("examId", input.get("examId")).queryCount();
-				int total = values.size();
-				if (total != totalCount) {
-					return ServiceUtil.returnError("must submit all answer");
-				} else {
-					input.put("partyId", value.getString("partyId"));
-					Map<String, Object> result = validateExam(context, input);
-					if (ServiceUtil.isSuccess(result)) {
-						// List<GenericValue> answers = EntityQuery.use(delegator).from("AnswerMaster")
-						// .where("examId", input.get("examId"), "partyId", value.getString("partyId")).queryList();
-						// if (answers != null) {
-						delegator.removeByAnd("AnswerMaster",
-										UtilMisc.toMap("examId", input.get("examId"), "partyId", value.getString("partyId")));
-						// }
-						return ServiceUtil.returnSuccess("submited");
-					}
-					return ServiceUtil.returnError("not submitted party perfornmance");
 
+				int total = values.size();
+				long skipped = totalCount - total;
+
+				input.put("partyId", value.getString("partyId"));
+
+				Map<String, Object> results = validateExam(context, input);
+
+				if (ServiceUtil.isSuccess(results)) {
+
+					delegator.removeByAnd("AnswerMaster",
+									UtilMisc.toMap("examId", input.get("examId"), "partyId", value.getString("partyId")));
+
+					Map<String, Object> result = ServiceUtil.returnSuccess("submited");
+					result.put("skipped", skipped);
+					return result;
 				}
 
+				return ServiceUtil.returnError("not submitted party perfornmance");
+
 			} catch (GenericEntityException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return ServiceUtil.returnError("exception" + e.getMessage());
-
 			}
 		}
-
 	}
 
 	public Map<String, Object> examResult(DispatchContext context, Map<String, Object> input) {
@@ -463,8 +457,8 @@ public class UserService {
 
 			long correctCount = list.stream().filter(gv -> gv.getString("answer").equals(gv.getString("submittedAnswer"))).count();
 			int attempted = list.size();
-
-			long wrongCount = attempted - correctCount;
+			long attendQuesCount = EntityQuery.use(delegator).from("AnswerMaster").where("examId", examId, "partyId", partyId).queryCount();
+			long wrongCount = attendQuesCount - correctCount;// 3 -1 n= 2
 
 			double percentage = 0;
 			if (totalQuestion > 0) {
@@ -488,6 +482,7 @@ public class UserService {
 			saveInput.put("totalCorrect", Long.valueOf(correctCount));
 			saveInput.put("totalWrong", Long.valueOf(wrongCount));
 			saveInput.put("userPassed", isPassed ? 1L : 0L);
+
 			saveInput.put("attemptNo", Long.valueOf(noOfAttempts));
 			saveInput.put("date", UtilDateTime.nowTimestamp());
 

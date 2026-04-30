@@ -620,6 +620,7 @@ under the License.
 <service engine="java" name="finalSubmit" location="com.vastpro.service.UserService" invoke="finalSubmit">
 	<attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="userLoginId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="skipped" mode="OUT" type="String" optional="false"></attribute>
 </service>
 
 <service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="checkOtpService" auth="false">

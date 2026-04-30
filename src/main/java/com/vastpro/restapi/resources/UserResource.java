@@ -645,7 +645,9 @@ public class UserResource {
 			try {
 				Map<String, Object> result = dispatcher.runSync("finalSubmit", input);
 				if (result.get("responseMessage").equals("success")) {
-					return Response.status(Status.OK).entity(UtilMisc.toMap("success", result.get("successMessage"))).build();
+					return Response.status(Status.OK)
+									.entity(UtilMisc.toMap("success", result.get("successMessage"), "skipped", result.get("skipped")))
+									.build();
 				}
 				return Response.status(Status.BAD_GATEWAY).entity(UtilMisc.toMap("error", result.get("errorMessage"))).build();
 
