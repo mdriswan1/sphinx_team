@@ -444,6 +444,7 @@ public class UserService {
 	// validate
 	public Map<String, Object> validateExam(DispatchContext context, Map<String, Object> input) {
 		Delegator delegator = context.getDelegator();
+		LocalDispatcher dispatcher = context.getDispatcher();
 		String examId = (String) input.get("examId");
 		String partyId = (String) input.get("partyId");
 
@@ -470,6 +471,11 @@ public class UserService {
 			}
 
 			boolean isPassed = percentage >= examPassPercentage;
+			GenericValue alreadyPresent = EntityQuery.use(delegator).from("PartyPerformance").where("examId", examId, "partyId", partyId)
+							.queryFirst();
+			if (alreadyPresent != null) {
+				dispatcher.runSync("autodeletePartyPerformance", alreadyPresent);
+			}
 
 			GenericValue partyvalue = EntityQuery.use(delegator).from("PartyExamRelationship").where("partyId", partyId, "examId", examId)
 							.queryOne();
@@ -504,7 +510,7 @@ public class UserService {
 
 			return result;
 
-		} catch (GenericEntityException e) {
+		} catch (GenericEntityException | GenericServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return ServiceUtil.returnError("exam not submitted");
