@@ -624,6 +624,7 @@ under the License.
 <service engine="java" name="finalSubmit" location="com.vastpro.service.UserService" invoke="finalSubmit">
 	<attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="userLoginId" type="java.lang.String" mode="IN" optional="false"/>
+      <attribute name="skipped" mode="OUT" type="String" optional="false"></attribute>
 </service>
 
 <service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="checkOtpService" auth="false">
@@ -634,12 +635,13 @@ under the License.
 
 <!-- validateExam -->
 
+<!-- this is comment for email 
 <service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="validateExam" auth="false">
 	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		
 </service>
-
+-->
 
 <!-- email -->
 <service engine="java" name="sendEmailToUser"
@@ -677,6 +679,11 @@ under the License.
 	<attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
 	 <attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
 	 <attribute name="questionId" type="java.lang.String" mode="IN" optional="true"/>
+</service>
+<service engine="entity-auto" name="autodeletePartyPerformance" invoke="delete" default-entity-name="PartyPerformance">
+	<attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
+	 <attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
+	 <attribute name="performanceId" mode="IN" type="java.lang.String" optional="false"></attribute>
 </service>
 </services>
 

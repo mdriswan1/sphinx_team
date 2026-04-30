@@ -341,39 +341,45 @@ public class ExamService {
 		String examId = (String) input.get("examId");
 		String partyId = (String) input.get("partyId");
 		Long otpIn = Long.parseLong((String) input.get("otpIn"));
-		try {
 
-			GenericValue value = EntityQuery.use(delegator).from("PartyExamRelationship").where("partyId", partyId, "examId", examId)
-							.queryOne();
+		try {
+			GenericValue userLogin = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", partyId).queryFirst();
+
+			GenericValue value = EntityQuery.use(delegator).from("PartyExamRelationship")
+							.where("partyId", userLogin.getString("partyId"), "examId", examId).queryOne();
 
 			if (value == null) {
 				return ServiceUtil.returnError("No record found");
 			}
 
+			Long allowedAttempts = value.getLong("allowedAttempts");
+			Long noOfAttempts = value.getLong("noOfAttempts");
+
+			allowedAttempts = (allowedAttempts == null) ? 0L : allowedAttempts;
+			noOfAttempts = (noOfAttempts == null) ? 0L : noOfAttempts;
+
+			if (allowedAttempts <= 0) {
+				return ServiceUtil.returnError("You have reached the maximum number of attempts for this exam.");
+			}
+
 			Long dbOtp = value.getLong("passwordChangesAuto");
+
 			if (dbOtp != null && dbOtp.equals(otpIn)) {
 
-				Long allowedAttempts = value.getLong("allowedAttempts");
-				Long noOfAttempts = value.getLong("noOfAttempts");
-
-				allowedAttempts = (allowedAttempts == null) ? 0L : allowedAttempts;
-				noOfAttempts = (noOfAttempts == null) ? 0L : noOfAttempts;
-
-				value.set("allowedAttempts", allowedAttempts - 1);
+				value.set("allowedAttempts", Math.max(0, allowedAttempts - 1));
 				value.set("noOfAttempts", noOfAttempts + 1);
 
 				value.store();
 
 				return ServiceUtil.returnSuccess("Successfully verified");
+			} else {
+				return ServiceUtil.returnError("Enter a valid password");
 			}
-			return ServiceUtil.returnError("enter the valid password");
 
 		} catch (GenericEntityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return ServiceUtil.returnError("error" + e.getMessage());
+			return ServiceUtil.returnError("Error: " + e.getMessage());
 		}
-
 	}
 
 	public Map<String, Object> validateExam(DispatchContext context, Map<String, Object> input) {

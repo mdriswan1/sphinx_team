@@ -7,7 +7,6 @@ import java.security.SecureRandom;
  */
 public class GeneratePssword {
 	final String CHARACTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !@#$%^&*()_";
-	final String NUMBER = "1234567890";
 
 	/**
 	 * Method is used to generate random password by using secure random
@@ -25,13 +24,7 @@ public class GeneratePssword {
 	}
 
 	public long generateOTP() {
-		StringBuilder builder = new StringBuilder();
 		SecureRandom random = new SecureRandom();
-		for (int i = 0; i < 7; i++) {
-			int ind = random.nextInt(NUMBER.length());
-			builder.append(NUMBER.charAt(ind));
-		}
-		return Long.parseLong(builder.toString());
+		return 100000 + random.nextInt(900000);
 	}
-
 }
