@@ -676,6 +676,11 @@ under the License.
 	 <attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
 	 <attribute name="questionId" type="java.lang.String" mode="IN" optional="true"/>
 </service>
+<service engine="entity-auto" name="autodeletePartyPerformance" invoke="delete" default-entity-name="PartyPerformance">
+	<attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
+	 <attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
+	 <attribute name="performanceId" mode="IN" type="java.lang.String" optional="false"></attribute>
+</service>
 </services>
 
 
