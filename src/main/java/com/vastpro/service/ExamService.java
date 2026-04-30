@@ -342,9 +342,9 @@ public class ExamService {
 		String partyId = (String) input.get("partyId");
 		Long otpIn = Long.parseLong((String) input.get("otpIn"));
 		try {
-
-			GenericValue value = EntityQuery.use(delegator).from("PartyExamRelationship").where("partyId", partyId, "examId", examId)
-							.queryOne();
+			GenericValue userLogin = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("partyId")).queryFirst();
+			GenericValue value = EntityQuery.use(delegator).from("PartyExamRelationship")
+							.where("partyId", userLogin.getString("partyId"), "examId", examId).queryOne();
 
 			if (value == null) {
 				return ServiceUtil.returnError("No record found");

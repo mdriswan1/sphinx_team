@@ -631,12 +631,13 @@ under the License.
 
 <!-- validateExam -->
 
+<!-- this is comment for email 
 <service engine="java" name="checkOtp" location="com.vastpro.service.ExamService" invoke="validateExam" auth="false">
 	 <attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
       <attribute name="examId" type="java.lang.String" mode="IN" optional="false"/>
 		
 </service>
-
+-->
 
 <!-- email -->
 <service engine="java" name="sendEmailToUser"
