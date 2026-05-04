@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
@@ -23,11 +25,12 @@ public class SiginupService {
 
 		Delegator delegator = context.getDelegator();
 		LocalDispatcher dispatcher = context.getDispatcher();
-		try {
 
+		try {
+			String password = null;
 			String role = (String) input.get("role");
 			Map<String, Object> partyTable = new HashMap<>();
-			String partyId = "SPX_UL_" + delegator.getNextSeqId("Party");
+			String partyId = delegator.getNextSeqId("Party");
 			partyTable.put("partyId", partyId);
 			partyTable.put("partyTypeId", "PERSON");
 			partyTable.put("statusId", "PARTY_ENABLED");
@@ -45,9 +48,10 @@ public class SiginupService {
 				String pass = (String) input.get("password");
 				// String password = HashPassword.hashPassword((String) input.get("password"));
 				userLogin.put("currentPassword", pass);
-			} else if (role.equals("SPX_USER")) {
-				String password = new GeneratePssword().generatePassword();
+			} else if (role.equals("SPX_EXAMINEE")) {
+				password = new GeneratePssword().generatePassword();
 				System.out.println("++++++++" + password + "+++++++++");
+
 				// password = HashPassword.hashPassword(password);
 				userLogin.put("currentPassword", password);
 				userLogin.put("currentPasswordVerify", password);
@@ -56,16 +60,22 @@ public class SiginupService {
 			userLogin.put("partyId", partyId);
 			userLogin.put("enabled", "Y");
 			userLogin.put("requirePasswordChange", "N");
-			userLogin.put("userLogin", input.get("userLogin"));
+
+			// shortcut code
+			GenericValue userLoginInfo = delegator.findOne("UserLogin", UtilMisc.toMap("userLoginId", input.get("userLoginId")), false);
+
+			userLogin.put("userLogin", userLoginInfo);
+
+			//
 			Map<String, Object> result3 = dispatcher.runSync("createUserLogin", userLogin);
 
 			GenericValue secGroup = delegator.makeValue("UserLoginSecurityGroup");
 			secGroup.set("userLoginId", input.get("userName"));
-			secGroup.set("groupId", "SPHINX_ADMIN_GROUP");
+			secGroup.set("groupId", "SPHINX_ADMIN");
 			secGroup.set("fromDate", Timestamp.valueOf(LocalDateTime.now()));
 			delegator.create(secGroup);
 			//
-			if (!("SPX_USER".equals(role))) {
+			if (!("SPX_EXAMINEE".equals(role))) {
 				GenericValue set = delegator.makeValue("UserLoginSecurityGroup");
 				secGroup.set("userLoginId", input.get("userName"));
 				secGroup.set("groupId", "PARTYADMIN");
@@ -119,6 +129,13 @@ public class SiginupService {
 			partyContactMechTele.put("partyId", partyId);
 			partyContactMechTele.put("fromDate", getDateTime());
 			Map<String, Object> result9 = dispatcher.runSync("createPartyContactMechTele", partyContactMechTele);
+			GenericValue naRole = EntityQuery.use(delegator).from("PartyRole").where("partyId", partyId, "roleTypeId", "_NA_").queryOne();
+			if (naRole != null) {
+				naRole.remove();
+			}
+
+			Map<String, Object> res = dispatcher.runSync("sendLoginCredentialsEmail",
+							UtilMisc.toMap("userLoginId", userLogin.get("userLoginId"), "password", password, "email", input.get("email")));
 
 			return ServiceUtil.returnSuccess("Employee created successfully");
 

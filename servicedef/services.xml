@@ -48,8 +48,8 @@ under the License.
     <attribute name="email" type="String" mode="IN" optional="false"/>
     <attribute name="phNo" type="String" mode="IN" optional="true"/>
     <attribute name="role" type="String" mode="IN" optional="false"></attribute>
-
-
+	<attribute name="userLoginId" type="String" mode="IN" optional="true"></attribute>
+	
 </service>
 
 <service engine="interface" name="examAttribute" location="" invoke="">
@@ -179,7 +179,7 @@ under the License.
 	</service> 	-->
 
 	
-	<service engine="entity-auto" name="createParty" invoke="create" default-entity-name="Party">
+	 <service engine="entity-auto" name="createParty" invoke="create" default-entity-name="Party">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
@@ -194,11 +194,11 @@ under the License.
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
 	
-
-<!-- 	<service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
+<!--
+	<service engine="entity-auto" name="createUserLogin" invoke="create" default-entity-name="UserLogin">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
-	</service>  -->
+	</service> -->
 	
 	<service engine="entity-auto" name="createContactMech" invoke="create" default-entity-name="ContactMech">
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
@@ -224,7 +224,7 @@ under the License.
 			<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
 			<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
 	</service>
-	 
+ 	 
 	
 	<service name="insertExamDetails" engine="java"
          location="com.vastpro.service.ExamService"
@@ -684,6 +684,18 @@ under the License.
 	<attribute name="partyId" type="java.lang.String" mode="IN" optional="false"/>
 	 <attribute name="examId" mode="IN" type="java.lang.String" optional="false"></attribute>
 	 <attribute name="performanceId" mode="IN" type="java.lang.String" optional="false"></attribute>
+</service>
+
+
+
+<service engine="java" name="sendLoginCredentialsEmail"
+    location="com.vastpro.service.SendEmailService"
+    invoke="sendLoginCredentialsEmail" auth="false">
+
+    <attribute name="password" type="String" mode="IN"/>
+    <attribute name="userLoginId" type="String" mode="IN"/>  
+   <attribute name="email" type="String" mode="IN"/>  
+    
 </service>
 </services>
 

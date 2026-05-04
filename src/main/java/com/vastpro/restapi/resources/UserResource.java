@@ -297,7 +297,9 @@ public class UserResource {
 		input.put("userName", request.getAttribute("userName"));
 		input.put("email", request.getAttribute("email"));
 		input.put("role", request.getAttribute("role"));
-		input.put("userLogin", userLogin);
+		// input.put("userLogin", userLogin);
+		input.put("userLoginId", request.getAttribute("userLoginId"));
+
 		try {
 			Map<String, Object> result = dispatcher.runSync("regService", input);
 			if (result.get("responseMessage").equals("success")) {

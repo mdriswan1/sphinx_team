@@ -6,7 +6,7 @@ import java.security.SecureRandom;
  * This class is used auto generate password
  */
 public class GeneratePssword {
-	final String CHARACTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !@#$%^&*()_";
+	final String CHARACTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_";
 
 	/**
 	 * Method is used to generate random password by using secure random

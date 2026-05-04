@@ -80,4 +80,47 @@ public class SendEmailService {
 			return ServiceUtil.returnError(e.getMessage());
 		}
 	}
+
+	public static Map<String, Object> sendLoginCredentialsEmail(DispatchContext dctx, Map<String, Object> context) {
+
+		Delegator delegator = dctx.getDelegator();
+		LocalDispatcher dispatcher = dctx.getDispatcher();
+
+		try {
+			String username = (String) context.get("userLoginId");
+			String password = (String) context.get("password");
+
+			if (username == null) {
+				return ServiceUtil.returnError("user name is required");
+			}
+
+			if (password == null) {
+				return ServiceUtil.returnError("password is required");
+			}
+
+			Map<String, Object> emailContext = new HashMap<>();
+			emailContext.put("subject", "Examinee Account Created - Login Details");
+
+			String emailBody = "Dear Candidate,\n\n" + "An examinee account has been successfully created for you.\n"
+							+ "You can use the following credentials to log in to the Sphinx application:\n\n" + "User Login ID: %s\n"
+							+ "Password: %s\n\n" + "Best regards,\n" + "Sphinx Administrator";
+
+			emailContext.put("contentType", "text/plain");
+
+			emailContext.put("sendTo", (String) context.get("email"));
+			emailContext.put("body", String.format(emailBody, (String) context.get("userLoginId"), (String) context.get("password")));
+
+			try {
+				dispatcher.runAsync("sendMail", emailContext);
+			} catch (GenericServiceException e) {
+				e.printStackTrace();
+				return ServiceUtil.returnError("Failed To Send an login credentials" + e.getMessage());
+			}
+
+			return ServiceUtil.returnSuccess("Mail Notificaiton Initiated! The Users will recieve the Email shortly!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ServiceUtil.returnError(e.getMessage());
+		}
+	}
 }
