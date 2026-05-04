@@ -126,8 +126,7 @@ public class UserResource {
 				return Response.status(HttpStatus.SC_OK).entity(UtilMisc.toMap("success", "Signed In Successfully!", "result", input))
 								.build();
 			} else {
-				return Response.status(HttpStatus.SC_BAD_REQUEST)
-								.entity(ServiceUtil.returnError((String) request.getAttribute("_ERROR_MESSAGE_"))).build();
+				return Response.status(HttpStatus.SC_BAD_REQUEST).entity(ServiceUtil.returnError("Invalid credentials")).build();
 			}
 
 			// Map<String, Object> result = dispatcher.runSync("signIn", input);

@@ -229,8 +229,8 @@ public class QuestionService {
 			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", (String) context.get("userLoginId"))
 							.queryFirst();
 
-			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster")
-							.where("topicId", topicId, "partyId", partyId.getString("partyId")).orderBy("-lastUpdatedStamp").queryList();
+			List<GenericValue> questions = EntityQuery.use(delegator).from("QuestionMaster").where("topicId", topicId)
+							.orderBy("-lastUpdatedStamp").queryList();
 			List<Map<String, Object>> questionList = new ArrayList<>();
 
 			for (GenericValue ques : questions) {
