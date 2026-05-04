@@ -303,7 +303,8 @@ public class UserResource {
 		try {
 			Map<String, Object> result = dispatcher.runSync("regService", input);
 			if (result.get("responseMessage").equals("success")) {
-				return Response.status(Status.OK).entity(UtilMisc.toMap("sucess", result.get("responseMessage"))).build();
+				return Response.status(Status.OK).entity(UtilMisc.toMap("sucess", "User created. Credentials sent to registered email."))
+								.build();
 			} else {
 				return Response.status(Status.NOT_MODIFIED).entity(UtilMisc.toMap("success", result.get("responseMessage"))).build();
 			}
