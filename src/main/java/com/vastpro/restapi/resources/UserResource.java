@@ -150,11 +150,9 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response signup(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-		HttpSession session = request.getSession(false);
-		GenericValue userLogin = null;
-		if (UtilValidate.isNotEmpty(session)) {
-			userLogin = (GenericValue) session.getAttribute("userLogin");
-		}
+
+		String userLogin = (String) request.getAttribute("userLoginId");
+
 		Map<String, Object> user = new HashMap<String, Object>();
 		user.put("userName", request.getAttribute("userName"));
 		user.put("firstName", request.getAttribute("firstName"));
@@ -163,7 +161,7 @@ public class UserResource {
 		user.put("email", request.getAttribute("email"));
 		user.put("password", request.getAttribute("password"));
 		user.put("role", request.getAttribute("role"));
-		user.put("userLogin", userLogin);
+		user.put("userLoginId", userLogin);
 		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
 
 		if (dispatcher == null) {

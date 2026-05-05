@@ -45,9 +45,10 @@ public class SiginupService {
 			Map<String, Object> userLogin = new HashMap<>();
 			userLogin.put("userLoginId", input.get("userName"));
 			if (role.equals("SPX_ADMIN")) {
-				String pass = (String) input.get("password");
+				password = (String) input.get("password");
 				// String password = HashPassword.hashPassword((String) input.get("password"));
-				userLogin.put("currentPassword", pass);
+				userLogin.put("currentPassword", password);
+				userLogin.put("currentPasswordVerify", password);
 			} else if (role.equals("SPX_EXAMINEE")) {
 				password = new GeneratePssword().generatePassword();
 				System.out.println("++++++++" + password + "+++++++++");
