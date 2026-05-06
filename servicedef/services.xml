@@ -657,7 +657,10 @@ under the License.
 <service engine="java" name="examResult" location="com.vastpro.service.UserService" invoke="examResult">
 	<attribute name="examId" type="String" mode="IN" optional="false"/>
     <attribute name="userLoginId" type="String" mode="IN" optional="false"/>  
-    <attribute name="result" mode="OUT" type="List"></attribute>
+    <attribute name="result" mode="OUT" type="Map"></attribute>
+    <attribute name="name" type="String" mode="OUT" optional="false"/>  
+
+    
 </service>
 <service engine="entity-auto" name="autoAnswerUpdate" invoke="update" default-entity-name="AnswerMaster">
 	<auto-attributes mode="IN" include="pk" optional="false" ></auto-attributes>
