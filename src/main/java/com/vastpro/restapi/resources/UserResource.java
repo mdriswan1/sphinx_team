@@ -691,7 +691,8 @@ public class UserResource {
 			String userLoginId = (String) request.getAttribute("userLoginId");
 			Map<String, Object> result = dispatcher.runSync("examResult", UtilMisc.toMap("examId", examId, "userLoginId", userLoginId));
 			if (result.get("responseMessage").equals("success")) {
-				return Response.status(Status.OK).entity(UtilMisc.toMap("result", result.get("result"))).build();
+				return Response.status(Status.OK).entity(UtilMisc.toMap("result", result.get("result"), "name", result.get("name")))
+								.build();
 			} else {
 				return Response.status(Status.NO_CONTENT).entity(UtilMisc.toMap("error", "not found data")).build();
 			}

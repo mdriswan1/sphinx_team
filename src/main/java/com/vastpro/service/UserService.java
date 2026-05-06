@@ -426,15 +426,19 @@ public class UserService {
 								.queryFirst();
 				GenericValue values = EntityQuery.use(delegator).from("PartyPerformanceAndExam")
 								.where("examId", input.get("examId"), "partyId", value.getString("partyId")).orderBy("-date") // descending
-																																// order
-																																// (latest
-																																// first)
 								.queryFirst(); // get only the first (latest) record
+				GenericValue name = EntityQuery.use(delegator).from("Person").where("partyId", value.getString("partyId")).queryFirst();
+				if (name.isEmpty()) {
+					return ServiceUtil.returnError("no result found");
+				}
+				String userName = name.getString("firstName") + " " + name.getString("lastName");
+
 				if (values.isEmpty()) {
 					return ServiceUtil.returnError("no result found");
 				}
 				Map<String, Object> result = ServiceUtil.returnSuccess("success");
 				result.put("result", values);
+				result.put("name", userName.toUpperCase());
 				return result;
 			} catch (GenericEntityException e) {
 				e.printStackTrace();
