@@ -521,6 +521,18 @@ under the License.
     
  
 </view-entity>
+<view-entity entity-name="UserAdmin" package-name="in.vastpro.sphinx">
+	 <member-entity entity-alias="P" entity-name="Party"/>
+    <member-entity entity-alias="UL" entity-name="UserLogin"/>
+    
+    <alias  entity-alias="UL" name="userLoginId" field="userLoginId"></alias>
+    <alias entity-alias="P" name="createdByUserLogin" field="createdByUserLogin"></alias>
+    <alias entity-alias="UL" name="partyId" field="partyId"></alias>
+
+     <view-link entity-alias="UL" rel-entity-alias="P" rel-optional="true">
+        <key-map field-name="partyId" rel-field-name="partyId"/>
+    </view-link>
+</view-entity>
  
 
 </entitymodel>

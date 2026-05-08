@@ -25,12 +25,14 @@ import com.vastpro.utility.GeneratePssword;
 
 public class UserService {
 
-	public Map<String, Object> getAllUser(DispatchContext context, Map<String, Object> input) {
+	public Map<String, Object> getAllNonAssiedUsers(DispatchContext context, Map<String, Object> input) {
 		Delegator delegator = context.getDelegator();
 		List<GenericValue> filteredUsers = new ArrayList<>();
 		Map<String, Object> result = ServiceUtil.returnSuccess();
 		try {
-			List<GenericValue> allUser = delegator.findAll("UserLogin", false);
+			List<GenericValue> allUser = EntityQuery.use(delegator).from("UserAdmin")
+							.where("createdByUserLogin", input.get("createdByUserLogin")).queryList();
+			// List<GenericValue> allUser = delegator.findAll("UserLogin", false);
 
 			for (GenericValue user : allUser) {
 				String partyId = user.getString("partyId");
@@ -55,6 +57,7 @@ public class UserService {
 					}
 
 				}
+
 			}
 
 			result.put("allUser", filteredUsers);
@@ -62,6 +65,22 @@ public class UserService {
 		} catch (GenericEntityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return ServiceUtil.returnError("it is exception" + e.getMessage());
+		}
+
+	}
+
+	public Map<String, Object> getAllUsers(DispatchContext context, Map<String, Object> input) {
+		Delegator delegator = context.getDelegator();
+		List<GenericValue> filteredUsers = new ArrayList<>();
+		Map<String, Object> result = ServiceUtil.returnSuccess();
+		try {
+			List<GenericValue> allUser = EntityQuery.use(delegator).from("UserAdmin")
+							.where("createdByUserLogin", input.get("createdByUserLogin")).queryList();
+
+			result.put("allUser", allUser);
+			return result;
+		} catch (GenericEntityException e) {
 			return ServiceUtil.returnError("it is exception" + e.getMessage());
 		}
 
