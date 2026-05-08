@@ -33,6 +33,7 @@ public class SiginupService {
 			String partyId = delegator.getNextSeqId("Party");
 			partyTable.put("partyId", partyId);
 			partyTable.put("partyTypeId", "PERSON");
+			partyTable.put("createdByUserLogin", input.get("userLoginId"));
 			partyTable.put("statusId", "PARTY_ENABLED");
 			Map<String, Object> result1 = dispatcher.runSync("createParty", partyTable);
 

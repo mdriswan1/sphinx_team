@@ -1,6 +1,7 @@
 package com.vastpro.service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ public class ExamService {
 		try {
 			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", input.get("userLoginId")).queryFirst();
 			List<GenericValue> allExam = EntityQuery.use(delegator).from("AdminPartyExamRel").where("partyId", partyId.get("partyId"))
-							.queryList();
+							.orderBy("-lastUpdatedStamp").queryList();
 			if (allExam == null || allExam.isEmpty()) {
 				return ServiceUtil.returnError("exam not there");
 			}
@@ -33,6 +34,19 @@ public class ExamService {
 								.queryFirst();
 				value.add(examMaster);
 			}
+			value.sort((a, b) -> {
+				Timestamp t1 = a.getTimestamp("lastUpdatedStamp");
+				Timestamp t2 = b.getTimestamp("lastUpdatedStamp");
+
+				if (t1 == null && t2 == null)
+					return 0;
+				if (t1 == null)
+					return 1;
+				if (t2 == null)
+					return -1;
+
+				return t2.compareTo(t1); // latest first
+			});
 			Map<String, Object> result = ServiceUtil.returnSuccess();
 			result.put("data", value);
 			return result;
