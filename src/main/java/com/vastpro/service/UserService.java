@@ -72,13 +72,37 @@ public class UserService {
 
 	public Map<String, Object> getAllUsers(DispatchContext context, Map<String, Object> input) {
 		Delegator delegator = context.getDelegator();
-		List<GenericValue> filteredUsers = new ArrayList<>();
+
 		Map<String, Object> result = ServiceUtil.returnSuccess();
+
 		try {
 			List<GenericValue> allUser = EntityQuery.use(delegator).from("UserAdmin")
 							.where("createdByUserLogin", input.get("createdByUserLogin")).queryList();
 
-			result.put("allUser", allUser);
+			List<Map<String, Object>> all = new ArrayList<>();
+			for (GenericValue value : allUser) {
+
+				Map<String, Object> newMap = new HashMap<>();
+
+				newMap.put("userLoginId", value.get("userLoginId"));
+				newMap.put("partyId", value.get("partyId"));
+
+				GenericValue name = EntityQuery.use(delegator).from("Person").where("partyId", value.getString("partyId")).queryFirst();
+
+				if (name != null) {
+
+					String firstName = name.getString("firstName");
+					String lastName = name.getString("lastName");
+
+					String userName = (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+
+					newMap.put("userName", userName.trim());
+				}
+
+				all.add(newMap);
+			}
+
+			result.put("allUser", all);
 			return result;
 		} catch (GenericEntityException e) {
 			return ServiceUtil.returnError("it is exception" + e.getMessage());
