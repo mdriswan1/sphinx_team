@@ -31,6 +31,7 @@ public class ExamService {
 			for (GenericValue exam : allExam) {
 				GenericValue examMaster = EntityQuery.use(delegator).from("ExamMaster").where("examId", exam.getString("examId"))
 								.queryFirst();
+
 				value.add(examMaster);
 			}
 			Map<String, Object> result = ServiceUtil.returnSuccess();

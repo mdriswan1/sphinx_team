@@ -787,4 +787,5 @@ public class UserResource {
 							.entity(UtilMisc.toMap("error", "Unexpected error occurred, try again later")).build();
 		}
 	}
+
 }
