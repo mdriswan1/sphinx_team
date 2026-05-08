@@ -40,7 +40,7 @@ under the License.
      <!-- This entity holds exams & their information -->
 	<entity entity-name="ExamMaster" package-name="in.vastpro.sphinx">
 		<field name="examId" type="id"></field>
-		<field name="examName" type="id"></field>		
+		<field name="examName" type="description"></field>		
 		<field name="description" type="description"></field>
 		<field name="noOfQuestions" type="numeric" not-null="true"></field>
 		<field name="duration" type="numeric" not-null="true"></field>
