@@ -190,6 +190,37 @@ public class UserResource {
 	 * Method is used to get all users
 	 */
 	@POST
+	@Path("/getAllPartyUsers")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAllUsers(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		if (dispatcher == null) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(UtilMisc.toMap("error", "Dispatcher not found")).build();
+		}
+		try {
+			Map<String, Object> input = new HashMap<>();
+			input.put("createdByUserLogin", request.getAttribute("createdByUserLogin"));
+			Map<String, Object> result;
+			result = dispatcher.runSync("getAllUsers", input);
+			if (result.get("responseMessage").equals("success")) {
+				List<GenericValue> users = (List<GenericValue>) result.get("allUser");
+				result.put("allUser", users);
+				return Response.status(Status.OK).entity(result).build();
+			}
+			return Response.status(Status.NO_CONTENT).entity(UtilMisc.toMap("error", "no data")).build();
+
+		} catch (GenericServiceException e) {
+
+			return Response.status(Status.INTERNAL_SERVER_ERROR)
+							.entity(UtilMisc.toMap("error", "Unexpected error occured, try again after sometime!")).build();
+		}
+	}
+
+	/**
+	 * Method is used to get all users
+	 */
+	@POST
 	@Path("/getAllUser")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -205,12 +236,13 @@ public class UserResource {
 			try {
 				Map<String, Object> input = new HashMap<>();
 				input.put("examId", request.getAttribute("examId"));
+				input.put("createdByUserLogin", request.getAttribute("createdByUserLogin"));
 				String serviceType = (String) request.getAttribute("servicetype");
 				Map<String, Object> result;
 				if (serviceType.equals("assigned")) {
 					result = dispatcher.runSync("getAssignedUser", input);
 				} else {
-					result = dispatcher.runSync("getAllUser", input);
+					result = dispatcher.runSync("getAllNonAssiedUsers", input);
 
 				}
 

@@ -389,8 +389,14 @@ under the License.
 	</service>
 
 
-	<service name="getAllUser" engine="java" location="com.vastpro.service.UserService" invoke="getAllUser" auth="false">
+	<service name="getAllNonAssiedUsers" engine="java" location="com.vastpro.service.UserService" invoke="getAllNonAssiedUsers" auth="false">
+		<attribute name="createdByUserLogin" mode="IN" type="String"></attribute>
 		<attribute name="examId" mode="IN" type="String"></attribute>
+		<attribute name="allUser" mode="OUT" type="List"></attribute>
+	</service>
+	
+	<service name="getAllUsers" engine="java" location="com.vastpro.service.UserService" invoke="getAllUsers" auth="false">
+		<attribute name="createdByUserLogin" mode="IN" type="String"></attribute>
 		<attribute name="allUser" mode="OUT" type="List"></attribute>
 	</service>
 	
