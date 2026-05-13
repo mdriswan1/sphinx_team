@@ -141,6 +141,10 @@ public class TopicResource {
 			input.put("topicName", request.getAttribute("topicName"));
 			input.put("userId", request.getAttribute("userLoginId"));
 			Map<String, Object> result = dispatcher.runSync("updateTopicOwn", input);
+			if (ServiceUtil.isError(result)) {
+				return Response.status(404).entity(Map.of("error", result.get("errorMessage"))).build();
+			}
+
 			return Response.ok(result).build();
 		} catch (Exception e) {
 			e.printStackTrace();

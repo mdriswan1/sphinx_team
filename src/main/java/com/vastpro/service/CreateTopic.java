@@ -149,9 +149,17 @@ public class CreateTopic {
 			if (topicName == null || topicId == null) {
 				return ServiceUtil.returnError("field cannot be empty");
 			}
+
 			GenericValue updateTopicId = EntityQuery.use(delegator).from("TopicMaster").where("topicId", topicId).queryOne();
 			String userId = (String) input.get("userId");
 			GenericValue partyId = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", userId).queryFirst();
+
+			GenericValue existingTopic = EntityQuery.use(delegator).from("TopicMaster")
+							.where("topicName", topicName, "partyId", partyId.getString("partyId")).queryFirst();
+
+			if (existingTopic != null) {
+				return ServiceUtil.returnError("Topic already exists. Try another name.");
+			}
 
 			if (updateTopicId == null) {
 				return ServiceUtil.returnError("Topic with Id" + topicId + " not found");
